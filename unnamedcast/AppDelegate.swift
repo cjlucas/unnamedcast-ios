@@ -19,15 +19,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         let realm = try! Realm()
-        
+
         let ids = [
+            "56ad84f895050453cf55f675",
+            "56aa862595050453cf550aac",
             "56aa637c95050453cf54c19c",
             "56aa6b5095050453cf54d444",
             "56aa47ae95050453cf545aa6",
             "56aa65ac95050453cf54c6f0",
             "56aa784b95050453cf54efd3",
         ]
-       
+
         for id in ids {
             Alamofire.request(.GET, "http://192.168.1.19:8081/api/feeds/\(id)").responseData { resp in
                 let json = JSON(data: resp.data!)
@@ -37,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
         }
-        
+
         // Override point for customization after application launch.
         return true
     }
@@ -66,4 +68,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 }
-

@@ -36,7 +36,7 @@ extension Request {
     }
 
     /**
-        A closure used to validate a request that takes a URL request and URL response, and returns whether the 
+        A closure used to validate a request that takes a URL request and URL response, and returns whether the
         request was valid.
     */
     public typealias Validation = (NSURLRequest?, NSHTTPURLResponse) -> ValidationResult
@@ -54,8 +54,7 @@ extension Request {
         delegate.queue.addOperationWithBlock {
             if let
                 response = self.response where self.delegate.error == nil,
-                case let .Failure(error) = validation(self.request, response)
-            {
+                case let .Failure(error) = validation(self.request, response) {
                 self.delegate.error = error
             }
         }
@@ -100,8 +99,7 @@ extension Request {
 
             if let
                 type = components.first,
-                subtype = components.last
-            {
+                subtype = components.last {
                 self.type = type
                 self.subtype = subtype
             } else {
@@ -134,8 +132,7 @@ extension Request {
 
             if let
                 responseContentType = response.MIMEType,
-                responseMIMEType = MIMEType(responseContentType)
-            {
+                responseMIMEType = MIMEType(responseContentType) {
                 for contentType in acceptableContentTypes {
                     if let acceptableMIMEType = MIMEType(contentType) where acceptableMIMEType.matches(responseMIMEType) {
                         return .Success
@@ -167,7 +164,7 @@ extension Request {
     // MARK: - Automatic
 
     /**
-        Validates that the response has a status code in the default acceptable range of 200...299, and that the content 
+        Validates that the response has a status code in the default acceptable range of 200...299, and that the content
         type matches any specified in the Accept HTTP header field.
 
         If validation fails, subsequent calls to response handlers will have an associated error.
@@ -178,7 +175,7 @@ extension Request {
         let acceptableStatusCodes: Range<Int> = 200..<300
         let acceptableContentTypes: [String] = {
             if let accept = request?.valueForHTTPHeaderField("Accept") {
-                return accept.componentsSeparatedByString(",")
+                return accept.componentsSeparatedByString(", ")
             }
 
             return ["*/*"]
