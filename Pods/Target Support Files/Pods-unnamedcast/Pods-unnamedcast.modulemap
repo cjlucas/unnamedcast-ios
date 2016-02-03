@@ -1,6 +1,0 @@
-framework module Pods_unnamedcast {
-  umbrella header "Pods-unnamedcast-umbrella.h"
-
-  export *
-  module * { export * }
-}
