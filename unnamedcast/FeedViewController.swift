@@ -9,46 +9,54 @@
 import Foundation
 import UIKit
 import RealmSwift
+import Alamofire
 
-class FeedViewController: UITableViewController {
+class FeedViewController: UICollectionViewController {
     var realm = try! Realm()
     var selectedFeedId: String?
     var token: NotificationToken?
-    
+
     override func viewDidAppear(animated: Bool) {
+        print("RAWR")
         token = realm.addNotificationBlock { notification, realm in
-            self.tableView.reloadData()
+            self.collectionView?.reloadData()
         }
 
         super.viewDidAppear(animated)
     }
-    
+
     override func viewDidDisappear(animated: Bool) {
         if let token = self.token {
             self.realm.removeNotification(token)
         }
-        
+
         super.viewDidDisappear(animated)
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let feeds = realm.objects(Feed)
-       
-        let cell = tableView.dequeueReusableCellWithIdentifier("Cell")!
-        cell.textLabel?.text = feeds[indexPath.row].title
+    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return realm.objects(Feed).count
+    }
+    
+    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        let feed = realm.objects(Feed)[indexPath.row]
+        
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("FeedCollectionViewCell", forIndexPath: indexPath) as! FeedCollectionViewCell
+//        cell.titleView.text = feed.title
+//        cell.detailView.text = feed.author
+        
+        Alamofire.request(.GET, feed.imageUrl).responseData { resp in
+            if let data = resp.data {
+                cell.imageView.image = UIImage(data: data)
+            }
+        }
         
         return cell
     }
     
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let feeds = realm.objects(Feed)
-        return feeds.count
-    }
-    
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         let feeds = realm.objects(Feed)
         selectedFeedId = feeds[indexPath.row].id
-        
+
         performSegueWithIdentifier("TheSegue", sender: self)
     }
 

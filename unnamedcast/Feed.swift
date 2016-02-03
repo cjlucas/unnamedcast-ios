@@ -16,19 +16,19 @@ class Feed: Object {
     dynamic var author: String = ""
     dynamic var imageUrl: String = ""
     let items = List<Item>()
-    
+
     override static func primaryKey() -> String? {
         return "id"
     }
-    
+
     convenience init(json: JSON) {
         self.init()
-        
+
         id = json["id"].stringValue
         title = json["title"].stringValue
         author = json["author"].stringValue
         imageUrl = json["image_url"].stringValue
-        
+
         for (_, item):(String, JSON) in json["items"] {
             items.append(Item(json: item))
         }
@@ -46,15 +46,20 @@ class Item: Object {
     dynamic var duration: Int = 0
     dynamic var size: Int = 0
     dynamic var pubDate: String = ""
+    dynamic var audioUrl: String = ""
     dynamic var imageUrl: String = ""
     
+    var feed: Feed {
+        return linkingObjects(Feed.self, forProperty: "items").first!
+    }
+
     override static func primaryKey() -> String? {
         return "guid"
     }
-    
+
     convenience init(json: JSON) {
         self.init()
-        
+
         guid = json["guid"].stringValue
         link = json["link"].stringValue
         title = json["title"].stringValue
@@ -63,6 +68,7 @@ class Item: Object {
         duration = json["duration"].intValue
         size = json["size"].intValue
         pubDate = json["publication_time"].stringValue
+        audioUrl = json["url"].stringValue
         imageUrl = json["image_url"].stringValue
     }
 }

@@ -7,11 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */; };
 		833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
+		83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475AC61C60490000F48D33 /* UpNextViewController.swift */; };
+		8349DA071C5DACE900C70153 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8349DA061C5DACE900C70153 /* MediaPlayer.framework */; };
 		83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83526AD91C5AF19B00C43845 /* Feed.swift */; };
+		837857C01C5C52400026959C /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
+		837857C21C5C52660026959C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 837857C11C5C52660026959C /* AVFoundation.framework */; };
+		837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
+		837857D31C5D93600026959C /* UIImageColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857D21C5D93600026959C /* UIImageColors.swift */; };
 		83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */; };
-		83E7256E1C5AEF0D00A0E8D4 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E7256D1C5AEF0D00A0E8D4 /* ViewController.swift */; };
 		83E725711C5AEF0D00A0E8D4 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */; };
 		83E725731C5AEF0D00A0E8D4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */; };
 		83E725761C5AEF0D00A0E8D4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 83E725741C5AEF0D00A0E8D4 /* LaunchScreen.storyboard */; };
@@ -41,12 +47,18 @@
 /* Begin PBXFileReference section */
 		00EF784EDACA05671A2529E3 /* Pods_unnamedcast.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_unnamedcast.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FF47A83A048E006D3B2733D /* Pods-unnamedcastTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-unnamedcastTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-unnamedcastTests/Pods-unnamedcastTests.debug.xcconfig"; sourceTree = "<group>"; };
+		830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCollectionViewCell.swift; sourceTree = "<group>"; };
 		833F1B101C5B01AE002CCB77 /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleFeedViewController.swift; sourceTree = "<group>"; };
+		83475AC61C60490000F48D33 /* UpNextViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpNextViewController.swift; sourceTree = "<group>"; };
+		8349DA061C5DACE900C70153 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		83526AD91C5AF19B00C43845 /* Feed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		837857BF1C5C52400026959C /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		837857C11C5C52660026959C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		837857D21C5D93600026959C /* UIImageColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageColors.swift; sourceTree = "<group>"; };
 		83E725681C5AEF0D00A0E8D4 /* unnamedcast.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = unnamedcast.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		83E7256D1C5AEF0D00A0E8D4 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		83E725701C5AEF0D00A0E8D4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		83E725751C5AEF0D00A0E8D4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -68,6 +80,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8349DA071C5DACE900C70153 /* MediaPlayer.framework in Frameworks */,
+				837857C21C5C52660026959C /* AVFoundation.framework in Frameworks */,
 				E50B2570D16F226989B4FEF9 /* Pods_unnamedcast.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -123,15 +137,19 @@
 		83E7256A1C5AEF0D00A0E8D4 /* unnamedcast */ = {
 			isa = PBXGroup;
 			children = (
+				837857D21C5D93600026959C /* UIImageColors.swift */,
+				837857C51C5D629B0026959C /* PlayerViewController.swift */,
 				83526AD81C5AF08300C43845 /* Models */,
 				83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */,
-				83E7256D1C5AEF0D00A0E8D4 /* ViewController.swift */,
 				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
 				83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */,
 				83E725741C5AEF0D00A0E8D4 /* LaunchScreen.storyboard */,
 				83E725771C5AEF0D00A0E8D4 /* Info.plist */,
 				833F1B101C5B01AE002CCB77 /* FeedViewController.swift */,
 				833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */,
+				830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */,
+				837857BF1C5C52400026959C /* Player.swift */,
+				83475AC61C60490000F48D33 /* UpNextViewController.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -157,6 +175,8 @@
 		CCAACF3A281A47F1104E9720 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8349DA061C5DACE900C70153 /* MediaPlayer.framework */,
+				837857C11C5C52660026959C /* AVFoundation.framework */,
 				00EF784EDACA05671A2529E3 /* Pods_unnamedcast.framework */,
 				B8C6C777846C849622EF9BD3 /* Pods_unnamedcastTests.framework */,
 			);
@@ -249,6 +269,11 @@
 					83E725671C5AEF0D00A0E8D4 = {
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = 4HV5RKTAF4;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
 					};
 					83E7257B1C5AEF0D00A0E8D4 = {
 						CreatedOnToolsVersion = 7.2;
@@ -405,9 +430,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				83E7256E1C5AEF0D00A0E8D4 /* ViewController.swift in Sources */,
+				837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */,
 				83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */,
+				837857D31C5D93600026959C /* UIImageColors.swift in Sources */,
+				83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */,
+				830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
+				837857C01C5C52400026959C /* Player.swift in Sources */,
 				83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,
 			);
@@ -555,6 +584,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = unnamedcast/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.chrisjlucas.unnamedcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -570,6 +600,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = unnamedcast/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.chrisjlucas.unnamedcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
