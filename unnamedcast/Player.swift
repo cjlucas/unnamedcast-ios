@@ -162,7 +162,11 @@ class Player {
     }
     
     func isPlaying() -> Bool {
-        return player.rate > 0 && player.error == nil
+        return player.rate > 0 && items.count > 0 && player.error == nil
+    }
+    
+    func isPaused() -> Bool {
+        return player.rate == 0 && items.count > 0 && player.error == nil
     }
     
     func play() {

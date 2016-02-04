@@ -36,7 +36,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     override func viewDidLoad() {
         guard let item = item else { fatalError("item not set") }
         
-        player.delegate = self
+//        player.delegate = self
         
         titleLabel.text = item.title
         authorLabel.text = item.author
@@ -68,6 +68,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
         super.viewDidAppear(animated)
         startUpdateUITimer()
         showArtworkView()
+        
 //        showVideoView()
     }
     
