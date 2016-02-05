@@ -63,19 +63,11 @@ class SingleFeedViewController: UITableViewController {
         let p = Player.sharedPlayer
         p.playItem(PlayerItem(item))
         
-        performSegueWithIdentifier("ThePlayerSegue", sender: item)
+        performSegueWithIdentifier("ThePlayerSegue", sender: self)
     }
     
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return feed.items.count
-    }
-    
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        guard let vc = segue.destinationViewController as? PlayerViewController else { fatalError("Unknown dest VC \(segue.destinationViewController)") }
-        guard let item = sender as? Item else { fatalError("Expected an item") }
-        
-        vc.imageUrl = feed.imageUrl
-        vc.item = item
     }
 }

@@ -22,6 +22,8 @@ class PlayerItem {
     var description: String!
     var feedTitle: String!
     var duration: Int!
+    var imageUrl: String!
+    var author: String!
     // TODO: delegation
     
     lazy var avItem: AVPlayerItem = {
@@ -35,6 +37,8 @@ class PlayerItem {
         self.subtitle = ""
         self.description = ""
         self.duration = item.duration
+        self.imageUrl = item.imageUrl
+        self.author = item.author
         
         self.feedTitle = item.feed.title
     }

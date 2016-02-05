@@ -149,7 +149,7 @@
         <!--Player View Controller-->
         <scene sceneID="69p-Bv-LR3">
             <objects>
-                <viewController definesPresentationContext="YES" id="kRX-s9-MdE" customClass="PlayerViewController" customModule="unnamedcast" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="PlayerViewController" definesPresentationContext="YES" id="kRX-s9-MdE" customClass="PlayerViewController" customModule="unnamedcast" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="21L-5y-tii"/>
                         <viewControllerLayoutGuide type="bottom" id="TG9-v0-0Ql"/>
@@ -536,6 +536,7 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <accessibility key="accessibilityConfiguration" identifier="MiniPlayerView"/>
+                                <gestureRecognizers/>
                                 <constraints>
                                     <constraint firstItem="Mp8-aV-d2s" firstAttribute="centerY" secondItem="2f7-Yc-Rez" secondAttribute="centerY" id="61D-qM-436"/>
                                     <constraint firstItem="mFK-qC-AHi" firstAttribute="centerY" secondItem="2f7-Yc-Rez" secondAttribute="centerY" id="cPk-dI-6ED"/>
@@ -577,6 +578,9 @@
                                         <include reference="exz-BN-BYn"/>
                                     </mask>
                                 </variation>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="7U3-VH-btw" appends="YES" id="oP3-kh-edc"/>
+                                </connections>
                             </view>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="od1-Q1-93O">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
@@ -638,6 +642,11 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Unb-Ah-7qb" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="7U3-VH-btw">
+                    <connections>
+                        <action selector="miniPlayerViewTapped:" destination="9QF-0u-yNM" id="D6c-BP-Jj9"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-741" y="522.75"/>
         </scene>

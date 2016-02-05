@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AppContainerViewController: UIViewController, PlayerEventHandler {
+class AppContainerViewController: UIViewController, PlayerEventHandler, UINavigationControllerDelegate {
     let player = Player.sharedPlayer
 
     @IBOutlet weak var miniPlayerView: UIView!
@@ -18,6 +18,10 @@ class AppContainerViewController: UIViewController, PlayerEventHandler {
     
     var timer: NSTimer?
     
+    var navigationViewController: UINavigationController! {
+        return self.childViewControllers.first as? UINavigationController
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -26,7 +30,7 @@ class AppContainerViewController: UIViewController, PlayerEventHandler {
         timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateMiniPlayer:", userInfo: nil, repeats: true)
         timer?.fire()
         
-        // Do any additional setup after loading the view.
+        self.navigationViewController.delegate = self
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -38,6 +42,18 @@ class AppContainerViewController: UIViewController, PlayerEventHandler {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func showMiniPlayerView(animated animated: Bool = false) {
+        guard miniPlayerHeightConstraint.constant == 0 else { return }
+        guard shouldShowMiniPlayer() else { return }
+        
+        toggleMiniPlayerView(animated: animated)
+    }
+    
+    func hideMiniPlayerView(animated animated: Bool = false) {
+        guard miniPlayerHeightConstraint.constant > 0 else { return }
+        toggleMiniPlayerView(animated: animated)
     }
     
     func toggleMiniPlayerView(animated animated: Bool = false) {
@@ -52,6 +68,8 @@ class AppContainerViewController: UIViewController, PlayerEventHandler {
         } else {
             self.view.layoutIfNeeded()
         }
+        
+        print("dun it", self.miniPlayerView.frame)
     }
     
     func updateProgressBar(progress: Float) {
@@ -60,6 +78,7 @@ class AppContainerViewController: UIViewController, PlayerEventHandler {
     }
     
     private func shouldShowMiniPlayer() -> Bool {
+        guard (self.navigationViewController.topViewController as? PlayerViewController) == nil else { return false }
         return player.isPlaying() || player.isPaused()
     }
     
@@ -79,7 +98,7 @@ class AppContainerViewController: UIViewController, PlayerEventHandler {
     // MARK: MiniPlayer -
     
     func updateMiniPlayer(timer: NSTimer?) {
-        print("update mini player")
+//        print("update mini player")
         if (shouldShowMiniPlayer() && miniPlayerHeightConstraint.constant == 0) ||
             (!shouldShowMiniPlayer() && miniPlayerHeightConstraint.constant > 0) {
             toggleMiniPlayerView()
@@ -98,5 +117,28 @@ class AppContainerViewController: UIViewController, PlayerEventHandler {
         } else {
             player.play()
         }
+    }
+    
+    @IBAction func miniPlayerViewTapped(sender: UITapGestureRecognizer) {
+        print("DUN TAPPED")
+        let sb = UIStoryboard(name: "Main", bundle: nil)
+        let vc = sb.instantiateViewControllerWithIdentifier("PlayerViewController")
+        self.navigationViewController.pushViewController(vc, animated: true)
+    }
+    
+    // MARK: UINavigationControllerDelegate -
+    
+    func navigationController(navigationController: UINavigationController, willShowViewController viewController: UIViewController, animated: Bool) {
+        print("1")
+        if ((viewController as? PlayerViewController) != nil) {
+            print("MADE IT")
+            hideMiniPlayerView()
+        } else if shouldShowMiniPlayer() {
+            showMiniPlayerView()
+        }
+    }
+    
+    func navigationController(navigationController: UINavigationController, didShowViewController viewController: UIViewController, animated: Bool) {
+        print("2")
     }
 }

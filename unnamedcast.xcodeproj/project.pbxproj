@@ -139,20 +139,20 @@
 		83E7256A1C5AEF0D00A0E8D4 /* unnamedcast */ = {
 			isa = PBXGroup;
 			children = (
-				837857D21C5D93600026959C /* UIImageColors.swift */,
-				837857C51C5D629B0026959C /* PlayerViewController.swift */,
-				83526AD81C5AF08300C43845 /* Models */,
-				83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */,
-				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
-				83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */,
-				83E725741C5AEF0D00A0E8D4 /* LaunchScreen.storyboard */,
-				83E725771C5AEF0D00A0E8D4 /* Info.plist */,
-				833F1B101C5B01AE002CCB77 /* FeedViewController.swift */,
-				833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */,
-				830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */,
-				837857BF1C5C52400026959C /* Player.swift */,
-				83475AC61C60490000F48D33 /* UpNextViewController.swift */,
 				83475B291C62DB5000F48D33 /* AppContainerViewController.swift */,
+				83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */,
+				83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */,
+				830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */,
+				833F1B101C5B01AE002CCB77 /* FeedViewController.swift */,
+				83E725771C5AEF0D00A0E8D4 /* Info.plist */,
+				83E725741C5AEF0D00A0E8D4 /* LaunchScreen.storyboard */,
+				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
+				83526AD81C5AF08300C43845 /* Models */,
+				837857BF1C5C52400026959C /* Player.swift */,
+				837857C51C5D629B0026959C /* PlayerViewController.swift */,
+				833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */,
+				837857D21C5D93600026959C /* UIImageColors.swift */,
+				83475AC61C60490000F48D33 /* UpNextViewController.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";

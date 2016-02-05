@@ -13,9 +13,6 @@ import MediaPlayer
 import Alamofire
 
 class PlayerViewController: UIViewController, PlayerEventHandler {
-    var imageUrl: String?
-    var item: Item?
-    
     let player = Player.sharedPlayer
     
     @IBOutlet weak var contentView: UIView!
@@ -34,15 +31,31 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     // MARK: Lifecycle -
     
     override func viewDidLoad() {
-        guard let item = item else { fatalError("item not set") }
+        let item = player.currentItem()
+        
+        if item == nil {
+            fatalError("PlayerViewController loaded without a current item")
+        }
         
 //        player.delegate = self
         
-        titleLabel.text = item.title
-        authorLabel.text = item.author
+        titleLabel.text = item?.title
+        authorLabel.text = item?.author
         
         volumeView.showsRouteButton = true
         volumeView.showsVolumeSlider = false
+        
+        var vc = self.parentViewController
+        while vc != nil {
+            guard let v = vc as? AppContainerViewController else {
+                vc = vc?.parentViewController
+                continue
+            }
+           
+            print("YAYHERE")
+            v.toggleMiniPlayerView()
+            break
+        }
         
         
         // hack to get airplay route button to adopt tint color
@@ -80,7 +93,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     // MARK: UI -
     
     private func showArtworkView() {
-        guard let url = imageUrl else { fatalError("image url not set") }
+        guard let url = player.currentItem()?.imageUrl else { return }
         
         var frame = contentView.frame
         frame.origin.x = 0
