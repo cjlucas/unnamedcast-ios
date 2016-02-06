@@ -14,12 +14,12 @@ protocol PlayerItemProtocol {
     func receivedItemNotification(item: PlayerItem, notification: String, userInfo: [NSObject: AnyObject]?)
 }
 
-class PlayerItem {
+class PlayerItem: NSObject, NSCoding {
     var url: String!
     var link: String!
     var title: String!
     var subtitle: String!
-    var description: String!
+    var desc: String!
     var feedTitle: String!
     var duration: Int!
     var imageUrl: String!
@@ -30,17 +30,48 @@ class PlayerItem {
         return AVPlayerItem(URL: NSURL(string: self.url)!)
     }()
     
+    func hasVideo() -> Bool {
+        return avItem.tracks.filter({$0.assetTrack.mediaType == AVMediaTypeVideo}).count > 0
+    }
+    
     init(_ item: Item) {
-        self.url = item.audioUrl
-        self.title = item.title
-        self.link = item.link
-        self.subtitle = ""
-        self.description = ""
-        self.duration = item.duration
-        self.imageUrl = item.imageUrl
-        self.author = item.author
+        url = item.audioUrl
+        title = item.title
+        link = item.link
+        subtitle = ""
+        desc = ""
+        duration = item.duration
+        imageUrl = item.imageUrl
+        author = item.author
         
-        self.feedTitle = item.feed.title
+        feedTitle = item.feed.title
+    }
+    
+    // MARK: NSCoding
+    
+    required init?(coder d: NSCoder) {
+        url = d.decodeObjectForKey("url") as! String
+        link = d.decodeObjectForKey("link") as! String
+        title = d.decodeObjectForKey("title") as! String
+        subtitle = d.decodeObjectForKey("subtitle") as! String
+        desc = d.decodeObjectForKey("description") as! String
+        feedTitle = d.decodeObjectForKey("feed_title") as! String
+        duration = d.decodeIntegerForKey("duration")
+        imageUrl = d.decodeObjectForKey("image_url") as! String
+        author = d.decodeObjectForKey("author") as! String
+        feedTitle = d.decodeObjectForKey("feed_title") as! String
+    }
+    
+    func encodeWithCoder(c: NSCoder) {
+        c.encodeObject(url, forKey: "url")
+        c.encodeObject(link, forKey: "link")
+        c.encodeObject(title, forKey: "title")
+        c.encodeObject(subtitle, forKey: "subtitle")
+        c.encodeObject(description, forKey: "description")
+        c.encodeInteger(duration, forKey: "duration")
+        c.encodeObject(imageUrl, forKey: "image_url")
+        c.encodeObject(author, forKey: "author")
+        c.encodeObject(feedTitle, forKey: "feed_title")
     }
 }
 
@@ -48,8 +79,8 @@ protocol PlayerEventHandler: class {
     func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?)
 }
 
-class Player {
-    static let sharedPlayer = Player()
+class Player: NSObject, NSCoding {
+    static var sharedPlayer = Player()
     
     let player = AVPlayer()
     
@@ -107,7 +138,9 @@ class Player {
         }
     }
     
-    init() {
+    override init() {
+        super.init()
+        
         try! audioSession.setCategory(AVAudioSessionCategoryPlayback)
         
         commandCenter.playCommand.addTargetWithHandler { handler in
@@ -166,6 +199,7 @@ class Player {
     }
     
     func isPlaying() -> Bool {
+        print("isPlaying", player.rate, items.count, player.error)
         return player.rate > 0 && items.count > 0 && player.error == nil
     }
     
@@ -208,6 +242,9 @@ class Player {
     // queueItem purposfully does not begin playing a track if it's
     func queueItem(item: PlayerItem) {
         items.append(item)
+        if items.count == 1 {
+            player.replaceCurrentItemWithPlayerItem(item.avItem)
+        }
     }
     
     func pause() {
@@ -237,5 +274,26 @@ class Player {
         }
         
         infoCenter.nowPlayingInfo = oldInfo
+    }
+    
+    // MARK: NSCoding
+    
+    required init?(coder d: NSCoder) {
+        super.init()
+        
+        let decodedItems = d.decodeObjectForKey("items") as! [PlayerItem]
+        
+        for item in decodedItems {
+            print("Queueing item", item)
+            queueItem(item)
+        }
+        
+        let itemPos = d.decodeCMTimeForKey("item_pos")
+        player.seekToTime(itemPos)
+    }
+    
+    func encodeWithCoder(c: NSCoder) {
+        c.encodeObject(items, forKey: "items")
+        c.encodeCMTime(currentTime(), forKey: "item_pos")
     }
 }

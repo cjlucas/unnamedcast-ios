@@ -13,10 +13,8 @@ import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
     var window: UIWindow?
-
-
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         let realm = try! Realm()
 
@@ -39,6 +37,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
             }
         }
+       
+        let ud = NSUserDefaults.standardUserDefaults()
+        if let data = ud.objectForKey("player") as? NSData {
+            Player.sharedPlayer = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! Player
+        }
+        
+        ud.removeObjectForKey("player")
         
         // Override point for customization after application launch.
         return true
@@ -64,6 +69,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+        let data = NSKeyedArchiver.archivedDataWithRootObject(Player.sharedPlayer)
+        NSUserDefaults.standardUserDefaults().setObject(data, forKey: "player")
+        print("App will terminate. Archived", data.length, "worth of data")
     }
 
 

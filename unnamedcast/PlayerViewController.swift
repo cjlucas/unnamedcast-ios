@@ -67,7 +67,6 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
             }
         }
         
-        
         let sess = AVAudioSession.sharedInstance()
         for port in sess.currentRoute.outputs {
             print(port.portName)
@@ -80,13 +79,31 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
         startUpdateUITimer()
-        showArtworkView()
         
-//        showVideoView()
+        if let item = player.currentItem() {
+            if item.hasVideo() {
+                showVideoView()
+            } else {
+                showArtworkView()
+            }
+        }
     }
     
     override func viewDidDisappear(animated: Bool) {
         timer?.invalidate()
+        
+        print("view did disappear")
+       
+        for view in contentView.subviews {
+            guard let layers = view.layer.sublayers else { continue }
+            for layer in layers {
+                if let l = layer as? AVPlayerLayer {
+                    print("Removed player from", layer)
+                    l.player = nil
+                }
+            }
+        }
+
         super.viewDidDisappear(animated)
     }
     

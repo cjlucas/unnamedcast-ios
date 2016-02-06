@@ -9,12 +9,16 @@
 import UIKit
 
 class AppContainerViewController: UIViewController, PlayerEventHandler, UINavigationControllerDelegate {
-    let player = Player.sharedPlayer
-
     @IBOutlet weak var miniPlayerView: UIView!
     @IBOutlet weak var miniPlayerHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var miniPlayerTitleLabel: UILabel!
     @IBOutlet weak var progressBarWidthConstraint: NSLayoutConstraint!
+    
+    var player: Player {
+        get {
+            return Player.sharedPlayer
+        }
+    }
     
     var timer: NSTimer?
     
@@ -98,7 +102,6 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
     // MARK: MiniPlayer -
     
     func updateMiniPlayer(timer: NSTimer?) {
-//        print("update mini player")
         if (shouldShowMiniPlayer() && miniPlayerHeightConstraint.constant == 0) ||
             (!shouldShowMiniPlayer() && miniPlayerHeightConstraint.constant > 0) {
             toggleMiniPlayerView()
@@ -120,7 +123,6 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
     }
     
     @IBAction func miniPlayerViewTapped(sender: UITapGestureRecognizer) {
-        print("DUN TAPPED")
         let sb = UIStoryboard(name: "Main", bundle: nil)
         let vc = sb.instantiateViewControllerWithIdentifier("PlayerViewController")
         self.navigationViewController.pushViewController(vc, animated: true)
@@ -129,16 +131,11 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
     // MARK: UINavigationControllerDelegate -
     
     func navigationController(navigationController: UINavigationController, willShowViewController viewController: UIViewController, animated: Bool) {
-        print("1")
         if ((viewController as? PlayerViewController) != nil) {
             print("MADE IT")
             hideMiniPlayerView()
         } else if shouldShowMiniPlayer() {
             showMiniPlayerView()
         }
-    }
-    
-    func navigationController(navigationController: UINavigationController, didShowViewController viewController: UIViewController, animated: Bool) {
-        print("2")
     }
 }
