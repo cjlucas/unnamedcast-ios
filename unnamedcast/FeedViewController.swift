@@ -34,6 +34,7 @@ class FeedViewController: UICollectionViewController {
     }
     
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print("num items", realm.objects(Feed).count)
         return realm.objects(Feed).count
     }
     

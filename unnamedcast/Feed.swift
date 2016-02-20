@@ -53,10 +53,6 @@ class Item: Object {
         return linkingObjects(Feed.self, forProperty: "items").first!
     }
 
-    override static func primaryKey() -> String? {
-        return "guid"
-    }
-
     convenience init(json: JSON) {
         self.init()
 

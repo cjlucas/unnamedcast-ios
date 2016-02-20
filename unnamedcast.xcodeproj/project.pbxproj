@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */; };
+		8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
 		833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
 		83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475AC61C60490000F48D33 /* UpNextViewController.swift */; };
@@ -49,6 +50,7 @@
 		00EF784EDACA05671A2529E3 /* Pods_unnamedcast.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_unnamedcast.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FF47A83A048E006D3B2733D /* Pods-unnamedcastTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-unnamedcastTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-unnamedcastTests/Pods-unnamedcastTests.debug.xcconfig"; sourceTree = "<group>"; };
 		830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCollectionViewCell.swift; sourceTree = "<group>"; };
+		8310483C1C710B9B003FB964 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		833F1B101C5B01AE002CCB77 /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleFeedViewController.swift; sourceTree = "<group>"; };
 		83475AC61C60490000F48D33 /* UpNextViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpNextViewController.swift; sourceTree = "<group>"; };
@@ -106,6 +108,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8310483B1C710AE4003FB964 /* VC */ = {
+			isa = PBXGroup;
+			children = (
+				83475B291C62DB5000F48D33 /* AppContainerViewController.swift */,
+				833F1B101C5B01AE002CCB77 /* FeedViewController.swift */,
+				837857C51C5D629B0026959C /* PlayerViewController.swift */,
+				833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */,
+				83475AC61C60490000F48D33 /* UpNextViewController.swift */,
+				8310483C1C710B9B003FB964 /* LoginViewController.swift */,
+			);
+			name = VC;
+			sourceTree = "<group>";
+		};
 		83526AD81C5AF08300C43845 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -139,20 +154,16 @@
 		83E7256A1C5AEF0D00A0E8D4 /* unnamedcast */ = {
 			isa = PBXGroup;
 			children = (
-				83475B291C62DB5000F48D33 /* AppContainerViewController.swift */,
+				83526AD81C5AF08300C43845 /* Models */,
+				8310483B1C710AE4003FB964 /* VC */,
 				83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */,
 				83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */,
 				830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */,
-				833F1B101C5B01AE002CCB77 /* FeedViewController.swift */,
 				83E725771C5AEF0D00A0E8D4 /* Info.plist */,
 				83E725741C5AEF0D00A0E8D4 /* LaunchScreen.storyboard */,
 				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
-				83526AD81C5AF08300C43845 /* Models */,
 				837857BF1C5C52400026959C /* Player.swift */,
-				837857C51C5D629B0026959C /* PlayerViewController.swift */,
-				833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */,
 				837857D21C5D93600026959C /* UIImageColors.swift */,
-				83475AC61C60490000F48D33 /* UpNextViewController.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -443,6 +454,7 @@
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
 				83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,
+				8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
