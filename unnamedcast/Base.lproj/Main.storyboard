@@ -84,7 +84,13 @@
                             <outlet property="delegate" destination="P8P-Vh-xPE" id="HQw-Zy-Amw"/>
                         </connections>
                     </collectionView>
-                    <navigationItem key="navigationItem" id="5d9-Yz-vGJ"/>
+                    <navigationItem key="navigationItem" id="5d9-Yz-vGJ">
+                        <barButtonItem key="rightBarButtonItem" title="Search" id="Se5-EU-ucA">
+                            <connections>
+                                <segue destination="LN7-nB-gzz" kind="presentation" id="8rg-Vt-Ugt"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <segue destination="ucd-62-pVB" kind="show" identifier="TheSegue" id="GEm-vD-qpE"/>
                     </connections>
@@ -176,7 +182,7 @@
                                             </mask>
                                         </variation>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="155" y="-38" width="83" height="30"/>
+                                            <rect key="frame" x="155" y="46" width="83" height="30"/>
                                             <mask key="constraints">
                                                 <include reference="Trj-tb-hyF"/>
                                                 <include reference="pcT-6T-WeS"/>
@@ -190,7 +196,7 @@
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                         <state key="normal" title="Backward"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="16" y="-38" width="68" height="30"/>
+                                            <rect key="frame" x="16" y="46" width="68" height="30"/>
                                         </variation>
                                         <connections>
                                             <action selector="skipBackwardButton:" destination="kRX-s9-MdE" eventType="touchUpInside" id="aPq-qQ-sI8"/>
@@ -200,13 +206,13 @@
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                         <state key="normal" title="Forward"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="315" y="-38" width="56" height="30"/>
+                                            <rect key="frame" x="315" y="46" width="56" height="30"/>
                                         </variation>
                                     </button>
                                     <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="ezf-T8-GPL">
                                         <rect key="frame" x="0.0" y="-15" width="118" height="31"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="64" y="-146" width="255" height="31"/>
+                                            <rect key="frame" x="64" y="-62" width="255" height="31"/>
                                         </variation>
                                         <connections>
                                             <action selector="onPositionSliderTouchDown:" destination="kRX-s9-MdE" eventType="touchDown" id="w14-sM-dZp"/>
@@ -220,7 +226,7 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="140" y="-209" width="112" height="20"/>
+                                            <rect key="frame" x="140" y="-125" width="112" height="20"/>
                                         </variation>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Item Author Here" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RWP-9L-Vi3">
@@ -229,14 +235,14 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="145" y="-181" width="97" height="15"/>
+                                            <rect key="frame" x="145" y="-97" width="97" height="15"/>
                                         </variation>
                                     </label>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="d8S-w4-dRD" customClass="MPVolumeView">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="0.0" y="-108" width="392" height="60"/>
+                                            <rect key="frame" x="0.0" y="-24" width="392" height="60"/>
                                         </variation>
                                     </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:00:00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wHJ-pR-YXd">
@@ -245,7 +251,7 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="6" y="-139" width="52" height="17"/>
+                                            <rect key="frame" x="6" y="-55" width="52" height="17"/>
                                         </variation>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6fm-cX-Wii">
@@ -254,7 +260,7 @@
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=compact" misplaced="YES">
-                                            <rect key="frame" x="325" y="-139" width="52" height="17"/>
+                                            <rect key="frame" x="325" y="-55" width="52" height="17"/>
                                         </variation>
                                     </label>
                                 </subviews>
@@ -660,6 +666,7 @@
                         <viewControllerLayoutGuide type="bottom" id="hx9-2l-Cd9"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="n4y-Bc-uuD">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Rp-eJ-liO">
@@ -749,19 +756,19 @@
                                 <exclude reference="XA8-9f-0YB"/>
                             </mask>
                             <mask key="constraints">
+                                <exclude reference="R7O-dd-y3k"/>
+                                <exclude reference="VeD-Cu-yO7"/>
+                                <exclude reference="WZv-mP-i5i"/>
+                                <exclude reference="jWy-T4-pXR"/>
+                                <exclude reference="fkc-lS-tdK"/>
+                                <exclude reference="qh9-f8-oDL"/>
+                                <exclude reference="E3X-aA-BEu"/>
+                                <exclude reference="eYl-p6-OuA"/>
                                 <exclude reference="N53-jD-hjz"/>
                                 <exclude reference="Nio-71-BXh"/>
                                 <exclude reference="gPT-mu-Mxl"/>
-                                <exclude reference="WZv-mP-i5i"/>
-                                <exclude reference="jWy-T4-pXR"/>
-                                <exclude reference="E3X-aA-BEu"/>
-                                <exclude reference="eYl-p6-OuA"/>
                                 <exclude reference="9gd-TZ-2RD"/>
                                 <exclude reference="rHg-Gv-aaQ"/>
-                                <exclude reference="R7O-dd-y3k"/>
-                                <exclude reference="VeD-Cu-yO7"/>
-                                <exclude reference="fkc-lS-tdK"/>
-                                <exclude reference="qh9-f8-oDL"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
@@ -774,19 +781,19 @@
                                 <include reference="XA8-9f-0YB"/>
                             </mask>
                             <mask key="constraints">
+                                <include reference="R7O-dd-y3k"/>
+                                <include reference="VeD-Cu-yO7"/>
+                                <include reference="WZv-mP-i5i"/>
+                                <include reference="jWy-T4-pXR"/>
+                                <include reference="fkc-lS-tdK"/>
+                                <include reference="qh9-f8-oDL"/>
+                                <include reference="E3X-aA-BEu"/>
+                                <include reference="eYl-p6-OuA"/>
                                 <include reference="N53-jD-hjz"/>
                                 <include reference="Nio-71-BXh"/>
                                 <include reference="gPT-mu-Mxl"/>
-                                <include reference="WZv-mP-i5i"/>
-                                <include reference="jWy-T4-pXR"/>
-                                <include reference="E3X-aA-BEu"/>
-                                <include reference="eYl-p6-OuA"/>
                                 <include reference="9gd-TZ-2RD"/>
                                 <include reference="rHg-Gv-aaQ"/>
-                                <include reference="R7O-dd-y3k"/>
-                                <include reference="VeD-Cu-yO7"/>
-                                <include reference="fkc-lS-tdK"/>
-                                <include reference="qh9-f8-oDL"/>
                             </mask>
                         </variation>
                     </view>
@@ -799,6 +806,65 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="F41-2o-f8q" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-672" y="1211.25"/>
+        </scene>
+        <!--Root View Controller-->
+        <scene sceneID="K8c-L9-ZWq">
+            <objects>
+                <tableViewController id="4Fk-2T-a0n" customClass="FeedSearchTableViewController" customModule="unnamedcast" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="Qgy-Il-pCh">
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" id="cRp-3O-rHd">
+                            <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits"/>
+                        </searchBar>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="Cell" id="6YD-rx-Ezi">
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="6YD-rx-Ezi" id="Hab-uA-kA7">
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="4Fk-2T-a0n" id="vDl-sw-fXQ"/>
+                            <outlet property="delegate" destination="4Fk-2T-a0n" id="NA8-PM-Nm7"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Root View Controller" id="kFa-2E-AjC"/>
+                    <connections>
+                        <outlet property="searchBar" destination="cRp-3O-rHd" id="14o-x5-azS"/>
+                        <outlet property="searchDisplayController" destination="HKt-s6-7xA" id="iW2-Qy-Izd"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ira-q6-Vi6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="HKt-s6-7xA">
+                    <connections>
+                        <outlet property="delegate" destination="4Fk-2T-a0n" id="m5K-Vj-x9A"/>
+                        <outlet property="searchContentsController" destination="4Fk-2T-a0n" id="xfw-w2-zoa"/>
+                        <outlet property="searchResultsDataSource" destination="4Fk-2T-a0n" id="PUC-Sp-f7G"/>
+                        <outlet property="searchResultsDelegate" destination="4Fk-2T-a0n" id="ImA-zY-up0"/>
+                    </connections>
+                </searchDisplayController>
+            </objects>
+            <point key="canvasLocation" x="843" y="1245"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="swO-WE-4bx">
+            <objects>
+                <navigationController id="LN7-nB-gzz" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="iUY-c8-VmF">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="4Fk-2T-a0n" kind="relationship" relationship="rootViewController" id="UYc-ZW-FYn"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="nYc-Jb-JQa" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="57" y="1245"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="p2p-lZ-bZj">

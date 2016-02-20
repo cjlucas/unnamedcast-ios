@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */; };
 		8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
+		833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B01C77F47700494388 /* FeedSearchTableViewController.swift */; };
+		833239B31C78E2DD00494388 /* APIEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* APIEndpoint.swift */; };
+		833239B51C78EC7D00494388 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B41C78EC7D00494388 /* Setting.swift */; };
 		833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
 		83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475AC61C60490000F48D33 /* UpNextViewController.swift */; };
@@ -51,6 +54,9 @@
 		4FF47A83A048E006D3B2733D /* Pods-unnamedcastTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-unnamedcastTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-unnamedcastTests/Pods-unnamedcastTests.debug.xcconfig"; sourceTree = "<group>"; };
 		830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCollectionViewCell.swift; sourceTree = "<group>"; };
 		8310483C1C710B9B003FB964 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		833239B01C77F47700494388 /* FeedSearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedSearchTableViewController.swift; sourceTree = "<group>"; };
+		833239B21C78E2DD00494388 /* APIEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIEndpoint.swift; sourceTree = "<group>"; };
+		833239B41C78EC7D00494388 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		833F1B101C5B01AE002CCB77 /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleFeedViewController.swift; sourceTree = "<group>"; };
 		83475AC61C60490000F48D33 /* UpNextViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpNextViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +123,7 @@
 				833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */,
 				83475AC61C60490000F48D33 /* UpNextViewController.swift */,
 				8310483C1C710B9B003FB964 /* LoginViewController.swift */,
+				833239B01C77F47700494388 /* FeedSearchTableViewController.swift */,
 			);
 			name = VC;
 			sourceTree = "<group>";
@@ -164,6 +171,8 @@
 				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
 				837857BF1C5C52400026959C /* Player.swift */,
 				837857D21C5D93600026959C /* UIImageColors.swift */,
+				833239B21C78E2DD00494388 /* APIEndpoint.swift */,
+				833239B41C78EC7D00494388 /* Setting.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -449,12 +458,15 @@
 				837857D31C5D93600026959C /* UIImageColors.swift in Sources */,
 				83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */,
 				830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */,
+				833239B31C78E2DD00494388 /* APIEndpoint.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
 				837857C01C5C52400026959C /* Player.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
+				833239B51C78EC7D00494388 /* Setting.swift in Sources */,
 				83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,
 				8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */,
+				833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

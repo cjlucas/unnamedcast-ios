@@ -62,8 +62,8 @@ class FeedViewController: UICollectionViewController {
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        let vc = segue.destinationViewController as! SingleFeedViewController
-        if let id = selectedFeedId {
+        if let vc = segue.destinationViewController as? SingleFeedViewController,
+            let id = selectedFeedId {
             vc.feedId = id
         }
     }

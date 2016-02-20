@@ -62,12 +62,10 @@ class LoginViewController: UIViewController {
 
     @IBAction func loginButtonPressed(sender: AnyObject) {
         let realm = try! Realm()
-        
-        let host = "192.168.1.19"
-        let port = 8081
-        
-        let params = ["username": emailTextField.text!, "password": passwordTextField.text!]
-        Alamofire.request(.GET, "http://\(host):\(port)/login", parameters: params).response { resp in
+       
+        let endpoint = APIEndpoint.Login(user: emailTextField.text!, password: passwordTextField.text!)
+        print(endpoint.URLRequest.URL)
+        Alamofire.request(endpoint).response { resp in
             guard resp.1?.statusCode == 200 else { return }
             
             let json = JSON(data: resp.2!)
@@ -87,11 +85,10 @@ class LoginViewController: UIViewController {
             
             for (_, feedId) in json["feeds"] {
                 fetchFeedsOp.addExecutionBlock {
-                    let url = "http://\(host):\(port)/api/feeds/\(feedId)"
-                    print(url)
                    
+                    let endpoint = APIEndpoint.GetFeed(id: feedId.stringValue)
                     wg.add()
-                    Alamofire.request(.GET, url).response { resp in
+                    Alamofire.request(endpoint).response { resp in
                         let json = JSON(data: resp.2!)
                         try! realm.write {
                             realm.add(Feed(json: json), update: false)
