@@ -8,9 +8,9 @@
 
 import Foundation
 import RealmSwift
-import SwiftyJSON
+import Freddy
 
-class Feed: Object {
+class Feed: Object, JSONDecodable {
     dynamic var id: String = ""
     dynamic var title: String = ""
     dynamic var author: String = ""
@@ -20,24 +20,24 @@ class Feed: Object {
     override static func primaryKey() -> String? {
         return "id"
     }
-
-    convenience init(json: JSON) {
+    
+    convenience required init(json: JSON) throws {
         self.init()
-
-        id = json["id"].stringValue
-        title = json["title"].stringValue
-        author = json["author"].stringValue
-        imageUrl = json["image_url"].stringValue
-
-        for (_, item):(String, JSON) in json["items"] {
-            items.append(Item(json: item))
+        
+        id = try json.string("id")
+        title = try json.string("title")
+        author = try json.string("author")
+        imageUrl = try json.string("image_url")
+        
+        for item in try json.array("items") {
+            items.append(try Item(json: item))
         }
     }
 }
 
 
 
-class Item: Object {
+class Item: Object, JSONDecodable {
     dynamic var guid: String = ""
     dynamic var link: String = ""
     dynamic var title: String = ""
@@ -46,25 +46,25 @@ class Item: Object {
     dynamic var duration: Int = 0
     dynamic var size: Int = 0
     dynamic var pubDate: String = ""
-    dynamic var audioUrl: String = ""
-    dynamic var imageUrl: String = ""
+    dynamic var audioURL: String = ""
+    dynamic var imageURL: String = ""
     
     var feed: Feed {
         return linkingObjects(Feed.self, forProperty: "items").first!
     }
 
-    convenience init(json: JSON) {
+    convenience required init(json: JSON) throws {
         self.init()
-
-        guid = json["guid"].stringValue
-        link = json["link"].stringValue
-        title = json["title"].stringValue
-        author = json["author"].stringValue
-        desc = json["description"].stringValue
-        duration = json["duration"].intValue
-        size = json["size"].intValue
-        pubDate = json["publication_time"].stringValue
-        audioUrl = json["url"].stringValue
-        imageUrl = json["image_url"].stringValue
+    
+        guid = try json.string("guid")
+        link = try json.string("link")
+        title = try json.string("title")
+        author = try json.string("author")
+        desc = try json.string("description")
+        duration = try json.int("duration")
+        size = try json.int("size")
+        pubDate = try json.string("publication_time")
+        audioURL = try json.string("url")
+        imageURL = try json.string("image_url")
     }
 }

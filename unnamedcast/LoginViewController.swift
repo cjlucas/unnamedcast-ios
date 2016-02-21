@@ -8,7 +8,7 @@
 
 import UIKit
 import Alamofire
-import SwiftyJSON
+import Freddy
 import RealmSwift
 
 class WaitGroup {
@@ -68,10 +68,10 @@ class LoginViewController: UIViewController {
         Alamofire.request(endpoint).response { resp in
             guard resp.1?.statusCode == 200 else { return }
             
-            let json = JSON(data: resp.2!)
+            let json = try! JSON(data: resp.2!)
             
             
-            NSUserDefaults.standardUserDefaults().setObject(json["id"].stringValue, forKey: "user_id")
+            NSUserDefaults.standardUserDefaults().setObject(try! json.string("id"), forKey: "user_id")
             
             let wg = WaitGroup()
             wg.onDone {
@@ -83,15 +83,15 @@ class LoginViewController: UIViewController {
             let fetchFeedsOp = NSBlockOperation()
             fetchFeedsOp.queuePriority = .Low
             
-            for (_, feedId) in json["feeds"] {
+            for feedID in try! json.array("feeds") {
                 fetchFeedsOp.addExecutionBlock {
                    
-                    let endpoint = APIEndpoint.GetFeed(id: feedId.stringValue)
+                    let endpoint = APIEndpoint.GetFeed(id: try! String(json: feedID))
                     wg.add()
                     Alamofire.request(endpoint).response { resp in
-                        let json = JSON(data: resp.2!)
+                        let json = try! JSON(data: resp.2!)
                         try! realm.write {
-                            realm.add(Feed(json: json), update: false)
+                            realm.add(try! Feed(json: json), update: false)
                         }
                         wg.done()
                         print("WROTE")

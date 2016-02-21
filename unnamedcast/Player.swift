@@ -35,13 +35,13 @@ class PlayerItem: NSObject, NSCoding {
     }
     
     init(_ item: Item) {
-        url = item.audioUrl
+        url = item.audioURL
         title = item.title
         link = item.link
         subtitle = ""
         desc = ""
         duration = item.duration
-        imageUrl = item.imageUrl
+        imageUrl = item.imageURL
         author = item.author
         
         feedTitle = item.feed.title

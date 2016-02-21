@@ -4,13 +4,13 @@
 use_frameworks!
 
 target 'unnamedcast' do
-  pod 'SwiftyJSON'
+  pod 'Freddy'
   pod 'RealmSwift'
   pod 'Alamofire'
 end
 
 target 'unnamedcastTests' do
-  pod 'SwiftyJSON'
+  pod 'Freddy'
   pod 'RealmSwift'
   pod 'Alamofire'
 end

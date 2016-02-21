@@ -8,13 +8,18 @@
 
 import UIKit
 import Alamofire
-import SwiftyJSON
+import Freddy
 import RealmSwift
 
 class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate {
-    struct Result {
+    struct Result: JSONDecodable {
         var id: String
         var title: String
+        
+        init(json: JSON) throws {
+            id = try json.string("id")
+            title = try json.string("title")
+        }
     }
 
     @IBOutlet weak var searchBar: UISearchBar!
@@ -95,11 +100,8 @@ class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate 
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         let endpoint = APIEndpoint.SearchFeeds(query: searchText)
         Alamofire.request(endpoint).response { resp in
-            let json = JSON(data: resp.2!)
-            
-            self.results = json.map { (key, result) in
-                return Result(id: result["id"].stringValue, title: result["title"].stringValue)
-            }
+            let json = try! JSON(data: resp.2!)
+            self.results = try! json.arrayOf("results", type: Result.self)
             
             self.tableView.reloadData()
         }
