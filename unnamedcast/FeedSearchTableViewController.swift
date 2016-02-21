@@ -100,10 +100,25 @@ class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate 
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         let endpoint = APIEndpoint.SearchFeeds(query: searchText)
         Alamofire.request(endpoint).response { resp in
-            let json = try! JSON(data: resp.2!)
-            self.results = try! json.arrayOf("results", type: Result.self)
+            guard resp.3 == nil else {
+                print("Error received: \(resp.3!)")
+                return
+            }
             
-            self.tableView.reloadData()
+            guard resp.1?.statusCode == 200 else {
+                print("Unexpected status code: \(resp.1?.statusCode)")
+                return
+            }
+            
+            do {
+                let json = try JSON(data: resp.2!).array()
+                self.results = json.map { try! Result(json: $0) }
+                self.tableView.reloadData()
+            } catch {
+                print("Error handling response")
+                print(String(data: resp.2!, encoding: NSUTF8StringEncoding))
+            }
+            
         }
     }
 
