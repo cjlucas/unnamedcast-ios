@@ -28,7 +28,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let sb = UIStoryboard(name: "Main", bundle: nil)
             self.window?.rootViewController = sb.instantiateViewControllerWithIdentifier("login")
             self.window?.makeKeyAndVisible()
-        }
+        } else {
+          print("Updating user feeds")
+          DataStore().sync {
+            print("Updated user feeds")
+          }
+      }
         
         if let data = ud.objectForKey("player") as? NSData {
             Player.sharedPlayer = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! Player
