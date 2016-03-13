@@ -6,7 +6,6 @@
 //  Copyright © 2016 Christopher Lucas. All rights reserved.
 //
 
-import Foundation
 import RealmSwift
 import Freddy
 
@@ -31,7 +30,9 @@ class Feed: Object, JSONDecodable {
     
     if let jsonItems = try? json.array("items") {
       for item in jsonItems {
-        items.append(try Item(json: item))
+        let item = try Item(json: item)
+        item.key = "\(id)-\(item.guid)"
+        items.append(item)
       }
     }
   }
@@ -50,6 +51,13 @@ class Item: Object, JSONDecodable {
   dynamic var pubDate: String = ""
   dynamic var audioURL: String = ""
   dynamic var imageURL: String = ""
+  dynamic var playing: Bool = false
+  dynamic var position: Double = 0
+  dynamic var key: String = ""
+  
+  override static func primaryKey() -> String? {
+    return "key"
+  }
   
   var feed: Feed {
     return linkingObjects(Feed.self, forProperty: "items").first!
