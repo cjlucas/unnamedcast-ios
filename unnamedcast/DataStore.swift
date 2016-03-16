@@ -42,6 +42,7 @@ class DataStore {
       
       for feed in try! json.array().map(Feed.init) {
         try! self.realm.write {
+          print("Updating feed \(feed.title)")
           self.realm.add(feed, update: true)
         }
       }

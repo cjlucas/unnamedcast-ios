@@ -835,7 +835,13 @@
                             <outlet property="delegate" destination="4Fk-2T-a0n" id="NA8-PM-Nm7"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Root View Controller" id="kFa-2E-AjC"/>
+                    <navigationItem key="navigationItem" title="Root View Controller" id="kFa-2E-AjC">
+                        <barButtonItem key="rightBarButtonItem" title="Close" id="dpn-Ac-t7g">
+                            <connections>
+                                <action selector="closeButtonPressed:" destination="4Fk-2T-a0n" id="Dqo-Qx-HAK"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="searchBar" destination="cRp-3O-rHd" id="14o-x5-azS"/>
                         <outlet property="searchDisplayController" destination="HKt-s6-7xA" id="iW2-Qy-Izd"/>
