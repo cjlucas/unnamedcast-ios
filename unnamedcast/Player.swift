@@ -203,7 +203,6 @@ class Player: NSObject, NSCoding {
   }
   
   func isPlaying() -> Bool {
-    print("isPlaying", player.rate, items.count, player.error)
     return player.rate > 0 && items.count > 0 && player.error == nil
   }
   
@@ -261,8 +260,8 @@ class Player: NSObject, NSCoding {
   
   // pos is a float between 0 and 1
   func seekToPos(pos: Double) {
-    if let curItem = player.currentItem {
-      let time = pos * curItem.duration.seconds
+    if let curItem = currentItem() {
+      let time = pos * Double(curItem.duration)
       seekToTime(CMTimeMakeWithSeconds(time, 1))
     }
   }

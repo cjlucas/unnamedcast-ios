@@ -110,17 +110,14 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
         toggleMiniPlayerView()
     }
     
-    print("here1")
 
     guard let playerItem = player.currentItem() else { return }
-    print("here2")
+    
     let items = datastore.realm.objects(Item).filter("key = %@", playerItem.key)
     guard let item = items.first else { return }
-    print("here3")
     
     if player.isPlaying() && player.position > 0 {
       updateProgressBar(player.position)
-      print(item)
       datastore.updateItemState(item, progress: Double(player.position)) {}
     }
     

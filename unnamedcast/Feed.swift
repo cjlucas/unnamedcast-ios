@@ -38,9 +38,13 @@ class Feed: Object, JSONDecodable {
   }
 }
 
-
-
 class Item: Object, JSONDecodable {
+  enum State: Int {
+    case Played
+    case Unplayed
+    case InProgress
+  }
+  
   dynamic var guid: String = ""
   dynamic var link: String = ""
   dynamic var title: String = ""
@@ -61,6 +65,14 @@ class Item: Object, JSONDecodable {
   
   var feed: Feed {
     return linkingObjects(Feed.self, forProperty: "items").first!
+  }
+  
+  var state: State {
+    if playing {
+      return position.isZero ? .Unplayed : .InProgress
+    }
+    
+    return .Played
   }
   
   convenience required init(json: JSON) throws {

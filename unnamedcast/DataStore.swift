@@ -47,11 +47,11 @@ class DataStore {
         }
       }
       
-      onComplete()
+      self.syncItemStates(onComplete)
     }
   }
   
-  func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
+  private func syncItemStates(onComplete: () -> Void) {
     // fetch latest state info
     let ep = APIEndpoint.GetUserItemStates(userID: userID)
     Alamofire.request(ep).response { resp in
@@ -71,15 +71,22 @@ class DataStore {
         items = items.filter { (item) -> Bool in
           return item.feed.id == state.feedID
         }
-       
+        
         if let item = items.first {
           try! self.realm.write {
             item.playing = true
             item.position = state.itemPos
+            self.realm.add(item, update: true)
           }
         }
       }
       
+      onComplete()
+    }
+  }
+  
+  func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
+    syncItemStates {
       try! self.realm.write {
         item.playing = true
         item.position = progress
@@ -94,7 +101,6 @@ class DataStore {
       Alamofire.upload(ep2, data: try! states.toJSON().serialize()).response { resp in
         onComplete()
       }
-      
     }
   }
 }
