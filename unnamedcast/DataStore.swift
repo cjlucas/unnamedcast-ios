@@ -51,6 +51,17 @@ class DataStore {
     }
   }
   
+  private func uploadItemStates(onComplete: () -> Void) {
+    let states = self.realm.objects(Item)
+      .filter("playing != false")
+      .map { ItemState(item: $0, pos: $0.position.value!) }
+    
+    let ep2 = APIEndpoint.UpdateUserItemStates(userID: self.userID)
+    Alamofire.upload(ep2, data: try! states.toJSON().serialize()).response { resp in
+      onComplete()
+    }
+  }
+  
   private func syncItemStates(onComplete: () -> Void) {
     // fetch latest state info
     let ep = APIEndpoint.GetUserItemStates(userID: userID)
@@ -64,43 +75,48 @@ class DataStore {
         print("Error while syncing: Unexpected error code \(resp.1?.statusCode)")
         return onComplete()
       }
-      
+     
+      self.realm.beginWrite()
+     
       let json = try! JSON(data: resp.2!)
+      var statefulItems = [Item]()
       for state in try! json.array().map(ItemState.init) {
         var items = [Item](self.realm.objects(Item).filter("guid == %@", state.itemGUID))
         items = items.filter { (item) -> Bool in
           return item.feed.id == state.feedID
         }
         
+        statefulItems.appendContentsOf(items)
+      
         if let item = items.first {
-          try! self.realm.write {
-            item.playing = true
-            item.position = state.itemPos
-            self.realm.add(item, update: true)
-          }
+          item.state = state.itemPos.isZero
+            ? State.Unplayed
+            : State.InProgress(position: state.itemPos)
         }
       }
       
-      onComplete()
+      for item in self.realm.objects(Item) {
+        if !statefulItems.contains({$0.guid == item.guid}) {
+          item.state = State.Played
+        }
+      }
+      
+      try! self.realm.commitWrite()
+      
+      self.uploadItemStates(onComplete)
     }
   }
   
   func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
-    syncItemStates {
+    let ep = APIEndpoint.GetUserItemStates(userID: userID)
+    Alamofire.request(ep).response { resp in
       try! self.realm.write {
         item.playing = true
-        item.position = progress
+        item.state = .InProgress(position: progress)
         self.realm.add(item, update: true)
       }
       
-      let states = self.realm.objects(Item)
-        .filter("playing == true")
-        .map { ItemState(item: $0, pos: $0.position) }
-      
-      let ep2 = APIEndpoint.UpdateUserItemStates(userID: self.userID)
-      Alamofire.upload(ep2, data: try! states.toJSON().serialize()).response { resp in
-        onComplete()
-      }
+      self.uploadItemStates(onComplete)
     }
   }
 }

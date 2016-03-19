@@ -31,7 +31,7 @@ class User: JSONDecodable {
   }
 }
 
-class ItemState: Object, JSONDecodable, JSONEncodable {
+class ItemState: JSONDecodable, JSONEncodable {
   var feedID: String!
   var itemGUID: String!
   var itemPos: Double!

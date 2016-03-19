@@ -38,12 +38,13 @@ class Feed: Object, JSONDecodable {
   }
 }
 
+enum State {
+  case Played
+  case Unplayed
+  case InProgress(position: Double)
+}
+
 class Item: Object, JSONDecodable {
-  enum State: Int {
-    case Played
-    case Unplayed
-    case InProgress
-  }
   
   dynamic var guid: String = ""
   dynamic var link: String = ""
@@ -56,7 +57,7 @@ class Item: Object, JSONDecodable {
   dynamic var audioURL: String = ""
   dynamic var imageURL: String = ""
   dynamic var playing: Bool = false
-  dynamic var position: Double = 0
+  let position = RealmOptional<Double>()
   dynamic var key: String = ""
   
   override static func primaryKey() -> String? {
@@ -68,11 +69,27 @@ class Item: Object, JSONDecodable {
   }
   
   var state: State {
-    if playing {
-      return position.isZero ? .Unplayed : .InProgress
+    get {
+      if playing {
+        return position.value != nil
+          ? State.InProgress(position: position.value!)
+          : State.Unplayed
+      }
+      
+      return .Played
     }
-    
-    return .Played
+    set(newValue) {
+      switch(newValue) {
+      case .Unplayed:
+        playing = true
+        position.value = 0
+      case .Played:
+        playing = false
+        position.value = 0
+      case .InProgress(let position):
+        self.position.value = position
+      }
+    }
   }
   
   convenience required init(json: JSON) throws {

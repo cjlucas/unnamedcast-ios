@@ -54,9 +54,11 @@ class SingleFeedViewController: UITableViewController {
     
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")!
     cell.textLabel?.text = item.title
-    if item.state == .Played {
+    
+    if case .Played = item.state {
       cell.textLabel?.textColor = UIColor.grayColor()
     }
+    
     return cell
   }
   
@@ -66,8 +68,8 @@ class SingleFeedViewController: UITableViewController {
     let p = Player.sharedPlayer
     p.playItem(PlayerItem(item))
     
-    if item.state == .InProgress {
-      p.seekToPos(item.position)
+    if case .InProgress(let position) = item.state {
+      p.seekToPos(position)
     }
     
     performSegueWithIdentifier("ThePlayerSegue", sender: self)
