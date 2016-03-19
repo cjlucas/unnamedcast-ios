@@ -81,11 +81,12 @@ class DataStore {
       let json = try! JSON(data: resp.2!)
       var statefulItems = [Item]()
       for state in try! json.array().map(ItemState.init) {
+        // find item that matches state (from item guid and feed id)
         var items = [Item](self.realm.objects(Item).filter("guid == %@", state.itemGUID))
         items = items.filter { (item) -> Bool in
           return item.feed.id == state.feedID
         }
-        
+       
         statefulItems.appendContentsOf(items)
       
         if let item = items.first {

@@ -15,21 +15,28 @@ import Alamofire
 class SingleFeedViewController: UITableViewController {
   var feedId: String?
   var realm = try! Realm()
+  var token: NotificationToken?
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var headerImageView: UIImageView!
   
   lazy var feed: Feed = {
-    if let id = self.feedId {
-      return self.realm.objects(Feed).filter("id == '\(id)'").first!
-    }
-    fatalError("Feed not set")
+    guard let id = self.feedId else { fatalError("Feed not set") }
+    return self.realm.objects(Feed).filter("id == '\(id)'").first!
   }()
+  
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
     
     self.title = feed.title
+    
+    token = feed.items.addNotificationBlock { items in
+      self.tableView.reloadData()
+    }
     
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
       if let data = resp.data {
@@ -55,8 +62,11 @@ class SingleFeedViewController: UITableViewController {
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")!
     cell.textLabel?.text = item.title
     
-    if case .Played = item.state {
+    switch (item.state) {
+    case .Played:
       cell.textLabel?.textColor = UIColor.grayColor()
+    default:
+      cell.textLabel?.textColor = UIColor.blackColor()
     }
     
     return cell

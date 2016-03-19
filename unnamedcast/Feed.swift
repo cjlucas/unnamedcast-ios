@@ -87,6 +87,7 @@ class Item: Object, JSONDecodable {
         playing = false
         position.value = 0
       case .InProgress(let position):
+        playing = true
         self.position.value = position
       }
     }

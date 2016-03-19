@@ -43,7 +43,6 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     //        toggleMiniPlayerView(animated: false)
-    
   }
   
   override func didReceiveMemoryWarning() {
