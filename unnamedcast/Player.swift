@@ -235,7 +235,6 @@ class Player: NSObject, NSCoding {
     setNowPlayingInfoForCurrentItem()
   }
   
-  // queueItem purposfully does not begin playing a track if it's
   func queueItem(item: PlayerItem) {
     items.append(item)
     if items.count == 1 {
