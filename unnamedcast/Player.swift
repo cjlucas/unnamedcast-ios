@@ -87,7 +87,6 @@ class Player: NSObject, NSCoding {
   let player = AVPlayer()
   
   private let audioSession = AVAudioSession.sharedInstance()
-  private let infoCenter = MPNowPlayingInfoCenter.defaultCenter()
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
   private let eventHandlers = NSHashTable(options: .WeakMemory)
   
@@ -159,11 +158,6 @@ class Player: NSObject, NSCoding {
     cmd.addTargetWithHandler { handler in
       let newTime = CMTimeAdd(self.currentTime(), CMTimeMake(Int64(self.forwardSkipInterval), 1))
       self.seekToTime(newTime)
-      
-      self.updateNowPlayingInfo([
-        MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime().seconds
-        ])
-      
       return .Success
     }
     
@@ -172,12 +166,6 @@ class Player: NSObject, NSCoding {
     cmd.addTargetWithHandler { handler in
       let newTime = CMTimeSubtract(self.currentTime(), CMTimeMake(Int64(self.backwardSkipInterval), 1))
       self.seekToTime(newTime)
-      print(self.currentTime())
-      
-      self.updateNowPlayingInfo([
-        MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime().seconds
-        ])
-      
       return .Success
     }
   }
@@ -194,11 +182,19 @@ class Player: NSObject, NSCoding {
       if next != nil {
         self.playNextItem()
       }
-     
+      
       for handler in self.eventHandlers.allObjects {
         let handler = handler as! PlayerEventHandler
         handler.itemDidFinishPlaying(item, nextItem: next)
       }
+    }
+    
+    nc.addObserverForName(AVPlayerItemTimeJumpedNotification,
+      object: item.avItem,
+      queue: NSOperationQueue.mainQueue()) { notification in
+        self.updateNowPlayingInfo([
+          MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime().seconds
+        ])
     }
   }
   
@@ -234,12 +230,9 @@ class Player: NSObject, NSCoding {
     guard let item = items.first else { fatalError() }
     
     player.replaceCurrentItemWithPlayerItem(item.avItem)
-    infoCenter.nowPlayingInfo = [
-      MPMediaItemPropertyTitle: item.title,
-      MPMediaItemPropertyPlaybackDuration: item.duration
-    ]
     play()
     setNotificationForCurrentItem()
+    setNowPlayingInfoForCurrentItem()
   }
   
   // queueItem purposfully does not begin playing a track if it's
@@ -270,19 +263,34 @@ class Player: NSObject, NSCoding {
     return player.currentTime()
   }
   
+  private func setNowPlayingInfoForCurrentItem() {
+    guard let item = items.first else { return }
+    updateNowPlayingInfo([
+      MPMediaItemPropertyTitle: item.title,
+      MPMediaItemPropertyPlaybackDuration: item.duration
+    ])
+  }
+  
   private func updateNowPlayingInfo(info: [String: AnyObject]) {
-    var oldInfo = infoCenter.nowPlayingInfo!
-    for (k,v) in info {
-      oldInfo[k] = v
+    dispatch_async(dispatch_get_main_queue()) {
+      let infoCenter = MPNowPlayingInfoCenter.defaultCenter()
+      
+      if var oldInfo = infoCenter.nowPlayingInfo {
+        for (k,v) in info {
+          oldInfo[k] = v
+        }
+        
+        infoCenter.nowPlayingInfo = oldInfo
+      } else {
+        infoCenter.nowPlayingInfo = info
+      }
     }
-    
-    infoCenter.nowPlayingInfo = oldInfo
   }
   
   // MARK: NSCoding
   
-  required init?(coder d: NSCoder) {
-    super.init()
+  required convenience init?(coder d: NSCoder) {
+    self.init()
     
     let decodedItems = d.decodeObjectForKey("items") as! [PlayerItem]
     
@@ -293,6 +301,7 @@ class Player: NSObject, NSCoding {
     
     let itemPos = d.decodeCMTimeForKey("item_pos")
     player.seekToTime(itemPos)
+    setNowPlayingInfoForCurrentItem()
   }
   
   func encodeWithCoder(c: NSCoder) {
