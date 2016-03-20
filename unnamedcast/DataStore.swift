@@ -15,21 +15,23 @@ class DataStore {
   let ud = NSUserDefaults.standardUserDefaults()
   static let apiHost = "192.168.1.19"
   static let apiPort = 8080
-  
+
+  // TODO(clucas): Wrap NSUserDefaults in a class with these properties
   var userID: String {
-    get {
-      return ud.objectForKey("user_id") as! String
-    }
-    set(id) {
-      ud.setObject(id, forKey: "user_id")
-    }
+    get { return ud.objectForKey("user_id") as! String }
+    set(id) { ud.setObject(id, forKey: "user_id") }
+  }
+  
+  var syncToken: String? {
+    get { return ud.objectForKey("sync_token") as? String }
+    set(id) { ud.setObject(id, forKey: "sync_token") }
   }
   
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
   
   func sync(onComplete: () -> Void) {
-    let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: nil)
+    let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
     Alamofire.request(ep).response { resp in
       guard resp.3 == nil else {
         print("Error while syncing: \(resp.3)")
@@ -40,6 +42,8 @@ class DataStore {
         print("Error while syncing: Unexpected error code \(resp.1?.statusCode)")
         return onComplete()
       }
+    
+      self.syncToken = (resp.1?.allHeaderFields["X-Sync-Token"])! as? String
       
       let json = try! JSON(data: resp.2!)
       
