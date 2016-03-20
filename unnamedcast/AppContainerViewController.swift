@@ -8,14 +8,13 @@
 
 import UIKit
 
-class AppContainerViewController: UIViewController, PlayerEventHandler, UINavigationControllerDelegate {
+class AppContainerViewController: UIViewController, UINavigationControllerDelegate {
   @IBOutlet weak var miniPlayerView: UIView!
   @IBOutlet weak var miniPlayerHeightConstraint: NSLayoutConstraint!
   @IBOutlet weak var miniPlayerTitleLabel: UILabel!
   @IBOutlet weak var progressBarWidthConstraint: NSLayoutConstraint!
   
   let datastore = DataStore()
-  var i: Double = 0
   
   var player: Player {
     get {
@@ -31,8 +30,8 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    self.player.delegate = self
+   
+    player.registerEventHandler(self)
     
     timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateMiniPlayer:", userInfo: nil, repeats: true)
     timer?.fire()
@@ -98,9 +97,6 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
   }
   */
   
-  func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
-  }
-  
   // MARK: MiniPlayer -
   
   func updateMiniPlayer(timer: NSTimer?) {
@@ -112,7 +108,7 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
 
     guard let playerItem = player.currentItem() else { return }
     
-    let items = datastore.realm.objects(Item).filter("key = %@", playerItem.key)
+    let items = datastore.items.filter("key = %@", playerItem.key)
     guard let item = items.first else { return }
     
     if player.isPlaying() && player.position > 0 {
@@ -146,6 +142,23 @@ class AppContainerViewController: UIViewController, PlayerEventHandler, UINaviga
       hideMiniPlayerView()
     } else if shouldShowMiniPlayer() {
       showMiniPlayerView()
+    }
+  }
+}
+
+extension AppContainerViewController: PlayerEventHandler {
+  func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
+    print("itemDidFinishPlaying", item, nextItem)
+    try! datastore.realm.write {
+      if let item = datastore.items.filter("key = %@", item.key).first {
+        item.state = .Played
+      }
+      
+      guard let item = nextItem else { return }
+
+      if let item = datastore.items.filter("key = %@", item.key).first {
+        item.state = .InProgress(position: 0)
+      }
     }
   }
 }

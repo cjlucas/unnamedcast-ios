@@ -10,10 +10,6 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
-protocol PlayerItemProtocol {
-  func receivedItemNotification(item: PlayerItem, notification: String, userInfo: [NSObject: AnyObject]?)
-}
-
 class PlayerItem: NSObject, NSCoding {
   var url: String!
   var link: String!
@@ -32,7 +28,9 @@ class PlayerItem: NSObject, NSCoding {
   }()
   
   func hasVideo() -> Bool {
-    return avItem.tracks.filter({$0.assetTrack.mediaType == AVMediaTypeVideo}).count > 0
+    return avItem.tracks
+      .filter({$0.assetTrack.mediaType == AVMediaTypeVideo})
+      .count > 0
   }
   
   init(_ item: Item) {
@@ -91,11 +89,10 @@ class Player: NSObject, NSCoding {
   private let audioSession = AVAudioSession.sharedInstance()
   private let infoCenter = MPNowPlayingInfoCenter.defaultCenter()
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
+  private let eventHandlers = NSHashTable(options: .WeakMemory)
   
   // Array of all items, items.first is always the currently playing item
   private var items = [PlayerItem]()
-  
-  weak var delegate: PlayerEventHandler?
   
   var forwardSkipInterval: Int = 30 {
     didSet {
@@ -197,8 +194,11 @@ class Player: NSObject, NSCoding {
       if next != nil {
         self.playNextItem()
       }
-      
-      self.delegate?.itemDidFinishPlaying(item, nextItem: next)
+     
+      for handler in self.eventHandlers.allObjects {
+        let handler = handler as! PlayerEventHandler
+        handler.itemDidFinishPlaying(item, nextItem: next)
+      }
     }
   }
   
@@ -298,5 +298,11 @@ class Player: NSObject, NSCoding {
   func encodeWithCoder(c: NSCoder) {
     c.encodeObject(items, forKey: "items")
     c.encodeCMTime(currentTime(), forKey: "item_pos")
+  }
+  
+  // MARK: Event Handlers
+  
+  func registerEventHandler(handler: PlayerEventHandler) {
+    eventHandlers.addObject(handler)
   }
 }

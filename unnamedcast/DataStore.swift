@@ -25,6 +25,9 @@ class DataStore {
     }
   }
   
+  lazy var feeds: Results<Feed> = self.realm.objects(Feed)
+  lazy var items: Results<Item> = self.realm.objects(Item)
+  
   func sync(onComplete: () -> Void) {
     let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: nil)
     Alamofire.request(ep).response { resp in
