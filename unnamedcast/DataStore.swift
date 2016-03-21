@@ -42,18 +42,32 @@ class DataStore {
         print("Error while syncing: Unexpected error code \(resp.1?.statusCode)")
         return onComplete()
       }
-    
-      self.syncToken = (resp.1?.allHeaderFields["X-Sync-Token"])! as? String
+      
+      self.syncToken = resp.1?.allHeaderFields["X-Sync-Token"] as? String
       
       let json = try! JSON(data: resp.2!)
       
-      for feed in try! json.array().map(Feed.init) {
-        try! self.realm.write {
+      try! self.realm.write {
+        for feed in try! json.array().map(Feed.init) {
           print("Updating feed \(feed.title)")
-          self.realm.add(feed, update: true)
+          
+          // If feed does not exist in store, add it to the store...
+          guard self.feeds.filter("id = %@", feed.id).first != nil else {
+            self.realm.add(feed)
+            continue
+          }
+          
+          // ...otherwise update all items
+          for item in feed.items {
+            if let oldItem = self.items.filter("key = %@", item.key).first {
+              item.state = oldItem.state
+            }
+            
+            print("Updating item", item)
+            self.realm.add(item, update: true)
+          }
         }
       }
-      
       self.syncItemStates(onComplete)
     }
   }
