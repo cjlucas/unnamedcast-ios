@@ -7,12 +7,14 @@ target 'unnamedcast' do
   pod 'Freddy'
   pod 'RealmSwift'
   pod 'Alamofire'
+  pod 'PromiseKit'
 end
 
 target 'unnamedcastTests' do
   pod 'Freddy'
   pod 'RealmSwift'
   pod 'Alamofire'
+  pod 'PromiseKit'
 end
 
 target 'unnamedcastUITests' do
