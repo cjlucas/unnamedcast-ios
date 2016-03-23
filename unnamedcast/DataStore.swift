@@ -11,23 +11,12 @@ import PromiseKit
 import Freddy
 import RealmSwift
 
-enum BlahError: ErrorType {
-  case NetworkError(String)
-  case APIError(String)
-}
-
-protocol NewDataStoreAPI {
-  // Fetch step (networking)
-  func fetchUserStates() -> [ItemState]
-  // Merge step (db)
-  func mergeUserStates(states: [ItemState])
-  // Upload step (db/networking)
-  func uploadUserStates()
-  // Sync procedure would utilize the above functions
-  func syncUserStates()
-}
-
 class DataStore {
+  enum Error: ErrorType {
+    case NetworkError(String)
+    case APIError(String)
+  }
+  
   let realm = try! Realm()
   let ud = NSUserDefaults.standardUserDefaults()
   static let apiHost = "192.168.1.19"
@@ -47,6 +36,23 @@ class DataStore {
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
   
+  private func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
+    return Promise { fulfill, reject in
+      Alamofire.request(endpoint).response { resp in
+        if let err = resp.3 {
+          return reject(Error.NetworkError(err.description))
+        }
+        
+        if let code = resp.1?.statusCode
+          where !expectedStatusCodes.contains(code) {
+          return reject(Error.APIError("Unexpected status code \(code)"))
+        }
+        
+        return fulfill(try! JSON(data: resp.2!))
+      }
+    }
+  }
+  
   private func fetchUserInfo() -> Promise<User> {
     return Promise { fulfill, reject in
     }
@@ -54,19 +60,9 @@ class DataStore {
   
   private func fetchUserStates() -> Promise<[ItemState]> {
     return Promise { fulfill, reject in
-      let ep = APIEndpoint.GetUserItemStates(userID: userID)
-      Alamofire.request(ep).response { resp in
-        if let err = resp.3 {
-          return reject(BlahError.NetworkError(err.description))
-        }
-        
-        if let code = resp.1?.statusCode where code != 200 {
-          return reject(BlahError.APIError("Unexpected status code \(code)"))
-        }
-        
-        let json = try! JSON(data: resp.2!)
-        return fulfill(try! json.array().map(ItemState.init))
-      }
+      requestJSON(.GetUserItemStates(userID: userID)).then { json in
+        fulfill(try! json.array().map(ItemState.init))
+      }.error { err in reject(err) }
     }
   }
   
@@ -109,11 +105,11 @@ class DataStore {
       let data = try! states.toJSON().serialize()
       Alamofire.upload(ep, data: data).response { resp in
         if let err = resp.3 {
-          return reject(BlahError.NetworkError(err.description))
+          return reject(Error.NetworkError(err.description))
         }
         
         if let code = resp.1?.statusCode where code != 200 {
-          return reject(BlahError.APIError("Unexpected status code \(code)"))
+          return reject(Error.APIError("Unexpected status code \(code)"))
         }
         
         return fulfill()
@@ -126,11 +122,11 @@ class DataStore {
       let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
       Alamofire.request(ep).response { resp in
         if let err = resp.3 {
-          return reject(BlahError.NetworkError(err.description))
+          return reject(Error.NetworkError(err.description))
         }
         
         if let code = resp.1?.statusCode where code != 200 {
-          return reject(BlahError.APIError("Unexpected status code \(code)"))
+          return reject(Error.APIError("Unexpected status code \(code)"))
         }
         
         self.syncToken = resp.1?.allHeaderFields["X-Sync-Token"] as? String
@@ -174,7 +170,8 @@ class DataStore {
     }.then { states in
       self.saveUserStates(states)
       return self.uploadItemStates()
-    }.then {
+    }.then { () -> Void in
+      print("Synced successfully")
       onComplete()
     }.error { err in
       print("Error while syncing:", err)
