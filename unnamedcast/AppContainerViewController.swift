@@ -32,8 +32,11 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     super.viewDidLoad()
    
     player.registerEventHandler(self)
-    
-    timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: "updateMiniPlayer:", userInfo: nil, repeats: true)
+    timer = NSTimer.scheduledTimerWithTimeInterval(1,
+                                                   target: self,
+                                                   selector: #selector(AppContainerViewController.updateMiniPlayer(_:)),
+                                                   userInfo: nil,
+                                                   repeats: true)
     timer?.fire()
     
     self.navigationViewController.delegate = self

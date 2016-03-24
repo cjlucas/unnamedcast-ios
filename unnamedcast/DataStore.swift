@@ -7,10 +7,16 @@
 //
 
 import Alamofire
+import PromiseKit
 import Freddy
 import RealmSwift
 
 class DataStore {
+  enum Error: ErrorType {
+    case NetworkError(String)
+    case APIError(String)
+  }
+  
   let realm = try! Realm()
   let ud = NSUserDefaults.standardUserDefaults()
   static let apiHost = "192.168.1.19"
@@ -30,102 +36,145 @@ class DataStore {
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
   
-  func sync(onComplete: () -> Void) {
-    let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
-    Alamofire.request(ep).response { resp in
-      guard resp.3 == nil else {
-        print("Error while syncing: \(resp.3)")
-        return onComplete()
-      }
-      
-      guard resp.1?.statusCode == 200 else {
-        print("Error while syncing: Unexpected error code \(resp.1?.statusCode)")
-        return onComplete()
-      }
-      
-      self.syncToken = resp.1?.allHeaderFields["X-Sync-Token"] as? String
-      
-      let json = try! JSON(data: resp.2!)
-      
-      try! self.realm.write {
-        for feed in try! json.array().map(Feed.init) {
-          print("Updating feed \(feed.title)")
-          
-          // If feed does not exist in store, add it to the store...
-          guard self.feeds.filter("id = %@", feed.id).first != nil else {
-            self.realm.add(feed)
-            continue
-          }
-          
-          // ...otherwise update all items
-          for item in feed.items {
-            if let oldItem = self.items.filter("key = %@", item.key).first {
-              item.state = oldItem.state
-            }
-            
-            print("Updating item", item)
-            self.realm.add(item, update: true)
-          }
+  private func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
+    return Promise { fulfill, reject in
+      Alamofire.request(endpoint).response { resp in
+        if let err = resp.3 {
+          return reject(Error.NetworkError(err.description))
         }
+        
+        if let code = resp.1?.statusCode
+          where !expectedStatusCodes.contains(code) {
+          return reject(Error.APIError("Unexpected status code \(code)"))
+        }
+        
+        return fulfill(try! JSON(data: resp.2!))
       }
-      self.syncItemStates(onComplete)
     }
   }
   
-  private func uploadItemStates(onComplete: () -> Void) {
-    let states = self.realm.objects(Item)
-      .filter("playing != false")
-      .map { ItemState(item: $0, pos: $0.position.value!) }
+  private func fetchUserInfo() -> Promise<User> {
+    return Promise { fulfill, reject in
+    }
+  }
+  
+  private func fetchUserStates() -> Promise<[ItemState]> {
+    return Promise { fulfill, reject in
+      requestJSON(.GetUserItemStates(userID: userID)).then { json in
+        fulfill(try! json.array().map(ItemState.init))
+      }.error { err in reject(err) }
+    }
+  }
+  
+  private func saveUserStates(states: [ItemState]) {
+    var statefulItems = [Item]()
     
-    let ep2 = APIEndpoint.UpdateUserItemStates(userID: self.userID)
-    Alamofire.upload(ep2, data: try! states.toJSON().serialize()).response { resp in
-      onComplete()
+    self.realm.beginWrite()
+    
+    for state in states {
+      var items = [Item](self.realm.objects(Item).filter("guid == %@", state.itemGUID))
+      items = items.filter { (item) -> Bool in
+        return item.feed.id == state.feedID
+      }
+      
+      statefulItems.appendContentsOf(items)
+      
+      if let item = items.first {
+        item.state = state.itemPos.isZero
+          ? State.Unplayed
+          : State.InProgress(position: state.itemPos)
+      }
+    }
+    
+    for item in self.realm.objects(Item) {
+      if !statefulItems.contains({$0.guid == item.guid}) {
+        item.state = State.Played
+      }
+    }
+    
+    try! self.realm.commitWrite()
+  }
+  
+  private func uploadItemStates() -> Promise<Void> {
+    return Promise { fulfill, reject in
+      let states = self.realm.objects(Item)
+        .filter("playing != false")
+        .map { ItemState(item: $0, pos: $0.position.value!) }
+      
+      let ep = APIEndpoint.UpdateUserItemStates(userID: self.userID)
+      let data = try! states.toJSON().serialize()
+      Alamofire.upload(ep, data: data).response { resp in
+        if let err = resp.3 {
+          return reject(Error.NetworkError(err.description))
+        }
+        
+        if let code = resp.1?.statusCode where code != 200 {
+          return reject(Error.APIError("Unexpected status code \(code)"))
+        }
+        
+        return fulfill()
+      }
     }
   }
   
-  private func syncItemStates(onComplete: () -> Void) {
-    // fetch latest state info
-    let ep = APIEndpoint.GetUserItemStates(userID: userID)
-    Alamofire.request(ep).response { resp in
-      guard resp.3 == nil else {
-        print("Error while syncing: \(resp.3)")
-        return onComplete()
-      }
-      
-      guard resp.1?.statusCode == 200 else {
-        print("Error while syncing: Unexpected error code \(resp.1?.statusCode)")
-        return onComplete()
-      }
-     
-      self.realm.beginWrite()
-     
-      let json = try! JSON(data: resp.2!)
-      var statefulItems = [Item]()
-      for state in try! json.array().map(ItemState.init) {
-        // find item that matches state (from item guid and feed id)
-        var items = [Item](self.realm.objects(Item).filter("guid == %@", state.itemGUID))
-        items = items.filter { (item) -> Bool in
-          return item.feed.id == state.feedID
+  private func fetchUserFeeds() -> Promise<[Feed]> {
+    return Promise { fulfill, reject in
+      let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
+      Alamofire.request(ep).response { resp in
+        if let err = resp.3 {
+          return reject(Error.NetworkError(err.description))
         }
-       
-        statefulItems.appendContentsOf(items)
-      
-        if let item = items.first {
-          item.state = state.itemPos.isZero
-            ? State.Unplayed
-            : State.InProgress(position: state.itemPos)
+        
+        if let code = resp.1?.statusCode where code != 200 {
+          return reject(Error.APIError("Unexpected status code \(code)"))
+        }
+        
+        self.syncToken = resp.1?.allHeaderFields["X-Sync-Token"] as? String
+        
+        let json = try! JSON(data: resp.2!)
+        return fulfill(try! json.array().map(Feed.init))
+      }
+    }
+  }
+  
+  private func saveUserFeeds(feeds: [Feed]) {
+    try! self.realm.write {
+      for feed in feeds {
+        print("Updating feed \(feed.title)")
+        
+        // If feed does not exist in store, add it to the store...
+        guard self.feeds.filter("id = %@", feed.id).first != nil else {
+          self.realm.add(feed)
+          continue
+        }
+        
+        // ...otherwise update all items
+        for item in feed.items {
+          if let oldItem = self.items.filter("key = %@", item.key).first {
+            item.state = oldItem.state
+          }
+          
+          print("Updating item", item)
+          self.realm.add(item, update: true)
         }
       }
-      
-      for item in self.realm.objects(Item) {
-        if !statefulItems.contains({$0.guid == item.guid}) {
-          item.state = State.Played
-        }
-      }
-      
-      try! self.realm.commitWrite()
-      
-      self.uploadItemStates(onComplete)
+    }
+  }
+  
+  func sync(onComplete: () -> Void) {
+    firstly {
+      return fetchUserFeeds()
+    }.then { (feeds: [Feed]) -> Promise<[ItemState]> in
+      self.saveUserFeeds(feeds)
+      return self.fetchUserStates()
+    }.then { states in
+      self.saveUserStates(states)
+      return self.uploadItemStates()
+    }.then { () -> Void in
+      print("Synced successfully")
+      onComplete()
+    }.error { err in
+      print("Error while syncing:", err)
     }
   }
   
@@ -138,7 +187,7 @@ class DataStore {
         self.realm.add(item, update: true)
       }
       
-      self.uploadItemStates(onComplete)
+      self.uploadItemStates().then { _ in onComplete() }
     }
   }
 }
