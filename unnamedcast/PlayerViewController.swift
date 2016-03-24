@@ -172,21 +172,26 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   
   private func startUpdateUITimer() {
     timer?.invalidate()
-    timer = NSTimer.init(timeInterval: 1, target: self, selector: "updateUI:", userInfo: nil, repeats: true)
+    timer = NSTimer.init(timeInterval: 1,
+                         target: self,
+                         selector: #selector(PlayerViewController.updateUI(_:)),
+                         userInfo: nil,
+                         repeats: true)
     NSRunLoop.currentRunLoop().addTimer(timer!, forMode: NSDefaultRunLoopMode)
   }
   
-  private func timeString(var seconds: Int) -> String {
-    let hours = seconds / 3600
-    seconds -= hours * 3600
+  private func timeString(seconds: Int) -> String {
+    var secs = seconds
+    let hours = secs / 3600
+    secs -= hours * 3600
     
-    let minutes = seconds / 60
-    seconds -= minutes * 60
+    let minutes = secs / 60
+    secs -= minutes * 60
     
     if hours > 0 {
-      return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+      return String(format: "%d:%02d:%02d", hours, minutes, secs)
     } else {
-      return String(format: "%d:%02d", minutes, seconds)
+      return String(format: "%d:%02d", minutes, secs)
     }
   }
   
