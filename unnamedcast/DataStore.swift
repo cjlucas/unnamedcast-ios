@@ -55,6 +55,17 @@ class DataStore {
   
   private func fetchUserInfo() -> Promise<User> {
     return Promise { fulfill, reject in
+      requestJSON(.GetUserInfo(id: userID)).then { json in
+        fulfill(try User(json: json))
+      }.error { err in reject(err) }
+    }
+  }
+  
+  private func fetchFeed(feedID: String) -> Promise<Feed> {
+    return Promise { fulfill, reject in
+      requestJSON(.GetFeed(id: feedID)).then { json in
+        fulfill(try Feed(json: json))
+      }.error { err in reject(err) }
     }
   }
   
@@ -163,9 +174,29 @@ class DataStore {
   
   func sync(onComplete: () -> Void) {
     firstly {
-      return fetchUserFeeds()
-    }.then { (feeds: [Feed]) -> Promise<[ItemState]> in
+      return self.fetchUserFeeds()
+    }.then { (feeds: [Feed]) -> Promise<User> in
       self.saveUserFeeds(feeds)
+      return self.fetchUserInfo()
+    }.then { user in
+      let ids = self.feeds.map { $0.id }
+      var promises = [Promise<Feed>]()
+      for feedID in user.feedIDs {
+        if !ids.contains(feedID) {
+          promises.append(self.fetchFeed(feedID))
+        }
+      }
+      
+      return when(promises)
+    }.then { (feeds: [Feed]) -> Promise<[ItemState]> in
+      // If already in the database (this should never happen), assume
+      // the existing data is up to date
+      try! self.realm.write {
+        for f in feeds {
+          self.realm.add(f, update: false)
+        }
+      }
+      
       return self.fetchUserStates()
     }.then { states in
       self.saveUserStates(states)
