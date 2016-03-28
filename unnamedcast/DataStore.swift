@@ -36,6 +36,14 @@ class DataStore {
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
   
+  private func findFeed(id: String) -> Feed? {
+    return feeds.filter("id = %@", id).first
+  }
+  
+  private func findItem(key: String) -> Item? {
+    return items.filter("key = %@", key).first
+  }
+  
   private func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
     return Promise { fulfill, reject in
       Alamofire.request(endpoint).response { resp in
@@ -144,18 +152,22 @@ class DataStore {
         print("Updating feed \(feed.title)")
         
         // If feed does not exist in store, add it to the store...
-        guard self.feeds.filter("id = %@", feed.id).first != nil else {
+        guard let f = findFeed(feed.id) else {
           self.realm.add(feed)
           continue
         }
         
         // ...otherwise update all items
         for item in feed.items {
-          if let oldItem = self.items.filter("key = %@", item.key).first {
-            item.state = oldItem.state
+          print("Updating item", item)
+          
+          guard let oldItem = findItem(item.key) else {
+            f.items.append(item)
+            self.realm.add(f, update: true)
+            continue
           }
           
-          print("Updating item", item)
+          item.state = oldItem.state
           self.realm.add(item, update: true)
         }
       }
