@@ -95,7 +95,7 @@ class DataStore {
     try! self.realm.commitWrite()
   }
   
-  private func uploadItemStates() -> Promise<Void> {
+  func uploadItemStates() -> Promise<Void> {
     return Promise { fulfill, reject in
       let states = self.realm.objects(Item)
         .filter("playing != false")
