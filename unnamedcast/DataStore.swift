@@ -138,6 +138,7 @@ class DataStore {
   }
   
   private func saveUserFeeds(feeds: [Feed]) {
+    
     try! self.realm.write {
       for feed in feeds {
         print("Updating feed \(feed.title)")

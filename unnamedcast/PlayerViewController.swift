@@ -127,8 +127,9 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   
   override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
     super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
-    
-    if view.frame.width > view.frame.height {
+   
+    // view.frame has not been updated yet, so expressions are inversed
+    if view.frame.width < view.frame.height {
       currentPositionSlider = wideScreenPositionSlider
       currentCurTimeLabel = wideScreenCurTimeLabel
       currentRemTimeLabel = wideScreenRemTimeLabel
@@ -137,6 +138,8 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
       currentCurTimeLabel = curTimeLabel
       currentRemTimeLabel = durationLabel
     }
+    
+    updateUI(nil)
     
     coordinator.animateAlongsideTransition({ _ in
       let b = UIScreen.mainScreen().bounds
