@@ -22,6 +22,7 @@
 		837857C21C5C52660026959C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 837857C11C5C52660026959C /* AVFoundation.framework */; };
 		837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
 		837857D31C5D93600026959C /* UIImageColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857D21C5D93600026959C /* UIImageColors.swift */; };
+		839680BD1CA74A4F007A4D62 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839680BC1CA74A4F007A4D62 /* PlayerView.swift */; };
 		83AFF8AA1C8B7A8900E94AFE /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* DataStore.swift */; };
 		83E345641C94A5FE009F25E6 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
 		83E3456C1C94A71D009F25E6 /* unnamedcastUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E3456B1C94A71D009F25E6 /* unnamedcastUnitTests.swift */; };
@@ -80,6 +81,7 @@
 		837857C11C5C52660026959C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		837857D21C5D93600026959C /* UIImageColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageColors.swift; sourceTree = "<group>"; };
+		839680BC1CA74A4F007A4D62 /* PlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		83AFF8A91C8B7A8900E94AFE /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		83E345631C94A5FE009F25E6 /* feed1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = feed1.json; path = ../unnamedcastTests/feed1.json; sourceTree = "<group>"; };
 		83E345691C94A71D009F25E6 /* unnamedcastUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = unnamedcastUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -140,7 +142,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		8310483B1C710AE4003FB964 /* VC */ = {
+		8310483B1C710AE4003FB964 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
 				83475B291C62DB5000F48D33 /* AppContainerViewController.swift */,
@@ -151,7 +153,7 @@
 				8310483C1C710B9B003FB964 /* LoginViewController.swift */,
 				833239B01C77F47700494388 /* FeedSearchTableViewController.swift */,
 			);
-			name = VC;
+			name = Controllers;
 			sourceTree = "<group>";
 		};
 		83526AD81C5AF08300C43845 /* Models */ = {
@@ -161,6 +163,14 @@
 				83E345751C94ADAB009F25E6 /* User.swift */,
 			);
 			name = Models;
+			sourceTree = "<group>";
+		};
+		839680B91CA74932007A4D62 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				839680BC1CA74A4F007A4D62 /* PlayerView.swift */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 		83E3456A1C94A71D009F25E6 /* unnamedcastUnitTests */ = {
@@ -200,8 +210,9 @@
 		83E7256A1C5AEF0D00A0E8D4 /* unnamedcast */ = {
 			isa = PBXGroup;
 			children = (
+				839680B91CA74932007A4D62 /* Views */,
 				83526AD81C5AF08300C43845 /* Models */,
-				8310483B1C710AE4003FB964 /* VC */,
+				8310483B1C710AE4003FB964 /* Controllers */,
 				83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */,
 				83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */,
 				830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */,
@@ -537,6 +548,7 @@
 				83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */,
 				837857D31C5D93600026959C /* UIImageColors.swift in Sources */,
 				83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */,
+				839680BD1CA74A4F007A4D62 /* PlayerView.swift in Sources */,
 				83E345761C94ADAB009F25E6 /* User.swift in Sources */,
 				830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */,
 				833239B31C78E2DD00494388 /* APIEndpoint.swift in Sources */,
@@ -803,6 +815,7 @@
 				83E345701C94A71D009F25E6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		83E725631C5AEF0D00A0E8D4 /* Build configuration list for PBXProject "unnamedcast" */ = {
 			isa = XCConfigurationList;
