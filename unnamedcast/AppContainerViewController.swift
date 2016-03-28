@@ -163,5 +163,7 @@ extension AppContainerViewController: PlayerEventHandler {
         item.state = .InProgress(position: 0)
       }
     }
+    
+    datastore.uploadItemStates()
   }
 }
