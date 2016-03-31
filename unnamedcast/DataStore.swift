@@ -81,15 +81,13 @@ class DataStore {
   }
   
   func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
-    return Promise { fulfill, reject in
-      self.config.requestJSON(req: endpoint).then { resp -> Void in
-        let code = resp.resp.statusCode
-        if !expectedStatusCodes.contains(code) {
-          return reject(Error.APIError("Unexpected status code \(code)"))
-        }
-        
-        fulfill(resp.json)
+    return self.config.requestJSON(req: endpoint).then { resp -> JSON in
+      let code = resp.resp.statusCode
+      if !expectedStatusCodes.contains(code) {
+        throw Error.APIError("Unexpected status code \(code)")
       }
+      
+      return resp.json
     }
   }
   
@@ -99,10 +97,8 @@ class DataStore {
   }
   
   func fetchUserStates() -> Promise<[ItemState]> {
-    return Promise { fulfill, reject in
-      requestJSON(.GetUserItemStates(userID: userID)).then { json in
-        fulfill(try! json.array().map(ItemState.init))
-      }.error { err in reject(err) }
+    return requestJSON(.GetUserItemStates(userID: userID)).then { json in
+      return try! json.array().map(ItemState.init)
     }
   }
   
