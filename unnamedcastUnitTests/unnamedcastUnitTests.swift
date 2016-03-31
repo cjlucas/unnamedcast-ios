@@ -12,7 +12,7 @@ import Freddy
 import PromiseKit
 import RealmSwift
 
-func mockJSONRequester(responses: [NSData]) -> JSONRequester {
+func mockJSONRequester(responses: [JSON]) -> JSONRequester {
   var resps = responses
   
   
@@ -21,8 +21,7 @@ func mockJSONRequester(responses: [NSData]) -> JSONRequester {
     
     return Promise { fulfill, reject in
       guard resps.count > 0 else { fatalError("No responses left to return") }
-      let json = try! JSON(data: resps.removeFirst())
-      fulfill((req: req.URLRequest, resp: okResp, json: json))
+      fulfill((req: req.URLRequest, resp: okResp, json: resps.removeFirst()))
     }
   }
 }
@@ -58,8 +57,19 @@ class unnamedcastUnitTests: XCTestCase {
 
   // TODO: move this test to its own class
   func testInitialUserFeedSync() {
-    let responses = [loadFixture("userfeeds1", ofType: "json")]
-    let rc = Realm.Configuration(inMemoryIdentifier: "hithere")
+    // TODO: Waiting for Freddy to support proper literal syntax
+    // https://github.com/bignerdranch/Freddy/issues/150
+    let resp1: JSON = [[
+      "id": "56d65493c8747268f348438b",
+      "title": "Some Title",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "",
+    ].toJSON()]
+    
+    
+    let responses = [resp1]
+    let rc = Realm.Configuration(inMemoryIdentifier: "testInitialUserFeedSync")
     let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
     let ds = DataStore(configuration: conf)
     ds.userID = "0"
