@@ -7,7 +7,31 @@
 //
 
 import XCTest
+import Alamofire
 import Freddy
+import PromiseKit
+import Realm
+
+func mockJSONRequester(responses: [NSData]) -> JSONRequester {
+  var resps = responses
+  
+  
+  return { (req: URLRequestConvertible) -> Promise<JSONResponse> in
+    let okResp = NSHTTPURLResponse(URL: req.URLRequest.URL!, statusCode: 200, HTTPVersion: nil, headerFields: nil)!
+    
+    return Promise { fulfill, reject in
+      guard resps.count > 0 else { fatalError("No responses left to return") }
+      let json = try! JSON(data: resps.removeFirst())
+      print("OMG IM HERE, sending this back", json)
+      fulfill((req: req.URLRequest, resp: okResp, json: json))
+    }
+  }
+}
+  
+func loadFixture(name: String, ofType: String) -> NSData {
+  let fpath = NSBundle(forClass: unnamedcastUnitTests.self).pathForResource(name, ofType: ofType)
+  return NSData(contentsOfFile: fpath!)!
+}
 
 class unnamedcastUnitTests: XCTestCase {
   
@@ -21,11 +45,6 @@ class unnamedcastUnitTests: XCTestCase {
     super.tearDown()
   }
   
-  func loadFixture(name: String, ofType: String) -> NSData {
-    let fpath = NSBundle(forClass: unnamedcastUnitTests.self).pathForResource(name, ofType: ofType)
-    return NSData(contentsOfFile: fpath!)!
-  }
-  
   func testFeedFromJSON() {
     let data = loadFixture("feed1", ofType: "json")
     let json = try! JSON(data: data)
@@ -35,6 +54,25 @@ class unnamedcastUnitTests: XCTestCase {
       let _  = try Feed(json: json)
     } catch let e {
       XCTFail("Failed JSON deserialization \(e)")
+    }
+  }
+}
+
+class datastoreUnitTests: XCTestCase {
+  func testInitialUserFeedSync() {
+    let responses = [loadFixture("userfeeds1", ofType: "json")]
+    let conf = DataStore.Configuration(realmConfig: nil, requestJSON: mockJSONRequester(responses))
+    let ds = DataStore(configuration: conf)
+    ds.userID = "0"
+    
+    let expectation = expectationWithDescription("whatever")
+    
+    ds.syncUserFeeds().always {
+      expectation.fulfill()
+    }
+    
+    waitForExpectationsWithTimeout(5) { err in
+      XCTAssertEqual(ds.feeds.count, 1)
     }
   }
 }

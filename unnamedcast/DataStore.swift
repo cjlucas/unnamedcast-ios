@@ -11,14 +11,37 @@ import PromiseKit
 import Freddy
 import RealmSwift
 
-class DataStore {
-  enum Error: ErrorType {
+internal enum Error: ErrorType {
     case NetworkError(String)
     case APIError(String)
+}
+
+typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
+typealias JSONResponse = (req: NSURLRequest, resp: NSHTTPURLResponse, json: JSON)
+
+private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
+  return Promise { fulfill, reject in
+    Alamofire.request(req).response { resp in
+      if let err = resp.3 {
+        return reject(Error.NetworkError(err.description))
+      }
+     
+      let json = try! JSON(data: resp.2!)
+      return fulfill((req: resp.0!, resp: resp.1!, json: json))
+    }
+  }
+}
+
+class DataStore {
+  struct Configuration {
+    let realmConfig: Realm.Configuration?
+    let requestJSON: JSONRequester
   }
   
-  let realm = try! Realm()
+  let realm: Realm
+  let config: Configuration
   let ud = NSUserDefaults.standardUserDefaults()
+  
   static let apiHost = "192.168.1.19"
   static let apiPort = 8080
 
@@ -36,6 +59,19 @@ class DataStore {
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
   
+  required init(configuration: Configuration) {
+    config = configuration
+    if let conf = config.realmConfig {
+      realm = try! Realm(configuration: conf)
+    } else {
+      realm = try! Realm()
+    }
+  }
+
+  convenience init() {
+    self.init(configuration: Configuration(realmConfig: nil, requestJSON: reqJSON))
+  }
+  
   private func findFeed(id: String) -> Feed? {
     return feeds.filter("id = %@", id).first
   }
@@ -44,29 +80,25 @@ class DataStore {
     return items.filter("key = %@", key).first
   }
   
-  private func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
+  func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
     return Promise { fulfill, reject in
-      Alamofire.request(endpoint).response { resp in
-        if let err = resp.3 {
-          return reject(Error.NetworkError(err.description))
-        }
-        
-        if let code = resp.1?.statusCode
-          where !expectedStatusCodes.contains(code) {
+      self.config.requestJSON(req: endpoint).then { resp -> Void in
+        let code = resp.resp.statusCode
+        if !expectedStatusCodes.contains(code) {
           return reject(Error.APIError("Unexpected status code \(code)"))
         }
         
-        return fulfill(try! JSON(data: resp.2!))
+        fulfill(resp.json)
       }
     }
   }
   
-  private func fetchUserInfo() -> Promise<User> {
+  func fetchUserInfo() -> Promise<User> {
     return Promise { fulfill, reject in
     }
   }
   
-  private func fetchUserStates() -> Promise<[ItemState]> {
+  func fetchUserStates() -> Promise<[ItemState]> {
     return Promise { fulfill, reject in
       requestJSON(.GetUserItemStates(userID: userID)).then { json in
         fulfill(try! json.array().map(ItemState.init))
@@ -74,7 +106,7 @@ class DataStore {
     }
   }
   
-  private func saveUserStates(states: [ItemState]) {
+  func saveUserStates(states: [ItemState]) {
     var statefulItems = [Item]()
     
     self.realm.beginWrite()
@@ -125,27 +157,23 @@ class DataStore {
     }
   }
   
-  private func fetchUserFeeds() -> Promise<[Feed]> {
+  func fetchUserFeeds() -> Promise<[Feed]> {
     return Promise { fulfill, reject in
       let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
-      Alamofire.request(ep).response { resp in
-        if let err = resp.3 {
-          return reject(Error.NetworkError(err.description))
-        }
-        
-        if let code = resp.1?.statusCode where code != 200 {
+      self.config.requestJSON(req: ep).then { resp -> Void in
+        let code = resp.resp.statusCode
+        guard code == 200 else {
           return reject(Error.APIError("Unexpected status code \(code)"))
         }
         
-        self.syncToken = resp.1?.allHeaderFields["X-Sync-Token"] as? String
+        self.syncToken = resp.resp.allHeaderFields["X-Sync-Token"] as? String
         
-        let json = try! JSON(data: resp.2!)
-        return fulfill(try! json.array().map(Feed.init))
+        return fulfill(try! resp.json.array().map(Feed.init))
       }
     }
   }
   
-  private func saveUserFeeds(feeds: [Feed]) {
+  func saveUserFeeds(feeds: [Feed]) {
     try! self.realm.write {
       for feed in feeds {
         print("Updating feed \(feed.title)")
@@ -170,6 +198,12 @@ class DataStore {
           self.realm.add(item, update: true)
         }
       }
+    }
+  }
+  
+  func syncUserFeeds() -> Promise<Void> {
+    return fetchUserFeeds().then { feeds in
+      self.saveUserFeeds(feeds)
     }
   }
   
