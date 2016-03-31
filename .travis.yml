@@ -1,7 +1,4 @@
 language: objective-c
-xcode_workspace: unnamedcast.xcworkspace # path to your xcodeproj folder
-xcode_scheme: unnamedcastUnitTests
-
 osx_image: xcode7.3
 
 before_install:
