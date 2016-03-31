@@ -10,7 +10,7 @@ import XCTest
 import Alamofire
 import Freddy
 import PromiseKit
-import Realm
+import RealmSwift
 
 func mockJSONRequester(responses: [NSData]) -> JSONRequester {
   var resps = responses
@@ -22,7 +22,6 @@ func mockJSONRequester(responses: [NSData]) -> JSONRequester {
     return Promise { fulfill, reject in
       guard resps.count > 0 else { fatalError("No responses left to return") }
       let json = try! JSON(data: resps.removeFirst())
-      print("OMG IM HERE, sending this back", json)
       fulfill((req: req.URLRequest, resp: okResp, json: json))
     }
   }
@@ -61,7 +60,8 @@ class unnamedcastUnitTests: XCTestCase {
 class datastoreUnitTests: XCTestCase {
   func testInitialUserFeedSync() {
     let responses = [loadFixture("userfeeds1", ofType: "json")]
-    let conf = DataStore.Configuration(realmConfig: nil, requestJSON: mockJSONRequester(responses))
+    let rc = Realm.Configuration(inMemoryIdentifier: "hithere")
+    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
     let ds = DataStore(configuration: conf)
     ds.userID = "0"
     

@@ -158,18 +158,16 @@ class DataStore {
   }
   
   func fetchUserFeeds() -> Promise<[Feed]> {
-    return Promise { fulfill, reject in
-      let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
-      self.config.requestJSON(req: ep).then { resp -> Void in
-        let code = resp.resp.statusCode
-        guard code == 200 else {
-          return reject(Error.APIError("Unexpected status code \(code)"))
-        }
-        
-        self.syncToken = resp.resp.allHeaderFields["X-Sync-Token"] as? String
-        
-        return fulfill(try! resp.json.array().map(Feed.init))
+    let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
+    return  self.config.requestJSON(req: ep).then { resp -> [Feed] in
+      let code = resp.resp.statusCode
+      guard code == 200 else {
+        throw Error.APIError("Unexpected status code \(code)")
       }
+      
+      self.syncToken = resp.resp.allHeaderFields["X-Sync-Token"] as? String
+      
+      return try! resp.json.array().map(Feed.init)
     }
   }
   
