@@ -4,4 +4,6 @@ xcode_scheme: unnamedcastUnitTests
 
 osx_image: xcode7.3
 
-
+before_install:
+  echo "Here we go..."
+  brew reinstall --HEAD xctool
