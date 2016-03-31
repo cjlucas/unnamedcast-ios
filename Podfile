@@ -17,6 +17,13 @@ target 'unnamedcastTests' do
   pod 'PromiseKit'
 end
 
+target 'unnamedcastUnitTests' do
+  pod 'Freddy'
+  pod 'RealmSwift'
+  pod 'Alamofire'
+  pod 'PromiseKit'
+end
+
 target 'unnamedcastUITests' do
 
 end

@@ -55,9 +55,8 @@ class unnamedcastUnitTests: XCTestCase {
       XCTFail("Failed JSON deserialization \(e)")
     }
   }
-}
 
-class datastoreUnitTests: XCTestCase {
+  // TODO: move this test to its own class
   func testInitialUserFeedSync() {
     let responses = [loadFixture("userfeeds1", ofType: "json")]
     let rc = Realm.Configuration(inMemoryIdentifier: "hithere")
