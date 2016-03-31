@@ -5,5 +5,7 @@ xcode_scheme: unnamedcastUnitTests
 osx_image: xcode7.3
 
 before_install:
-  echo "Here we go..."
-  brew reinstall --HEAD xctool
+  - echo "Here we go..."
+  - brew reinstall --HEAD xctool
+
+script: xctool -workspace unnamedcast.xcworkspace -scheme unnamedcastUnitTests -sdk iphonesimulator test
