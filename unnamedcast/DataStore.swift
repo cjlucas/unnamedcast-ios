@@ -203,9 +203,8 @@ class DataStore {
   
   func sync(onComplete: () -> Void) {
     firstly {
-      return fetchUserFeeds()
-    }.then { (feeds: [Feed]) -> Promise<[ItemState]> in
-      self.saveUserFeeds(feeds)
+      return syncUserFeeds()
+    }.then {
       return self.fetchUserStates()
     }.then { states in
       self.saveUserStates(states)

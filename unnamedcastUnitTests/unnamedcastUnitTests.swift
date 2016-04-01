@@ -118,6 +118,126 @@ class unnamedcastUnitTests: XCTestCase {
     
     waitForExpectationsWithTimeout(5) { err in
       XCTAssertEqual(ds.feeds.count, 1)
+      XCTAssertEqual(ds.feeds.first!.items.count, 0)
+    }
+  }
+  
+  func testUserFeedSyncWithNewItems() {
+    // TODO: Waiting for Freddy to support proper literal syntax
+    // https://github.com/bignerdranch/Freddy/issues/150
+    let resp1: Dictionary<String, JSON> = [
+      "id": "56d65493c8747268f348438b",
+      "title": "Some Title",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+    ]
+
+    let resp2: Dictionary<String, JSON> = [
+      "id": "56d65493c8747268f348438b",
+      "title": "Some Title",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+      "items": [[
+        "guid": "guid goes here",
+        "link": "link goes here",
+        "title": "title goes here",
+        "author": "author goes here",
+        "description": "description",
+        "duration": 5,
+        "size": 100,
+        "publication_time": "doesnt matter",
+        "url": "http://google.com/podcast.mp3",
+        "image_url": "http://google.com/404.png"
+      ]]
+    ]
+  
+    let responses = [JSON.Array([.Dictionary(resp1)]), JSON.Array([.Dictionary(resp2)])]
+    let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithNewItems")
+    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
+    let ds = DataStore(configuration: conf)
+    ds.userID = "0"
+    
+    let expectation = expectationWithDescription("whatever")
+    
+    ds.syncUserFeeds().then {
+      return ds.syncUserFeeds()
+    }.always {
+      expectation.fulfill()
+    }
+    
+    waitForExpectationsWithTimeout(5) { err in
+      XCTAssertEqual(ds.feeds.count, 1)
+      XCTAssertEqual(ds.items.count, 1)
+      XCTAssertEqual(ds.feeds.first!.items.count, 1)
+    }
+  }
+
+  func testUserFeedSyncWithUpdatedItems() {
+    // TODO: Waiting for Freddy to support proper literal syntax
+    // https://github.com/bignerdranch/Freddy/issues/150
+    let resp1: Dictionary<String, JSON> = [
+      "id": "56d65493c8747268f348438b",
+      "title": "Some Title",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+      "items": [[
+        "guid": "guid goes here",
+        "link": "link goes here",
+        "title": "title1",
+        "author": "author goes here",
+        "description": "description",
+        "duration": 5,
+        "size": 100,
+        "publication_time": "doesnt matter",
+        "url": "http://google.com/podcast.mp3",
+        "image_url": "http://google.com/404.png"
+      ]]
+    ]
+
+    let resp2: Dictionary<String, JSON> = [
+      "id": "56d65493c8747268f348438b",
+      "title": "Some Title",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+      "items": [[
+        "guid": "guid goes here",
+        "link": "link goes here",
+        "title": "title2",
+        "author": "author goes here",
+        "description": "description",
+        "duration": 5,
+        "size": 100,
+        "publication_time": "doesnt matter",
+        "url": "http://google.com/podcast.mp3",
+        "image_url": "http://google.com/404.png"
+      ]]
+    ]
+  
+    let responses = [JSON.Array([.Dictionary(resp1)]), JSON.Array([.Dictionary(resp2)])]
+    let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithUpdatedItems")
+    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
+    let ds = DataStore(configuration: conf)
+    ds.userID = "0"
+    
+    let expectation = expectationWithDescription("whatever")
+    
+    ds.syncUserFeeds().then {
+      return ds.syncUserFeeds()
+    }.always {
+      expectation.fulfill()
+    }
+    
+    waitForExpectationsWithTimeout(5) { err in
+      XCTAssertEqual(ds.feeds.count, 1)
+      XCTAssertEqual(ds.items.count, 1)
+      XCTAssertEqual(ds.feeds.first!.items.count, 1)
+      
+      let item = ds.feeds.first!.items.first!
+      XCTAssertEqual(item.title, "title2")
     }
   }
 }
