@@ -44,12 +44,48 @@ class unnamedcastUnitTests: XCTestCase {
   }
   
   func testFeedFromJSON() {
-    let data = loadFixture("feed1", ofType: "json")
-    let json = try! JSON(data: data)
-    XCTAssert(json != nil)
+    let data: Dictionary<String, JSON> = [
+      "id": "56d65493c8747268f348438b",
+      "title": "Some Title",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+      "items": [[
+        "guid": "guid goes here",
+        "link": "link goes here",
+        "title": "title goes here",
+        "author": "author goes here",
+        "description": "description",
+        "duration": 5,
+        "size": 100,
+        "publication_time": "doesnt matter",
+        "url": "http://google.com/podcast.mp3",
+        "image_url": "http://google.com/404.png"
+      ]]
+    ]
+    
+    let json = JSON.Dictionary(data)
     
     do {
-      let _  = try Feed(json: json)
+      let f = try Feed(json: json)
+      XCTAssertEqual(f.id, try! data["id"]!.string())
+      XCTAssertEqual(f.title, try! data["title"]!.string())
+      XCTAssertEqual(f.author, try! data["author"]!.string())
+      XCTAssertEqual(f.imageUrl, try! data["image_url"]!.string())
+      
+      XCTAssertEqual(f.items.count, 1)
+      let item = f.items.first!
+      let itemJSON = try! data["items"]!.array().first!.dictionary()
+      XCTAssertEqual(item.guid, try! itemJSON["guid"]!.string())
+      XCTAssertEqual(item.link, try! itemJSON["link"]!.string())
+      XCTAssertEqual(item.title, try! itemJSON["title"]!.string())
+      XCTAssertEqual(item.author, try! itemJSON["author"]!.string())
+      XCTAssertEqual(item.desc, try! itemJSON["description"]!.string())
+      XCTAssertEqual(item.duration, try! itemJSON["duration"]!.int())
+      XCTAssertEqual(item.size, try! itemJSON["size"]!.int())
+      XCTAssertEqual(item.pubDate, try! itemJSON["publication_time"]!.string())
+      XCTAssertEqual(item.audioURL, try! itemJSON["url"]!.string())
+      XCTAssertEqual(item.imageURL, try! itemJSON["image_url"]!.string())
+      
     } catch let e {
       XCTFail("Failed JSON deserialization \(e)")
     }
@@ -64,7 +100,7 @@ class unnamedcastUnitTests: XCTestCase {
       "title": "Some Title",
       "url": "http://google.com",
       "author": "Author goes Here",
-      "image_url": "",
+      "image_url": "http://google.com/404.png",
     ].toJSON()]
     
     
