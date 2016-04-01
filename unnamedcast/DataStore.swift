@@ -153,6 +153,13 @@ class DataStore {
     }
   }
   
+  func syncItemStates() -> Promise<Void> {
+    return fetchUserStates().then { states in
+      self.saveUserStates(states)
+      return self.uploadItemStates()
+    }
+  }
+  
   func fetchUserFeeds() -> Promise<[Feed]> {
     let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
     return  self.config.requestJSON(req: ep).then { resp -> [Feed] in
@@ -203,12 +210,9 @@ class DataStore {
   
   func sync(onComplete: () -> Void) {
     firstly {
-      return syncUserFeeds()
+      return self.syncUserFeeds()
     }.then {
-      return self.fetchUserStates()
-    }.then { states in
-      self.saveUserStates(states)
-      return self.uploadItemStates()
+      return self.syncItemStates()
     }.then { () -> Void in
       print("Synced successfully")
       onComplete()
