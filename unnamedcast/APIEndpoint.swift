@@ -20,7 +20,6 @@ enum APIEndpoint {
   case Login(user: String, password: String)
   case GetFeed(id: String, modificationsSince: NSDate?)
   case GetUserInfo(id: String)
-  case GetUserFeeds(userID: String, syncToken: String?)
   case SearchFeeds(query: String)
   case UpdateUserFeeds(userID: String)
   case GetUserItemStates(userID: String)
@@ -58,12 +57,6 @@ extension APIEndpoint: URLRequestConvertible {
     case .GetUserInfo(let id):
       req.HTTPMethod = "GET"
       components.path = "/api/users/\(id)"
-    case .GetUserFeeds(let userID, let syncToken):
-      req.HTTPMethod = "GET"
-      components.path = "/api/users/\(userID)/feeds"
-      if let token = syncToken {
-        req.addValue(token, forHTTPHeaderField: "X-Sync-Token")
-      }
     case .UpdateUserFeeds(let userID):
       req.HTTPMethod = "PUT"
       components.path = "/api/users/\(userID)/feeds"
