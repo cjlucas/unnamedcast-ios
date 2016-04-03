@@ -44,11 +44,12 @@ class unnamedcastUnitTests: XCTestCase {
   }
   
   func testFeedFromJSON() {
-    let data: Dictionary<String, JSON> = [
+    let data: [String: JSON] = [
       "id": "56d65493c8747268f348438b",
       "title": "Some Title",
       "author": "Author goes Here",
       "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.33Z",
       "items": [[
         "guid": "guid goes here",
         "link": "link goes here",
@@ -95,16 +96,25 @@ class unnamedcastUnitTests: XCTestCase {
   func testInitialUserFeedSync() {
     // TODO: Waiting for Freddy to support proper literal syntax
     // https://github.com/bignerdranch/Freddy/issues/150
-    let resp1: JSON = [[
+    
+    let resp1: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "username": "chris@cjlucas.net",
+      "feeds": ["56d65493c8747268f348438b"],
+      "states": [],
+    ]
+    
+    let resp2: [String: JSON] = [
       "id": "56d65493c8747268f348438b",
       "title": "Some Title",
       "url": "http://google.com",
       "author": "Author goes Here",
       "image_url": "http://google.com/404.png",
-    ].toJSON()]
+      "modification_time": "2016-04-03T19:38:03.33Z",
+    ]
     
     
-    let responses = [resp1]
+    let responses = [JSON.Dictionary(resp1), JSON.Dictionary(resp2)]
     let rc = Realm.Configuration(inMemoryIdentifier: "testInitialUserFeedSync")
     let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
     let ds = DataStore(configuration: conf)
@@ -125,20 +135,37 @@ class unnamedcastUnitTests: XCTestCase {
   func testUserFeedSyncWithNewItems() {
     // TODO: Waiting for Freddy to support proper literal syntax
     // https://github.com/bignerdranch/Freddy/issues/150
-    let resp1: Dictionary<String, JSON> = [
+    
+    let resp1: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "username": "chris@cjlucas.net",
+      "feeds": ["56d65493c8747268f348438b"],
+      "states": [],
+    ]
+    
+    let resp2: [String: JSON] = [
       "id": "56d65493c8747268f348438b",
       "title": "Some Title",
       "url": "http://google.com",
       "author": "Author goes Here",
       "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.33Z",
     ]
 
-    let resp2: Dictionary<String, JSON> = [
+    let resp3: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "username": "chris@cjlucas.net",
+      "feeds": ["56d65493c8747268f348438b"],
+      "states": [],
+    ]
+
+    let resp4: [String: JSON] = [
       "id": "56d65493c8747268f348438b",
       "title": "Some Title",
       "url": "http://google.com",
       "author": "Author goes Here",
       "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.34Z",
       "items": [[
         "guid": "guid goes here",
         "link": "link goes here",
@@ -153,7 +180,7 @@ class unnamedcastUnitTests: XCTestCase {
       ]]
     ]
   
-    let responses = [JSON.Array([.Dictionary(resp1)]), JSON.Array([.Dictionary(resp2)])]
+    let responses = [resp1, resp2, resp3, resp4].map({ JSON.Dictionary($0) })
     let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithNewItems")
     let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
     let ds = DataStore(configuration: conf)
@@ -177,12 +204,21 @@ class unnamedcastUnitTests: XCTestCase {
   func testUserFeedSyncWithUpdatedItems() {
     // TODO: Waiting for Freddy to support proper literal syntax
     // https://github.com/bignerdranch/Freddy/issues/150
-    let resp1: Dictionary<String, JSON> = [
+    
+    let resp1: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "username": "chris@cjlucas.net",
+      "feeds": ["56d65493c8747268f348438b"],
+      "states": [],
+    ]
+    
+    let resp2: [String: JSON] = [
       "id": "56d65493c8747268f348438b",
       "title": "Some Title",
       "url": "http://google.com",
       "author": "Author goes Here",
       "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.34Z",
       "items": [[
         "guid": "guid goes here",
         "link": "link goes here",
@@ -197,12 +233,20 @@ class unnamedcastUnitTests: XCTestCase {
       ]]
     ]
 
-    let resp2: Dictionary<String, JSON> = [
+    let resp3: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "username": "chris@cjlucas.net",
+      "feeds": ["56d65493c8747268f348438b"],
+      "states": [],
+    ]
+    
+    let resp4: [String: JSON] = [
       "id": "56d65493c8747268f348438b",
       "title": "Some Title",
       "url": "http://google.com",
       "author": "Author goes Here",
       "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.35Z",
       "items": [[
         "guid": "guid goes here",
         "link": "link goes here",
@@ -217,7 +261,7 @@ class unnamedcastUnitTests: XCTestCase {
       ]]
     ]
   
-    let responses = [JSON.Array([.Dictionary(resp1)]), JSON.Array([.Dictionary(resp2)])]
+    let responses = [resp1, resp2, resp3, resp4].map({ JSON.Dictionary($0) })
     let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithUpdatedItems")
     let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
     let ds = DataStore(configuration: conf)
@@ -235,6 +279,112 @@ class unnamedcastUnitTests: XCTestCase {
       XCTAssertEqual(ds.feeds.count, 1)
       XCTAssertEqual(ds.items.count, 1)
       XCTAssertEqual(ds.feeds.first!.items.count, 1)
+      
+      let item = ds.feeds.first!.items.first!
+      XCTAssertEqual(item.title, "title2")
+    }
+  }
+  
+  func testUserFeedSyncWithNewFeed() {
+    // TODO: Waiting for Freddy to support proper literal syntax
+    // https://github.com/bignerdranch/Freddy/issues/150
+    
+    let resp1: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "username": "chris@cjlucas.net",
+      "feeds": ["56d65493c8747268f348438b"],
+      "states": [],
+    ]
+    
+    let resp2: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "title": "Some Title",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.34Z",
+      "items": [[
+        "guid": "guid goes here",
+        "link": "link goes here",
+        "title": "title1",
+        "author": "author goes here",
+        "description": "description",
+        "duration": 5,
+        "size": 100,
+        "publication_time": "doesnt matter",
+        "url": "http://google.com/podcast.mp3",
+        "image_url": "http://google.com/404.png"
+      ]]
+    ]
+
+    let resp3: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "username": "chris@cjlucas.net",
+      "feeds": ["56d65493c8747268f348438b", "56d65493c8747268f348438c"],
+      "states": [],
+    ]
+
+    let resp4: [String: JSON] = [
+      "id": "56d65493c8747268f348438b",
+      "title": "Feed 1",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.35Z",
+      "items": [[
+        "guid": "guid goes here",
+        "link": "link goes here",
+        "title": "title2",
+        "author": "author goes here",
+        "description": "description",
+        "duration": 5,
+        "size": 100,
+        "publication_time": "doesnt matter",
+        "url": "http://google.com/podcast.mp3",
+        "image_url": "http://google.com/404.png"
+      ]]
+    ]
+    
+    let resp5: [String: JSON] = [
+      "id": "56d65493c8747268f348438c",
+      "title": "Feed 2",
+      "url": "http://google.com",
+      "author": "Author goes Here",
+      "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.35Z",
+      "items": [[
+        "guid": "guid goes here",
+        "link": "link goes here",
+        "title": "title2",
+        "author": "author goes here",
+        "description": "description",
+        "duration": 5,
+        "size": 100,
+        "publication_time": "doesnt matter",
+        "url": "http://google.com/podcast.mp3",
+        "image_url": "http://google.com/404.png"
+      ]]
+    ]
+  
+    let responses = [resp1, resp2, resp3, resp4, resp5].map({ JSON.Dictionary($0) })
+    let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithUpdatedItems")
+    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
+    let ds = DataStore(configuration: conf)
+    ds.userID = "0"
+    
+    let expectation = expectationWithDescription("whatever")
+    
+    ds.syncUserFeeds().then {
+      return ds.syncUserFeeds()
+    }.always {
+      expectation.fulfill()
+    }
+    
+    waitForExpectationsWithTimeout(5) { err in
+      XCTAssertEqual(ds.feeds.count, 2)
+      XCTAssertEqual(ds.items.count, 2)
+      XCTAssertEqual(ds.feeds[0].items.count, 1)
+      XCTAssertEqual(ds.feeds[1].items.count, 1)
       
       let item = ds.feeds.first!.items.first!
       XCTAssertEqual(item.title, "title2")

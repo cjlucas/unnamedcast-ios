@@ -15,9 +15,14 @@ class Feed: Object, JSONDecodable {
   dynamic var author: String = ""
   dynamic var imageUrl: String = ""
   let items = List<Item>()
+  var modificationDate: NSDate!
   
   override static func primaryKey() -> String? {
     return "id"
+  }
+
+  override static func ignoredProperties() -> [String] {
+    return ["modificationDate"]
   }
   
   convenience required init(json: JSON) throws {
@@ -27,6 +32,13 @@ class Feed: Object, JSONDecodable {
     title = try json.string("title")
     author = try json.string("author")
     imageUrl = try json.string("image_url")
+    
+    let modTime = try json.string("modification_time")
+    if let modDate = rfc3339Formatter.dateFromString(modTime) {
+      modificationDate = modDate
+    } else {
+      throw Error.JSONError("Failed to parse modification_time: \(modTime)")
+    }
     
     if let jsonItems = try? json.array("items") {
       for item in jsonItems {
