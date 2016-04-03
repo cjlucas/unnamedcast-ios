@@ -7,10 +7,18 @@
 //
 
 import Alamofire
+import Foundation
+
+let rfc3339Formatter: NSDateFormatter = {
+  let f = NSDateFormatter()
+  f.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSSSX"
+  f.timeZone = NSTimeZone(name: "UTC")
+  return f
+}()
 
 enum APIEndpoint {
   case Login(user: String, password: String)
-  case GetFeed(id: String)
+  case GetFeed(id: String, modificationsSince: NSDate?)
   case GetUserInfo(id: String)
   case GetUserFeeds(userID: String, syncToken: String?)
   case SearchFeeds(query: String)
@@ -35,9 +43,14 @@ extension APIEndpoint: URLRequestConvertible {
         NSURLQueryItem(name: "username", value: user),
         NSURLQueryItem(name: "password", value: password)
       ]
-    case .GetFeed(let id):
+    case .GetFeed(let id, let modTime):
       req.HTTPMethod = "GET"
       components.path = "/api/feeds/\(id)"
+      if let t = modTime {
+        let param = "items_modified_since"
+        let val = rfc3339Formatter.stringFromDate(t)
+        components.queryItems = [NSURLQueryItem(name: param, value: val)]
+      }
     case .SearchFeeds(let query):
       req.HTTPMethod = "GET"
       components.path = "/search_feeds"
