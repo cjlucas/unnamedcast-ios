@@ -21,7 +21,6 @@ func mockJSONRequester(responses: [JSON]) -> JSONRequester {
     
     return Promise { fulfill, reject in
       guard resps.count > 0 else { fatalError("No responses left to return") }
-      print("Sending response:", resps.first)
       fulfill((req: req.URLRequest, resp: okResp, json: resps.removeFirst()))
     }
   }
