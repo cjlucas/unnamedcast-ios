@@ -16,13 +16,14 @@ class Feed: Object, JSONDecodable {
   dynamic var imageUrl: String = ""
   let items = List<Item>()
   var modificationDate: NSDate!
+  var itemIds = [String]()
   
   override static func primaryKey() -> String? {
     return "id"
   }
 
   override static func ignoredProperties() -> [String] {
-    return ["modificationDate"]
+    return ["modificationDate", "itemIds"]
   }
   
   convenience required init(json: JSON) throws {
@@ -39,6 +40,8 @@ class Feed: Object, JSONDecodable {
     } else {
       throw Error.JSONError("Failed to parse modification_time: \(modTime)")
     }
+    
+    itemIds.appendContentsOf(try json.array("items").map(String.init))
   }
 }
 
@@ -62,10 +65,9 @@ class Item: Object, JSONDecodable {
   dynamic var imageURL: String = ""
   dynamic var playing: Bool = false
   let position = RealmOptional<Double>()
-  dynamic var key: String = ""
   
   override static func primaryKey() -> String? {
-    return "key"
+    return "id"
   }
   
   var feed: Feed {
