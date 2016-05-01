@@ -20,11 +20,11 @@ PODS:
     - PromiseKit/CorePromise
   - PromiseKit/UIKit (3.0.3):
     - PromiseKit/CorePromise
-  - Realm (0.98.5):
-    - Realm/Headers (= 0.98.5)
-  - Realm/Headers (0.98.5)
-  - RealmSwift (0.98.5):
-    - Realm (= 0.98.5)
+  - Realm (0.100.0):
+    - Realm/Headers (= 0.100.0)
+  - Realm/Headers (0.100.0)
+  - RealmSwift (0.100.0):
+    - Realm (= 0.100.0)
 
 DEPENDENCIES:
   - Alamofire
@@ -37,7 +37,7 @@ SPEC CHECKSUMS:
   Freddy: e53713b8d5be02dbf5f4132c44d899d99eb09a6b
   OMGHTTPURLRQ: 633f98ee745aeda02345935a52eec1784cddb589
   PromiseKit: 00ec2a219bf5ad2833f95977698e921932b8dfd3
-  Realm: db08379969e45cea2edd1c3c0a090fe9e22d2d2f
-  RealmSwift: cb11ad1c35e15dc982f2dbf5afe2a3124193a358
+  Realm: b13b548e712d28a66678970c45cd245ebb94ba3b
+  RealmSwift: 1bb0ba2ceaa06b65d740b4f91bfa06e3fd1b805c
 
 COCOAPODS: 0.39.0
