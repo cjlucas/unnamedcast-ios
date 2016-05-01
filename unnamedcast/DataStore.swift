@@ -90,8 +90,8 @@ class DataStore {
     return feeds.filter("id = %@", id).first
   }
   
-  private func findItem(key: String) -> Item? {
-    return items.filter("key = %@", key).first
+  private func findItem(id: String) -> Item? {
+    return items.filter("id = %@", id).first
   }
   
   func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
@@ -176,14 +176,23 @@ class DataStore {
   }
   
   func fetchFeed(feedID: String, itemsModifiedSince: NSDate?) -> Promise<Feed> {
-    let ep = APIEndpoint.GetFeed(id: feedID, modificationsSince: itemsModifiedSince)
-    return self.config.requestJSON(req: ep).then { resp -> Feed in
-      let code = resp.resp.statusCode
-      guard code == 200 else {
-        throw Error.APIError("Unexpected status code \(code)")
+    let promises = [
+      APIEndpoint.GetFeed(id: feedID),
+      APIEndpoint.GetFeedItems(id: feedID, modificationsSince: itemsModifiedSince),
+    ].map({ self.config.requestJSON(req: $0) })
+    
+    return when(promises).then { resps -> Feed in
+      for resp in resps {
+        let code = resp.resp.statusCode
+        guard code == 200 else {
+          throw Error.APIError("Unexpected status code \(code)")
+        }
       }
       
-      return try Feed(json: resp.json)
+      let feed = try Feed(json: resps[0].json)
+      let items = try resps[1].json.array().map(Item.init)
+      feed.items.appendContentsOf(items)
+      return feed
     }
   }
   
@@ -207,7 +216,7 @@ class DataStore {
         for item in feed.items {
           print("Updating item", item)
           
-          guard let oldItem = findItem(item.key) else {
+          guard let oldItem = findItem(item.id) else {
             f.items.append(item)
             self.realm.add(f, update: true)
             continue
