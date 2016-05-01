@@ -12,8 +12,9 @@ import Freddy
 import RealmSwift
 
 internal enum Error: ErrorType {
-    case NetworkError(String)
-    case APIError(String)
+  case NetworkError(String)
+  case APIError(String)
+  case JSONError(String)
 }
 
 typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
@@ -56,6 +57,19 @@ class DataStore {
     set(id) { ud.setObject(id, forKey: "sync_token") }
   }
   
+  var feedSyncTimes: [String: NSDate] {
+    get {
+      let dct = ud.dictionaryForKey("feed_sync_times")
+      if let d = dct {
+        return d as! [String: NSDate]
+      }
+      return [String: NSDate]()
+    }
+    set(times) {
+      ud.setObject(times, forKey: "feed_sync_times")
+    }
+  }
+  
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
   
@@ -76,8 +90,8 @@ class DataStore {
     return feeds.filter("id = %@", id).first
   }
   
-  private func findItem(key: String) -> Item? {
-    return items.filter("key = %@", key).first
+  private func findItem(id: String) -> Item? {
+    return items.filter("id = %@", id).first
   }
   
   func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
@@ -92,7 +106,8 @@ class DataStore {
   }
   
   func fetchUserInfo() -> Promise<User> {
-    return Promise { fulfill, reject in
+    return requestJSON(.GetUserInfo(id: userID)).then { json -> User in
+      return try User(json: json)
     }
   }
   
@@ -160,18 +175,30 @@ class DataStore {
     }
   }
   
-  func fetchUserFeeds() -> Promise<[Feed]> {
-    let ep = APIEndpoint.GetUserFeeds(userID: userID, syncToken: syncToken)
-    return  self.config.requestJSON(req: ep).then { resp -> [Feed] in
-      let code = resp.resp.statusCode
-      guard code == 200 else {
-        throw Error.APIError("Unexpected status code \(code)")
+  func fetchFeed(feedID: String, itemsModifiedSince: NSDate?) -> Promise<Feed> {
+    let promises = [
+      APIEndpoint.GetFeed(id: feedID),
+      APIEndpoint.GetFeedItems(id: feedID, modificationsSince: itemsModifiedSince),
+    ].map({ self.config.requestJSON(req: $0) })
+    
+    return when(promises).then { resps -> Feed in
+      for resp in resps {
+        let code = resp.resp.statusCode
+        guard code == 200 else {
+          throw Error.APIError("Unexpected status code \(code)")
+        }
       }
       
-      self.syncToken = resp.resp.allHeaderFields["X-Sync-Token"] as? String
-      
-      return try! resp.json.array().map(Feed.init)
+      let feed = try Feed(json: resps[0].json)
+      let items = try resps[1].json.array().map(Item.init)
+      feed.items.appendContentsOf(items)
+      return feed
     }
+  }
+  
+  func fetchUserFeeds(feedIDs: [String]) -> Promise<[Feed]> {
+    let syncTimes = feedSyncTimes
+    return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: syncTimes[$0]) }))
   }
   
   func saveUserFeeds(feeds: [Feed]) {
@@ -189,7 +216,7 @@ class DataStore {
         for item in feed.items {
           print("Updating item", item)
           
-          guard let oldItem = findItem(item.key) else {
+          guard let oldItem = findItem(item.id) else {
             f.items.append(item)
             self.realm.add(f, update: true)
             continue
@@ -200,16 +227,27 @@ class DataStore {
         }
       }
     }
+
+    var syncTimes = feedSyncTimes
+    
+    for f in feeds {
+      syncTimes[f.id] = f.modificationDate
+    }
+    
+    feedSyncTimes = syncTimes
   }
   
   func syncUserFeeds() -> Promise<Void> {
-    return fetchUserFeeds().then { feeds in
+    return fetchUserInfo().then { user in
+      return self.fetchUserFeeds(user.feedIDs)
+    }.then { feeds in
       self.saveUserFeeds(feeds)
     }
   }
   
   func sync(onComplete: () -> Void) {
     firstly {
+      self.fetchUserInfo()
       return self.syncUserFeeds()
     }.then {
       return self.syncItemStates()
