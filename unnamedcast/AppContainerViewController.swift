@@ -111,7 +111,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
 
     guard let playerItem = player.currentItem() else { return }
     
-    let items = datastore.items.filter("id = %@", playerItem.id)
+    let items = datastore.items.filter("key = %@", playerItem.key)
     guard let item = items.first else { return }
     
     if player.isPlaying() && player.position > 0 {
@@ -153,13 +153,13 @@ extension AppContainerViewController: PlayerEventHandler {
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
     print("itemDidFinishPlaying", item, nextItem)
     try! datastore.realm.write {
-      if let item = datastore.items.filter("id = %@", item.id).first {
+      if let item = datastore.items.filter("key = %@", item.key).first {
         item.state = .Played
       }
       
       guard let item = nextItem else { return }
 
-      if let item = datastore.items.filter("id = %@", item.id).first {
+      if let item = datastore.items.filter("key = %@", item.key).first {
         item.state = .InProgress(position: 0)
       }
     }

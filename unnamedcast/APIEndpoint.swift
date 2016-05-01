@@ -18,8 +18,7 @@ let rfc3339Formatter: NSDateFormatter = {
 
 enum APIEndpoint {
   case Login(user: String, password: String)
-  case GetFeed(id: String)
-  case GetFeedItems(id: String, modificationsSince: NSDate?)
+  case GetFeed(id: String, modificationsSince: NSDate?)
   case GetUserInfo(id: String)
   case SearchFeeds(query: String)
   case UpdateUserFeeds(userID: String)
@@ -32,8 +31,8 @@ extension APIEndpoint: URLRequestConvertible {
     let req = NSMutableURLRequest()
     let components = NSURLComponents()
     components.scheme = "http"
-    components.host = "cast.cjlucas.net"
-    components.port = 80
+    components.host = "192.168.1.19"
+    components.port = 8081
     
     switch self {
     case .Login(let user, let password):
@@ -43,12 +42,9 @@ extension APIEndpoint: URLRequestConvertible {
         NSURLQueryItem(name: "username", value: user),
         NSURLQueryItem(name: "password", value: password)
       ]
-    case .GetFeed(let id):
+    case .GetFeed(let id, let modTime):
       req.HTTPMethod = "GET"
       components.path = "/api/feeds/\(id)"
-    case .GetFeedItems(let id, let modTime):
-      req.HTTPMethod = "GET"
-      components.path = "/api/feeds/\(id)/items"
       if let t = modTime {
         let param = "items_modified_since"
         let val = rfc3339Formatter.stringFromDate(t)

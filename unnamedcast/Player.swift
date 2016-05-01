@@ -20,7 +20,7 @@ class PlayerItem: NSObject, NSCoding {
   var duration: Int!
   var imageUrl: String!
   var author: String!
-  var id: String!
+  var key: String!
   // TODO: delegation
   
   lazy var avItem: AVPlayerItem = {
@@ -42,7 +42,7 @@ class PlayerItem: NSObject, NSCoding {
     duration = item.duration
     imageUrl = item.imageURL
     author = item.author
-    id = item.id
+    key = item.key
     
     feedTitle = item.feed.title
   }
@@ -60,7 +60,7 @@ class PlayerItem: NSObject, NSCoding {
     imageUrl = d.decodeObjectForKey("image_url") as! String
     author = d.decodeObjectForKey("author") as! String
     feedTitle = d.decodeObjectForKey("feed_title") as! String
-    id = d.decodeObjectForKey("id") as! String
+    key = d.decodeObjectForKey("key") as! String
   }
   
   func encodeWithCoder(c: NSCoder) {
@@ -73,7 +73,7 @@ class PlayerItem: NSObject, NSCoding {
     c.encodeObject(imageUrl, forKey: "image_url")
     c.encodeObject(author, forKey: "author")
     c.encodeObject(feedTitle, forKey: "feed_title")
-    c.encodeObject(id, forKey: "id")
+    c.encodeObject(key, forKey: "key")
   }
 }
 
