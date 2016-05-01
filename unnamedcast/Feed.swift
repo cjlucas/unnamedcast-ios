@@ -16,13 +16,14 @@ class Feed: Object, JSONDecodable {
   dynamic var imageUrl: String = ""
   let items = List<Item>()
   var modificationDate: NSDate!
+  var itemIds = [String]()
   
   override static func primaryKey() -> String? {
     return "id"
   }
 
   override static func ignoredProperties() -> [String] {
-    return ["modificationDate"]
+    return ["modificationDate", "itemIds"]
   }
   
   convenience required init(json: JSON) throws {
@@ -40,13 +41,7 @@ class Feed: Object, JSONDecodable {
       throw Error.JSONError("Failed to parse modification_time: \(modTime)")
     }
     
-    if let jsonItems = try? json.array("items") {
-      for item in jsonItems {
-        let item = try Item(json: item)
-        item.key = "\(id)-\(item.guid)"
-        items.append(item)
-      }
-    }
+    itemIds.appendContentsOf(try json.array("items").map(String.init))
   }
 }
 
@@ -57,7 +52,7 @@ enum State {
 }
 
 class Item: Object, JSONDecodable {
-  
+  dynamic var id: String = ""
   dynamic var guid: String = ""
   dynamic var link: String = ""
   dynamic var title: String = ""
@@ -70,10 +65,9 @@ class Item: Object, JSONDecodable {
   dynamic var imageURL: String = ""
   dynamic var playing: Bool = false
   let position = RealmOptional<Double>()
-  dynamic var key: String = ""
   
   override static func primaryKey() -> String? {
-    return "key"
+    return "id"
   }
   
   var feed: Feed {
@@ -107,7 +101,8 @@ class Item: Object, JSONDecodable {
   
   convenience required init(json: JSON) throws {
     self.init()
-    
+   
+    id = try json.string("id")
     guid = try json.string("guid")
     link = try json.string("link")
     title = try json.string("title")
