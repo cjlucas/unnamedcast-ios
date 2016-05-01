@@ -83,7 +83,8 @@ class unnamedcastUnitTests: XCTestCase {
       "size": 100,
       "publication_time": "doesnt matter",
       "url": "http://google.com/podcast.mp3",
-      "image_url": "http://google.com/404.png"
+      "image_url": "http://google.com/404.png",
+      "modification_time": "2016-04-03T19:38:03.33Z"
     ]
     
     let json = JSON.Dictionary(data)
@@ -100,6 +101,7 @@ class unnamedcastUnitTests: XCTestCase {
       XCTAssertEqual(item.pubDate, try! json["publication_time"]!.string())
       XCTAssertEqual(item.audioURL, try! json["url"]!.string())
       XCTAssertEqual(item.imageURL, try! json["image_url"]!.string())
+      print(item.modificationDate)
       
     } catch let e {
       XCTFail("Failed JSON deserialization \(e)")
@@ -202,7 +204,8 @@ class unnamedcastUnitTests: XCTestCase {
         "size": 100,
         "publication_time": "doesnt matter",
         "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png"
+        "image_url": "http://google.com/404.png",
+        "modification_time": "2016-04-03T19:38:03.33Z"
       ]
     ]
  
@@ -269,7 +272,8 @@ class unnamedcastUnitTests: XCTestCase {
         "size": 100,
         "publication_time": "doesnt matter",
         "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png"
+        "image_url": "http://google.com/404.png",
+        "modification_time": "2016-04-03T19:38:03.33Z"
       ]
     ]
     
@@ -288,7 +292,8 @@ class unnamedcastUnitTests: XCTestCase {
         "size": 100,
         "publication_time": "doesnt matter",
         "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png"
+        "image_url": "http://google.com/404.png",
+        "modification_time": "2016-04-03T19:38:04.33Z"
       ]
     ]
     
@@ -359,7 +364,8 @@ class unnamedcastUnitTests: XCTestCase {
         "size": 100,
         "publication_time": "doesnt matter",
         "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png"
+        "image_url": "http://google.com/404.png",
+        "modification_time": "2016-04-03T19:38:03.33Z"
       ]
     ]
 
@@ -397,7 +403,8 @@ class unnamedcastUnitTests: XCTestCase {
         "size": 100,
         "publication_time": "doesnt matter",
         "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png"
+        "image_url": "http://google.com/404.png",
+        "modification_time": "2016-04-03T19:38:03.33Z",
       ]
     ]
     

@@ -39,7 +39,7 @@ class ItemState: JSONDecodable, JSONEncodable {
   convenience init(item: Item, pos: Double) {
     self.init()
     
-    feedID = item.feed.id
+    feedID = item.feed?.id
     itemGUID = item.guid
     itemPos = pos
   }

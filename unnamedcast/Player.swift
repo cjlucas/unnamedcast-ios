@@ -44,7 +44,7 @@ class PlayerItem: NSObject, NSCoding {
     author = item.author
     id = item.id
     
-    feedTitle = item.feed.title
+    feedTitle = item.feed?.title
   }
   
   // MARK: NSCoding

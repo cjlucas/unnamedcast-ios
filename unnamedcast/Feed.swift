@@ -14,16 +14,34 @@ class Feed: Object, JSONDecodable {
   dynamic var title: String = ""
   dynamic var author: String = ""
   dynamic var imageUrl: String = ""
-  let items = List<Item>()
   var modificationDate: NSDate!
   var itemIds = [String]()
+  
+  let items = LinkingObjects(fromType: Item.self, property: "feed")
+  
+  var lastSyncedTime: NSDate {
+    get{
+      var date = NSDate.distantPast()
+      for d in items.map ({ $0.modificationDate }) {
+        // TODO: figure out why some modificationDates are nil
+        guard d != nil else { continue }
+        date = d.laterDate(date)
+      }
+     
+      // TOOD(clucas): Hack to prevent pulling in unmodified items multiple times.
+      // It appears that the milliseconds value of the date is not being
+      // used when being converted to a string. This will have be revisted
+      // in the future (whether the solution be either client or server side)
+      return date.dateByAddingTimeInterval(1)
+    }
+  }
   
   override static func primaryKey() -> String? {
     return "id"
   }
 
   override static func ignoredProperties() -> [String] {
-    return ["modificationDate", "itemIds"]
+    return ["itemIds"]
   }
   
   convenience required init(json: JSON) throws {
@@ -40,8 +58,10 @@ class Feed: Object, JSONDecodable {
     } else {
       throw Error.JSONError("Failed to parse modification_time: \(modTime)")
     }
-    
-    itemIds.appendContentsOf(try json.array("items").map(String.init))
+   
+    if let ids = try? json.array("items").map(String.init) {
+      itemIds.appendContentsOf(ids)
+    }
   }
 }
 
@@ -64,16 +84,14 @@ class Item: Object, JSONDecodable {
   dynamic var audioURL: String = ""
   dynamic var imageURL: String = ""
   dynamic var playing: Bool = false
+  dynamic var feed: Feed?
+  dynamic var modificationDate: NSDate!
   let position = RealmOptional<Double>()
   
   override static func primaryKey() -> String? {
     return "id"
   }
-  
-  var feed: Feed {
-    return linkingObjects(Feed.self, forProperty: "items").first!
-  }
-  
+
   var state: State {
     get {
       if playing {
@@ -113,5 +131,6 @@ class Item: Object, JSONDecodable {
     pubDate = try json.string("publication_time")
     audioURL = try json.string("url")
     imageURL = try json.string("image_url")
+    modificationDate = rfc3339Formatter.dateFromString(try json.string("modification_time"))
   }
 }
