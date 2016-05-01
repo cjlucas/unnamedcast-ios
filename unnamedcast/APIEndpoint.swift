@@ -50,7 +50,7 @@ extension APIEndpoint: URLRequestConvertible {
       req.HTTPMethod = "GET"
       components.path = "/api/feeds/\(id)/items"
       if let t = modTime {
-        let param = "items_modified_since"
+        let param = "modified_since"
         let val = rfc3339Formatter.stringFromDate(t)
         components.queryItems = [NSURLQueryItem(name: param, value: val)]
       }

@@ -34,9 +34,9 @@ class SingleFeedViewController: UITableViewController {
     
     self.title = feed.title
     
-    token = feed.items.addNotificationBlock { items in
-      self.tableView.reloadData()
-    }
+//    token = feed.addNotificationBlock { items in
+//      self.tableView.reloadData()
+//    }
     
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
       if let data = resp.data {

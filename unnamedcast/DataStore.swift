@@ -42,9 +42,6 @@ class DataStore {
   let realm: Realm
   let config: Configuration
   let ud = NSUserDefaults.standardUserDefaults()
-  
-  static let apiHost = "192.168.1.19"
-  static let apiPort = 8080
 
   // TODO(clucas): Wrap NSUserDefaults in a class with these properties
   var userID: String {
@@ -55,19 +52,6 @@ class DataStore {
   var syncToken: String? {
     get { return ud.objectForKey("sync_token") as? String }
     set(id) { ud.setObject(id, forKey: "sync_token") }
-  }
-  
-  var feedSyncTimes: [String: NSDate] {
-    get {
-      let dct = ud.dictionaryForKey("feed_sync_times")
-      if let d = dct {
-        return d as! [String: NSDate]
-      }
-      return [String: NSDate]()
-    }
-    set(times) {
-      ud.setObject(times, forKey: "feed_sync_times")
-    }
   }
   
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
@@ -87,11 +71,11 @@ class DataStore {
   }
   
   private func findFeed(id: String) -> Feed? {
-    return feeds.filter("id = %@", id).first
+    return realm.objectForPrimaryKey(Feed.self, key: id)
   }
   
   private func findItem(id: String) -> Item? {
-    return items.filter("id = %@", id).first
+    return realm.objectForPrimaryKey(Item.self, key: id)
   }
   
   func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
@@ -125,7 +109,8 @@ class DataStore {
     for state in states {
       var items = [Item](self.realm.objects(Item).filter("guid == %@", state.itemGUID))
       items = items.filter { (item) -> Bool in
-        return item.feed.id == state.feedID
+        guard let feed = item.feed else { return false }
+        return feed.id == state.feedID
       }
       
       statefulItems.appendContentsOf(items)
@@ -175,13 +160,13 @@ class DataStore {
     }
   }
   
-  func fetchFeed(feedID: String, itemsModifiedSince: NSDate?) -> Promise<Feed> {
+  func fetchFeed(feedID: String, itemsModifiedSince: NSDate?) -> Promise<(Feed, [Item])> {
     let promises = [
       APIEndpoint.GetFeed(id: feedID),
       APIEndpoint.GetFeedItems(id: feedID, modificationsSince: itemsModifiedSince),
     ].map({ self.config.requestJSON(req: $0) })
     
-    return when(promises).then { resps -> Feed in
+    return when(promises).then { resps -> (Feed, [Item]) in
       for resp in resps {
         let code = resp.resp.statusCode
         guard code == 200 else {
@@ -190,51 +175,43 @@ class DataStore {
       }
       
       let feed = try Feed(json: resps[0].json)
-      let items = try resps[1].json.array().map(Item.init)
-      feed.items.appendContentsOf(items)
-      return feed
+      var items = [Item]()
+      if let arr = try? resps[1].json.array().map(Item.init) {
+        items = arr
+      }
+    
+      return (feed: feed, items: items)
     }
   }
   
-  func fetchUserFeeds(feedIDs: [String]) -> Promise<[Feed]> {
-    let syncTimes = feedSyncTimes
-    return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: syncTimes[$0]) }))
+  func fetchUserFeeds(feedIDs: [String]) -> Promise<[(Feed, [Item])]> {
+    var feedIDsModifiedSinceMap = [String: NSDate]()
+    for id in feedIDs {
+      feedIDsModifiedSinceMap[id] = findFeed(id)?.lastSyncedTime
+    }
+    return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: feedIDsModifiedSinceMap[$0]) }))
   }
   
-  func saveUserFeeds(feeds: [Feed]) {
+  func saveUserFeeds(feeds: [(Feed, [Item])]) {
     try! self.realm.write {
-      for feed in feeds {
+      for (feed, items) in feeds {
         print("Updating feed \(feed.title)")
         
-        // If feed does not exist in store, add it to the store...
-        guard let f = findFeed(feed.id) else {
+        if findFeed(feed.id) == nil {
           self.realm.add(feed)
-          continue
         }
         
-        // ...otherwise update all items
-        for item in feed.items {
-          print("Updating item", item)
-          
-          guard let oldItem = findItem(item.id) else {
-            f.items.append(item)
-            self.realm.add(f, update: true)
-            continue
+        for item in items {
+          item.feed = feed
+         
+          if let oldItem = findItem(item.id) {
+            item.state = oldItem.state
           }
-          
-          item.state = oldItem.state
+         
           self.realm.add(item, update: true)
         }
       }
     }
-
-    var syncTimes = feedSyncTimes
-    
-    for f in feeds {
-      syncTimes[f.id] = f.modificationDate
-    }
-    
-    feedSyncTimes = syncTimes
   }
   
   func syncUserFeeds() -> Promise<Void> {
