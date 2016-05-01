@@ -32,8 +32,8 @@ extension APIEndpoint: URLRequestConvertible {
     let req = NSMutableURLRequest()
     let components = NSURLComponents()
     components.scheme = "http"
-    components.host = "192.168.1.19"
-    components.port = 8081
+    components.host = "cast.cjlucas.net"
+    components.port = 80
     
     switch self {
     case .Login(let user, let password):
