@@ -103,32 +103,40 @@ class DataStore {
   
   func saveUserStates(states: [ItemState]) {
     var statefulItems = [Item]()
+    let start = NSDate()
     
+    // TODO: This transaction is too slow if there are many states
+    // This will block any other threads trying to write (namely the player)
     self.realm.beginWrite()
     
+    // Reset state for all items
+    for item in self.realm.objects(Item) {
+        item.state = State.Played
+    }
+    
+    print("here1: ", NSDate().timeIntervalSinceDate(start))
+    
     for state in states {
-      var items = [Item](self.realm.objects(Item).filter("guid == %@", state.itemGUID))
-      items = items.filter { (item) -> Bool in
-        guard let feed = item.feed else { return false }
-        return feed.id == state.feedID
-      }
-      
-      statefulItems.appendContentsOf(items)
-      
-      if let item = items.first {
+      if let item = self.realm.objects(Item).filter("guid == %@ AND feed.id = %@", state.itemGUID, state.feedID).first {
         item.state = state.itemPos.isZero
           ? State.Unplayed
           : State.InProgress(position: state.itemPos)
       }
+//      items = items.filter { (item) -> Bool in
+//        guard let feed = item.feed else { return false }
+//        return feed.id == state.feedID
+//      }
+      
+      //statefulItems.appendContentsOf(items)
     }
+
     
-    for item in self.realm.objects(Item) {
-      if !statefulItems.contains({$0.guid == item.guid}) {
-        item.state = State.Played
-      }
-    }
+    print("here2: ", NSDate().timeIntervalSinceDate(start))
     
     try! self.realm.commitWrite()
+    
+    print("here3: ", NSDate().timeIntervalSinceDate(start))
+
   }
   
   func uploadItemStates() -> Promise<Void> {
@@ -217,14 +225,14 @@ class DataStore {
   func syncUserFeeds() -> Promise<Void> {
     return fetchUserInfo().then { user in
       return self.fetchUserFeeds(user.feedIDs)
-    }.then { feeds in
+    }.then { feeds -> Void in
       self.saveUserFeeds(feeds)
+        print("done saving feeds")
     }
   }
   
   func sync(onComplete: () -> Void) {
     firstly {
-      self.fetchUserInfo()
       return self.syncUserFeeds()
     }.then {
       return self.syncItemStates()
