@@ -13,6 +13,9 @@ import AVFoundation
 import Alamofire
 
 class SingleFeedViewController: UITableViewController {
+  class Cell: UITableViewCell {
+  }
+  
   var feedId: String?
   var realm = try! Realm()
   var token: NotificationToken?

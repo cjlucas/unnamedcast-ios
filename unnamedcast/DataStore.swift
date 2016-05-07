@@ -21,6 +21,8 @@ typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
 typealias JSONResponse = (req: NSURLRequest, resp: NSHTTPURLResponse, json: JSON)
 
 private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
+  print(req.URLRequest.URL)
+  
   return Promise { fulfill, reject in
     Alamofire.request(req).response { resp in
       if let err = resp.3 {
@@ -188,6 +190,7 @@ class DataStore {
         items = arr
       }
     
+      print("Fetched feed successfully title=\(feed.title) numItems=\(items.count)")
       return (feed: feed, items: items)
     }
   }
@@ -203,8 +206,6 @@ class DataStore {
   func saveUserFeeds(feeds: [(Feed, [Item])]) {
     try! self.realm.write {
       for (feed, items) in feeds {
-        print("Updating feed \(feed.title)")
-        
         if findFeed(feed.id) == nil {
           self.realm.add(feed)
         }

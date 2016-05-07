@@ -77,6 +77,7 @@ class Item: Object, JSONDecodable {
   dynamic var link: String = ""
   dynamic var title: String = ""
   dynamic var author: String = ""
+  dynamic var summary: String = ""
   dynamic var desc: String = ""
   dynamic var duration: Int = 0
   dynamic var size: Int = 0
@@ -129,6 +130,7 @@ class Item: Object, JSONDecodable {
     link = try json.string("link")
     title = try json.string("title")
     author = try json.string("author")
+    summary = try json.string("summary")
     desc = try json.string("description")
     duration = try json.int("duration")
     size = try json.int("size")

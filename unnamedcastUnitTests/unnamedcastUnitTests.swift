@@ -78,6 +78,7 @@ class unnamedcastUnitTests: XCTestCase {
       "link": "link goes here",
       "title": "title goes here",
       "author": "author goes here",
+      "summary": "summary",
       "description": "description",
       "duration": 5,
       "size": 100,
@@ -95,6 +96,7 @@ class unnamedcastUnitTests: XCTestCase {
       XCTAssertEqual(item.link, try! json["link"]!.string())
       XCTAssertEqual(item.title, try! json["title"]!.string())
       XCTAssertEqual(item.author, try! json["author"]!.string())
+      XCTAssertEqual(item.summary, try! json["summary"]!.string())
       XCTAssertEqual(item.desc, try! json["description"]!.string())
       XCTAssertEqual(item.duration, try! json["duration"]!.int())
       XCTAssertEqual(item.size, try! json["size"]!.int())
@@ -199,6 +201,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title goes here",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -267,6 +270,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title1",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -287,6 +291,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title2",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -359,6 +364,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title1",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -398,6 +404,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title2",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
