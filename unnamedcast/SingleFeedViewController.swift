@@ -11,17 +11,22 @@ import UIKit
 import RealmSwift
 import AVFoundation
 import Alamofire
+import DateTools
+
+class SingleFeedTableViewCell: UITableViewCell {
+  @IBOutlet weak var itemTitleLabel: UILabel!
+  @IBOutlet weak var itemSummaryLabel: UILabel!
+  @IBOutlet weak var itemMetadataLabel: UILabel!
+}
 
 class SingleFeedViewController: UITableViewController {
-  class Cell: UITableViewCell {
-  }
-  
   var feedId: String?
   var realm = try! Realm()
   var token: NotificationToken?
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var headerImageView: UIImageView!
+  
   
   lazy var feed: Feed = {
     guard let id = self.feedId else { fatalError("Feed not set") }
@@ -34,6 +39,9 @@ class SingleFeedViewController: UITableViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+  
+    self.tableView.estimatedRowHeight = 44
+    self.tableView.rowHeight = UITableViewAutomaticDimension
     
     self.title = feed.title
     
@@ -62,14 +70,24 @@ class SingleFeedViewController: UITableViewController {
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
     
-    let cell = tableView.dequeueReusableCellWithIdentifier("Cell")!
-    cell.textLabel?.text = item.title
-    
+    let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
+    cell.itemTitleLabel.text = item.title
+    cell.itemSummaryLabel.text = item.summary
+    print(item.pubDate)
+    let pubDateStr = NSDateFormatter.localizedStringFromDate(item.pubDate!, dateStyle: .MediumStyle, timeStyle: .ShortStyle)
+    cell.itemMetadataLabel.text = "Added \(pubDateStr). \(item.duration) seconds. \(item.size) bytes."
+
+    var textColor: UIColor
     switch (item.state) {
     case .Played:
-      cell.textLabel?.textColor = UIColor.grayColor()
+      textColor = UIColor.grayColor()
     default:
-      cell.textLabel?.textColor = UIColor.blackColor()
+      textColor = UIColor.blackColor()
+    }
+    
+    
+    for lbl in [cell.itemTitleLabel, cell.itemSummaryLabel, cell.itemMetadataLabel] {
+      lbl.textColor = textColor
     }
     
     return cell

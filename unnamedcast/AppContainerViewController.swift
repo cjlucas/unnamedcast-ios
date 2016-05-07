@@ -94,6 +94,8 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     } else {
       self.view.layoutIfNeeded()
     }
+    
+    print("dun it", self.miniPlayerView.frame)
   }
   
   func updateProgressBar(progress: Float) {
