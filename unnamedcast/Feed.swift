@@ -91,7 +91,11 @@ class Item: Object, JSONDecodable {
   override static func primaryKey() -> String? {
     return "id"
   }
-
+  
+  override static func indexedProperties() -> [String] {
+    return ["guid"]
+  }
+  
   var state: State {
     get {
       if playing {
