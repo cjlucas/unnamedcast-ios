@@ -15,7 +15,7 @@ import Alamofire
 class PlayerViewController: UIViewController, PlayerEventHandler {
   let player = Player.sharedPlayer
   
-  @IBOutlet weak var contentView: UIView!
+  @IBOutlet weak var contentView: PlayerView!
   @IBOutlet weak var skipBackwardButton: UIButton!
   @IBOutlet weak var playPauseButton: UIButton!
   @IBOutlet weak var skipForwardButton: UIButton!
@@ -26,6 +26,26 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   @IBOutlet weak var authorLabel: UILabel!
   @IBOutlet weak var volumeView: MPVolumeView!
   
+  // Wide screen video controls
+  @IBOutlet weak var playerControls: UIStackView!
+  @IBOutlet weak var wideScreenPositionSlider: UISlider!
+  @IBOutlet weak var wideScreenCurTimeLabel: UILabel!
+  @IBOutlet weak var wideScreenRemTimeLabel: UILabel!
+  
+  weak var currentPositionSlider: UISlider?
+  weak var currentCurTimeLabel: UILabel?
+  weak var currentRemTimeLabel: UILabel?
+  
+  @IBAction func playerViewTapped(sender: AnyObject) {
+    print("tapped", self.playerControls.alpha)
+    UIView.animateWithDuration(0.2) {
+      let alpha: CGFloat = self.playerControls.alpha.isZero ? 1 : 0
+      self.playerControls.alpha = alpha
+      self.wideScreenPositionSlider.alpha = alpha
+      self.wideScreenRemTimeLabel.alpha = alpha
+      self.wideScreenCurTimeLabel.alpha = alpha
+    }
+  }
   var timer: NSTimer?
   
   // MARK: Lifecycle -
@@ -34,6 +54,10 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     let item = player.currentItem()
     
     player.registerEventHandler(self)
+    
+    currentPositionSlider = positionSlider
+    currentCurTimeLabel = curTimeLabel
+    currentRemTimeLabel = durationLabel
     
     if item == nil {
       fatalError("PlayerViewController loaded without a current item")
@@ -77,7 +101,6 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     updateUI(nil)
   }
   
-  
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     startUpdateUITimer()
@@ -96,17 +119,32 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     
     print("view did disappear")
     
-    for view in contentView.subviews {
-      guard let layers = view.layer.sublayers else { continue }
-      for layer in layers {
-        if let l = layer as? AVPlayerLayer {
-          print("Removed player from", layer)
-          l.player = nil
-        }
-      }
-    }
+    contentView.removePlayer()
     
     super.viewDidDisappear(animated)
+  }
+  
+  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
+   
+    // view.frame has not been updated yet, so expressions are inversed
+    if view.frame.width < view.frame.height {
+      currentPositionSlider = wideScreenPositionSlider
+      currentCurTimeLabel = wideScreenCurTimeLabel
+      currentRemTimeLabel = wideScreenRemTimeLabel
+    } else {
+      currentPositionSlider = positionSlider
+      currentCurTimeLabel = curTimeLabel
+      currentRemTimeLabel = durationLabel
+    }
+    
+    updateUI(nil)
+    
+    coordinator.animateAlongsideTransition({ _ in
+      let b = UIScreen.mainScreen().bounds
+      self.navigationController?.navigationBarHidden = b.width > b.height
+      self.contentView.layoutIfNeeded()
+    }, completion: nil)
   }
   
   // MARK: UI -
@@ -114,17 +152,12 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   private func showArtworkView() {
     guard let url = player.currentItem()?.imageUrl else { return }
     
-    var frame = contentView.frame
-    frame.origin.x = 0
-    frame.origin.y = 0
-    
-    let view = UIImageView(frame: frame)
-    contentView.addSubview(view)
-    
     Alamofire.request(.GET, url).responseData { resp in
       if let data = resp.data, let image = UIImage(data: data) {
-        view.image = image
-        self.setColors(image.getColors())
+        dispatch_async(dispatch_get_main_queue()) {
+          self.setColors(image.getColors())
+          self.contentView.setImage(image)
+        }
       } else {
         print("Could not get data", resp)
       }
@@ -132,15 +165,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   }
   
   private func showVideoView() {
-    let frame = contentView.frame
-    
-    let view = UIView(frame: CGRectMake(0, 0, frame.width, frame.height))
-    let layer = AVPlayerLayer(player: player.player)
-    layer.frame = CGRectMake(0, 0, view.frame.width, view.frame.height)
-    layer.videoGravity = AVLayerVideoGravityResizeAspect
-    
-    view.layer.addSublayer(layer)
-    contentView.addSubview(view)
+    contentView.setPlayer(player.player)
   }
   
   private func setColors(colors: UIImageColors) {
@@ -196,15 +221,15 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   }
   
   func updateUI(timer: NSTimer?) {
-    positionSlider.value = player.position
+    currentPositionSlider?.value = player.position
     updateCurrentTimeLabel(player.currentTime())
     if let item = player.currentItem() {
-      durationLabel.text = timeString(item.duration)
+      currentRemTimeLabel?.text = timeString(item.duration)
     }
   }
   
   func updateCurrentTimeLabel(curTime: CMTime) {
-    curTimeLabel.text = timeString(Int(curTime.seconds))
+    currentCurTimeLabel?.text = timeString(Int(curTime.seconds))
   }
   
   @IBAction func onPositionSliderValueChange(sender: UISlider) {
@@ -224,6 +249,14 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   
   @IBAction func onPlayPauseToggleTouchUp(sender: AnyObject) {
     player.isPlaying() ? player.pause() : player.play()
+  }
+  
+  @IBAction func onAdvanceButtonTouchUp(sender: AnyObject) {
+    player.seekToTime(CMTimeAdd(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
+  }
+  
+  @IBAction func onRewindButtonTouchUp(sender: AnyObject) {
+    player.seekToTime(CMTimeSubtract(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
   }
   
   // MARK: PlayerEventHandler
