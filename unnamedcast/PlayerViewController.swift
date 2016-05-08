@@ -106,13 +106,13 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     startUpdateUITimer()
     showVideoView()
     
-//    if let item = player.currentItem() {
-//      if item.hasVideo() {
-//        showVideoView()
-//      } else {
-//        showArtworkView()
-//      }
-//    }
+    if let item = player.currentItem() {
+      if item.hasVideo() {
+        showVideoView()
+      } else {
+        showArtworkView()
+      }
+    }
   }
   
   override func viewDidDisappear(animated: Bool) {
