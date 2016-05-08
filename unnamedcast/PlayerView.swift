@@ -16,6 +16,7 @@ class PlayerView: UIView {
   var playerView: UIView?
   
   func setImage(image: UIImage) {
+    removeImage()
     removePlayer()
    
     imageView = UIImageView(image: image)
@@ -31,6 +32,7 @@ class PlayerView: UIView {
   
   func setPlayer(player: AVPlayer) {
     removeImage()
+    removePlayer()
     
     let view = UIView(frame: bounds)
     let layer = AVPlayerLayer(player: player)

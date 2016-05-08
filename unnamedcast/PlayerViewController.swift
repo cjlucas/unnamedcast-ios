@@ -104,7 +104,6 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
     startUpdateUITimer()
-    showVideoView()
     
     if let item = player.currentItem() {
       if item.hasVideo() {
