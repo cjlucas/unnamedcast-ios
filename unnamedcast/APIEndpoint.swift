@@ -11,10 +11,28 @@ import Foundation
 
 let rfc3339Formatter: NSDateFormatter = {
   let f = NSDateFormatter()
+  f.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ssX"
+  f.timeZone = NSTimeZone(name: "UTC")
+  return f
+}()
+
+let rfc3339NanoFormatter: NSDateFormatter = {
+  let f = NSDateFormatter()
   f.dateFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSSSX"
   f.timeZone = NSTimeZone(name: "UTC")
   return f
 }()
+
+func parseDate(s: String) -> NSDate? {
+  for fmt in [rfc3339Formatter, rfc3339NanoFormatter] {
+    let d = fmt.dateFromString(s)
+    if d != nil {
+      return d
+    }
+  }
+  
+  return nil
+}
 
 enum APIEndpoint {
   case Login(user: String, password: String)
@@ -32,8 +50,8 @@ extension APIEndpoint: URLRequestConvertible {
     let req = NSMutableURLRequest()
     let components = NSURLComponents()
     components.scheme = "http"
-    components.host = "cast.cjlucas.net"
-    components.port = 80
+    components.host = "192.168.1.19"
+    components.port = 12100
     
     switch self {
     case .Login(let user, let password):

@@ -10,9 +10,28 @@ import UIKit
 
 class AppContainerViewController: UIViewController, UINavigationControllerDelegate {
   @IBOutlet weak var miniPlayerView: UIView!
-  @IBOutlet weak var miniPlayerHeightConstraint: NSLayoutConstraint!
+  
+  // Defines the vertical spacing between the bottom of the mini player view
+  // and the top of the superview's bottom layout. This is used to show/hide
+  // the mini player view. Showing it requires setting the constant to 0,
+  // hiding it requires the constant to be set to miniPlayerView.frame.height
+  @IBOutlet weak var miniPlayerViewPositionConstraint: NSLayoutConstraint!
+  
   @IBOutlet weak var miniPlayerTitleLabel: UILabel!
+  
   @IBOutlet weak var progressBarWidthConstraint: NSLayoutConstraint!
+  
+  var miniPlayerHidden: Bool {
+    get {
+      return self.miniPlayerViewPositionConstraint.constant != 0
+    }
+    
+    set(val) {
+      self.miniPlayerViewPositionConstraint.constant = val
+        ? miniPlayerView.frame.height
+        : 0
+    }
+  }
   
   let datastore = DataStore()
   
@@ -42,9 +61,10 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     self.navigationViewController.delegate = self
   }
   
+  
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-    //        toggleMiniPlayerView(animated: false)
+            toggleMiniPlayerView(animated: false)
   }
   
   override func didReceiveMemoryWarning() {
@@ -53,21 +73,19 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   }
   
   func showMiniPlayerView(animated animated: Bool = false) {
-    guard miniPlayerHeightConstraint.constant == 0 else { return }
+    guard miniPlayerHidden else { return }
     guard shouldShowMiniPlayer() else { return }
     
     toggleMiniPlayerView(animated: animated)
   }
   
   func hideMiniPlayerView(animated animated: Bool = false) {
-    guard miniPlayerHeightConstraint.constant > 0 else { return }
+    guard !miniPlayerHidden else { return }
     toggleMiniPlayerView(animated: animated)
   }
   
   func toggleMiniPlayerView(animated animated: Bool = false) {
-    let miniPlayerHeight: CGFloat = 70
-    miniPlayerHeightConstraint.constant = miniPlayerHeightConstraint.constant == 0
-      ? miniPlayerHeight : 0
+    miniPlayerHidden = !miniPlayerHidden
     
     if animated {
       UIView.animateWithDuration(0.2) {
@@ -103,8 +121,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   // MARK: MiniPlayer -
   
   func updateMiniPlayer(timer: NSTimer?) {
-    if (shouldShowMiniPlayer() && miniPlayerHeightConstraint.constant == 0) ||
-      (!shouldShowMiniPlayer() && miniPlayerHeightConstraint.constant > 0) {
+    if (shouldShowMiniPlayer() == miniPlayerHidden) {
         toggleMiniPlayerView()
     }
     
@@ -115,8 +132,8 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     guard let item = items.first else { return }
     
     if player.isPlaying() && player.position > 0 {
-      updateProgressBar(player.position)
-      datastore.updateItemState(item, progress: Double(player.position)) {}
+//      updateProgressBar(player.position)
+//      datastore.updateItemState(item, progress: Double(player.position)) {}
     }
     
     miniPlayerTitleLabel.text = item.title

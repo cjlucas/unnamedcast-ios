@@ -78,10 +78,11 @@ class unnamedcastUnitTests: XCTestCase {
       "link": "link goes here",
       "title": "title goes here",
       "author": "author goes here",
+      "summary": "summary",
       "description": "description",
       "duration": 5,
       "size": 100,
-      "publication_time": "doesnt matter",
+      "publication_time": "1970-01-01T00:00:05.00Z",
       "url": "http://google.com/podcast.mp3",
       "image_url": "http://google.com/404.png",
       "modification_time": "2016-04-03T19:38:03.33Z"
@@ -95,10 +96,11 @@ class unnamedcastUnitTests: XCTestCase {
       XCTAssertEqual(item.link, try! json["link"]!.string())
       XCTAssertEqual(item.title, try! json["title"]!.string())
       XCTAssertEqual(item.author, try! json["author"]!.string())
+      XCTAssertEqual(item.summary, try! json["summary"]!.string())
       XCTAssertEqual(item.desc, try! json["description"]!.string())
       XCTAssertEqual(item.duration, try! json["duration"]!.int())
       XCTAssertEqual(item.size, try! json["size"]!.int())
-      XCTAssertEqual(item.pubDate, try! json["publication_time"]!.string())
+      XCTAssertEqual(item.pubDate!.timeIntervalSince1970, 5)
       XCTAssertEqual(item.audioURL, try! json["url"]!.string())
       XCTAssertEqual(item.imageURL, try! json["image_url"]!.string())
       print(item.modificationDate)
@@ -199,6 +201,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title goes here",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -267,6 +270,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title1",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -287,6 +291,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title2",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -359,6 +364,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title1",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,
@@ -398,6 +404,7 @@ class unnamedcastUnitTests: XCTestCase {
         "link": "link goes here",
         "title": "title2",
         "author": "author goes here",
+        "summary": "summary",
         "description": "description",
         "duration": 5,
         "size": 100,

@@ -24,7 +24,7 @@ class Feed: Object, JSONDecodable {
       var date = NSDate.distantPast()
       for d in items.map ({ $0.modificationDate }) {
         // TODO: figure out why some modificationDates are nil
-        guard d != nil else { continue }
+        guard let d = d else { continue }
         date = d.laterDate(date)
       }
      
@@ -52,12 +52,7 @@ class Feed: Object, JSONDecodable {
     author = try json.string("author")
     imageUrl = try json.string("image_url")
     
-    let modTime = try json.string("modification_time")
-    if let modDate = rfc3339Formatter.dateFromString(modTime) {
-      modificationDate = modDate
-    } else {
-      throw Error.JSONError("Failed to parse modification_time: \(modTime)")
-    }
+    modificationDate = parseDate(try json.string("modification_time"))
    
     if let ids = try? json.array("items").map(String.init) {
       itemIds.appendContentsOf(ids)
@@ -77,21 +72,26 @@ class Item: Object, JSONDecodable {
   dynamic var link: String = ""
   dynamic var title: String = ""
   dynamic var author: String = ""
+  dynamic var summary: String = ""
   dynamic var desc: String = ""
   dynamic var duration: Int = 0
   dynamic var size: Int = 0
-  dynamic var pubDate: String = ""
+  dynamic var pubDate: NSDate?
   dynamic var audioURL: String = ""
   dynamic var imageURL: String = ""
   dynamic var playing: Bool = false
   dynamic var feed: Feed?
-  dynamic var modificationDate: NSDate!
+  dynamic var modificationDate: NSDate?
   let position = RealmOptional<Double>()
   
   override static func primaryKey() -> String? {
     return "id"
   }
-
+  
+  override static func indexedProperties() -> [String] {
+    return ["guid"]
+  }
+  
   var state: State {
     get {
       if playing {
@@ -125,12 +125,13 @@ class Item: Object, JSONDecodable {
     link = try json.string("link")
     title = try json.string("title")
     author = try json.string("author")
+    summary = try json.string("summary")
     desc = try json.string("description")
     duration = try json.int("duration")
     size = try json.int("size")
-    pubDate = try json.string("publication_time")
+    pubDate = parseDate(try json.string("publication_time"))
     audioURL = try json.string("url")
     imageURL = try json.string("image_url")
-    modificationDate = rfc3339Formatter.dateFromString(try json.string("modification_time"))
+    modificationDate = parseDate(try json.string("modification_time"))
   }
 }

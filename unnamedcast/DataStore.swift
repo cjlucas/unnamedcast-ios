@@ -21,6 +21,8 @@ typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
 typealias JSONResponse = (req: NSURLRequest, resp: NSHTTPURLResponse, json: JSON)
 
 private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
+  print(req.URLRequest.URL)
+  
   return Promise { fulfill, reject in
     Alamofire.request(req).response { resp in
       if let err = resp.3 {
@@ -103,32 +105,40 @@ class DataStore {
   
   func saveUserStates(states: [ItemState]) {
     var statefulItems = [Item]()
+    let start = NSDate()
     
+    // TODO: This transaction is too slow if there are many states
+    // This will block any other threads trying to write (namely the player)
     self.realm.beginWrite()
     
+    // Reset state for all items
+    for item in self.realm.objects(Item) {
+        item.state = State.Played
+    }
+    
+    print("here1: ", NSDate().timeIntervalSinceDate(start))
+    
     for state in states {
-      var items = [Item](self.realm.objects(Item).filter("guid == %@", state.itemGUID))
-      items = items.filter { (item) -> Bool in
-        guard let feed = item.feed else { return false }
-        return feed.id == state.feedID
-      }
-      
-      statefulItems.appendContentsOf(items)
-      
-      if let item = items.first {
+      if let item = self.realm.objects(Item).filter("guid == %@ AND feed.id = %@", state.itemGUID, state.feedID).first {
         item.state = state.itemPos.isZero
           ? State.Unplayed
           : State.InProgress(position: state.itemPos)
       }
+//      items = items.filter { (item) -> Bool in
+//        guard let feed = item.feed else { return false }
+//        return feed.id == state.feedID
+//      }
+      
+      //statefulItems.appendContentsOf(items)
     }
+
     
-    for item in self.realm.objects(Item) {
-      if !statefulItems.contains({$0.guid == item.guid}) {
-        item.state = State.Played
-      }
-    }
+    print("here2: ", NSDate().timeIntervalSinceDate(start))
     
     try! self.realm.commitWrite()
+    
+    print("here3: ", NSDate().timeIntervalSinceDate(start))
+
   }
   
   func uploadItemStates() -> Promise<Void> {
@@ -180,6 +190,7 @@ class DataStore {
         items = arr
       }
     
+      print("Fetched feed successfully title=\(feed.title) numItems=\(items.count)")
       return (feed: feed, items: items)
     }
   }
@@ -195,8 +206,6 @@ class DataStore {
   func saveUserFeeds(feeds: [(Feed, [Item])]) {
     try! self.realm.write {
       for (feed, items) in feeds {
-        print("Updating feed \(feed.title)")
-        
         if findFeed(feed.id) == nil {
           self.realm.add(feed)
         }
@@ -217,14 +226,14 @@ class DataStore {
   func syncUserFeeds() -> Promise<Void> {
     return fetchUserInfo().then { user in
       return self.fetchUserFeeds(user.feedIDs)
-    }.then { feeds in
+    }.then { feeds -> Void in
       self.saveUserFeeds(feeds)
+        print("done saving feeds")
     }
   }
   
   func sync(onComplete: () -> Void) {
     firstly {
-      self.fetchUserInfo()
       return self.syncUserFeeds()
     }.then {
       return self.syncItemStates()

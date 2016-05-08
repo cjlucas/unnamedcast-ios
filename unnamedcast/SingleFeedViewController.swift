@@ -11,6 +11,13 @@ import UIKit
 import RealmSwift
 import AVFoundation
 import Alamofire
+import DateTools
+
+class SingleFeedTableViewCell: UITableViewCell {
+  @IBOutlet weak var itemTitleLabel: UILabel!
+  @IBOutlet weak var itemSummaryLabel: UILabel!
+  @IBOutlet weak var itemMetadataLabel: UILabel!
+}
 
 class SingleFeedViewController: UITableViewController {
   var feedId: String?
@@ -19,6 +26,7 @@ class SingleFeedViewController: UITableViewController {
   
   @IBOutlet weak var headerView: UIView!
   @IBOutlet weak var headerImageView: UIImageView!
+  
   
   lazy var feed: Feed = {
     guard let id = self.feedId else { fatalError("Feed not set") }
@@ -31,6 +39,9 @@ class SingleFeedViewController: UITableViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+  
+    self.tableView.estimatedRowHeight = 44
+    self.tableView.rowHeight = UITableViewAutomaticDimension
     
     self.title = feed.title
     
@@ -59,14 +70,37 @@ class SingleFeedViewController: UITableViewController {
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
     
-    let cell = tableView.dequeueReusableCellWithIdentifier("Cell")!
-    cell.textLabel?.text = item.title
+    let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
+    cell.itemTitleLabel.text = item.title
+    cell.itemSummaryLabel.text = item.summary
     
+    let pubDateStr = NSDateFormatter.localizedStringFromDate(item.pubDate!, dateStyle: .MediumStyle, timeStyle: .ShortStyle)
+   
+    var duration = item.duration
+    let hours = duration / 3600
+    duration %= 3600
+    let minutes = duration / 60
+    
+    var durationStrArr: [String] = []
+    if hours > 0 {
+      durationStrArr.append("\(hours) hours")
+    }
+    
+    durationStrArr.append("\(minutes) minutes")
+    
+    cell.itemMetadataLabel.text = "Added \(pubDateStr) \u{2022} \(durationStrArr.joinWithSeparator(" ")) \u{2022} \(item.size / 1024 / 1024) MB"
+
+    var textColor: UIColor
     switch (item.state) {
     case .Played:
-      cell.textLabel?.textColor = UIColor.grayColor()
+      textColor = UIColor.grayColor()
     default:
-      cell.textLabel?.textColor = UIColor.blackColor()
+      textColor = UIColor.blackColor()
+    }
+    
+    
+    for lbl in [cell.itemTitleLabel, cell.itemSummaryLabel, cell.itemMetadataLabel] {
+      lbl.textColor = textColor
     }
     
     return cell
