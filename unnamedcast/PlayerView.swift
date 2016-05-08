@@ -10,27 +10,28 @@ import UIKit
 import AVFoundation
 
 class PlayerView: UIView {
-  var image: UIImage?
   var imageView: UIImageView?
   
   var playerLayer: AVPlayerLayer?
   var playerView: UIView?
   
-//  override func updateConstraints() {
-//    super.updateConstraints()
-//  }
-  
-//  func setImage(image: UIImage) {
-//  }
-//
+  func setImage(image: UIImage) {
+    removePlayer()
+   
+    imageView = UIImageView(image: image)
+    imageView?.frame = bounds
+    addSubview(imageView!)
+  }
+
   
   func removeImage() {
     imageView?.removeFromSuperview()
     imageView = nil
-    image = nil
   }
   
   func setPlayer(player: AVPlayer) {
+    removeImage()
+    
     let view = UIView(frame: bounds)
     let layer = AVPlayerLayer(player: player)
     

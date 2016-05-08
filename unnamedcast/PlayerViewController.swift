@@ -153,17 +153,12 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   private func showArtworkView() {
     guard let url = player.currentItem()?.imageUrl else { return }
     
-    var frame = contentView.frame
-    frame.origin.x = 0
-    frame.origin.y = 0
-    
-    let view = UIImageView(frame: frame)
-    contentView.addSubview(view)
-    
     Alamofire.request(.GET, url).responseData { resp in
       if let data = resp.data, let image = UIImage(data: data) {
-        view.image = image
-        self.setColors(image.getColors())
+        dispatch_async(dispatch_get_main_queue()) {
+          self.setColors(image.getColors())
+          self.contentView.setImage(image)
+        }
       } else {
         print("Could not get data", resp)
       }
