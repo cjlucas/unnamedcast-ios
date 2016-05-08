@@ -73,9 +73,22 @@ class SingleFeedViewController: UITableViewController {
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
     cell.itemTitleLabel.text = item.title
     cell.itemSummaryLabel.text = item.summary
-    print(item.pubDate)
+    
     let pubDateStr = NSDateFormatter.localizedStringFromDate(item.pubDate!, dateStyle: .MediumStyle, timeStyle: .ShortStyle)
-    cell.itemMetadataLabel.text = "Added \(pubDateStr). \(item.duration) seconds. \(item.size) bytes."
+   
+    var duration = item.duration
+    let hours = duration / 3600
+    duration %= 3600
+    let minutes = duration / 60
+    
+    var durationStrArr: [String] = []
+    if hours > 0 {
+      durationStrArr.append("\(hours) hours")
+    }
+    
+    durationStrArr.append("\(minutes) minutes")
+    
+    cell.itemMetadataLabel.text = "Added \(pubDateStr) \u{2022} \(durationStrArr.joinWithSeparator(" ")) \u{2022} \(item.size / 1024 / 1024) MB"
 
     var textColor: UIColor
     switch (item.state) {
