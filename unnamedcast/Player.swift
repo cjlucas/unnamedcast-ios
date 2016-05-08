@@ -40,7 +40,7 @@ class PlayerItem: NSObject, NSCoding {
     subtitle = ""
     desc = ""
     duration = item.duration
-    imageUrl = item.imageURL
+    imageUrl = item.feed?.imageUrl
     author = item.author
     id = item.id
     
