@@ -19,6 +19,8 @@
 		83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
 		8349DA071C5DACE900C70153 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8349DA061C5DACE900C70153 /* MediaPlayer.framework */; };
 		83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83526AD91C5AF19B00C43845 /* Feed.swift */; };
+		835793A71CDFF9A0003F09FA /* DB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835793A61CDFF9A0003F09FA /* DB.swift */; };
+		835793A81CE00E79003F09FA /* DB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835793A61CDFF9A0003F09FA /* DB.swift */; };
 		837857C01C5C52400026959C /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
 		837857C21C5C52660026959C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 837857C11C5C52660026959C /* AVFoundation.framework */; };
 		837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
@@ -77,6 +79,7 @@
 		83475B291C62DB5000F48D33 /* AppContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppContainerViewController.swift; sourceTree = "<group>"; };
 		8349DA061C5DACE900C70153 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		83526AD91C5AF19B00C43845 /* Feed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		835793A61CDFF9A0003F09FA /* DB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DB.swift; sourceTree = "<group>"; };
 		837857BF1C5C52400026959C /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		837857C11C5C52660026959C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
@@ -227,6 +230,7 @@
 				833239B21C78E2DD00494388 /* APIEndpoint.swift */,
 				833239B41C78EC7D00494388 /* Setting.swift */,
 				83AFF8A91C8B7A8900E94AFE /* DataStore.swift */,
+				835793A61CDFF9A0003F09FA /* DB.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -589,6 +593,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				835793A81CE00E79003F09FA /* DB.swift in Sources */,
 				839680C31CACBDBA007A4D62 /* Feed.swift in Sources */,
 				839680C41CACBDBA007A4D62 /* User.swift in Sources */,
 				839680C51CACBDBA007A4D62 /* APIEndpoint.swift in Sources */,
@@ -613,6 +618,7 @@
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
 				837857C01C5C52400026959C /* Player.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
+				835793A71CDFF9A0003F09FA /* DB.swift in Sources */,
 				833239B51C78EC7D00494388 /* Setting.swift in Sources */,
 				83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,

@@ -9,7 +9,6 @@
 import Alamofire
 import PromiseKit
 import Freddy
-import RealmSwift
 
 internal enum Error: ErrorType {
   case NetworkError(String)
@@ -37,11 +36,13 @@ private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
 
 class DataStore {
   struct Configuration {
-    let realmConfig: Realm.Configuration?
+    let dbConfiguration: DB.Configuration?
     let requestJSON: JSONRequester
   }
   
-  let realm: Realm
+  static let defaultConfiguration = Configuration(dbConfiguration: nil, requestJSON: reqJSON)
+  
+  let db: DB
   let config: Configuration
   let ud = NSUserDefaults.standardUserDefaults()
 
@@ -56,28 +57,13 @@ class DataStore {
     set(id) { ud.setObject(id, forKey: "sync_token") }
   }
   
-  lazy var feeds: Results<Feed> = self.realm.objects(Feed)
-  lazy var items: Results<Item> = self.realm.objects(Item)
-  
-  required init(configuration: Configuration) {
+  required init(configuration: Configuration) throws {
     config = configuration
-    if let conf = config.realmConfig {
-      realm = try! Realm(configuration: conf)
-    } else {
-      realm = try! Realm()
-    }
+    db = try DB(configuration: config.dbConfiguration)
   }
 
-  convenience init() {
-    self.init(configuration: Configuration(realmConfig: nil, requestJSON: reqJSON))
-  }
-  
-  private func findFeed(id: String) -> Feed? {
-    return realm.objectForPrimaryKey(Feed.self, key: id)
-  }
-  
-  private func findItem(id: String) -> Item? {
-    return realm.objectForPrimaryKey(Item.self, key: id)
+  convenience init() throws {
+    try self.init(configuration: DataStore.defaultConfiguration)
   }
   
   func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
@@ -103,47 +89,34 @@ class DataStore {
     }
   }
   
-  func saveUserStates(states: [ItemState]) {
-    var statefulItems = [Item]()
+  func saveUserStates(states: [ItemState]) -> Promise<Void> {
     let start = NSDate()
-    
-    // TODO: This transaction is too slow if there are many states
-    // This will block any other threads trying to write (namely the player)
-    self.realm.beginWrite()
-    
-    // Reset state for all items
-    for item in self.realm.objects(Item) {
+   
+    return db.write { db in
+      // Reset state for all items
+      for item in db.items {
         item.state = State.Played
-    }
-    
-    print("here1: ", NSDate().timeIntervalSinceDate(start))
-    
-    for state in states {
-      if let item = self.realm.objects(Item).filter("guid == %@ AND feed.id = %@", state.itemGUID, state.feedID).first {
+      }
+      
+      print("here1: ", NSDate().timeIntervalSinceDate(start))
+      
+      for state in states {
+        guard let item = db.items
+          .filter("guid = %@ AND feed.id = %@", state.itemGUID, state.feedID)
+          .first else { continue }
+
         item.state = state.itemPos.isZero
           ? State.Unplayed
           : State.InProgress(position: state.itemPos)
       }
-//      items = items.filter { (item) -> Bool in
-//        guard let feed = item.feed else { return false }
-//        return feed.id == state.feedID
-//      }
       
-      //statefulItems.appendContentsOf(items)
+      print("here2: ", NSDate().timeIntervalSinceDate(start))
     }
-
-    
-    print("here2: ", NSDate().timeIntervalSinceDate(start))
-    
-    try! self.realm.commitWrite()
-    
-    print("here3: ", NSDate().timeIntervalSinceDate(start))
-
   }
   
   func uploadItemStates() -> Promise<Void> {
     return Promise { fulfill, reject in
-      let states = self.realm.objects(Item)
+      let states = db.items
         .filter("playing != false")
         .map { ItemState(item: $0, pos: $0.position.value!) }
       
@@ -164,8 +137,11 @@ class DataStore {
   }
   
   func syncItemStates() -> Promise<Void> {
-    return fetchUserStates().then { states in
-      self.saveUserStates(states)
+    return firstly {
+      return fetchUserStates()
+    }.then { states in
+      return self.saveUserStates(states)
+    }.then {
       return self.uploadItemStates()
     }
   }
@@ -198,26 +174,25 @@ class DataStore {
   func fetchUserFeeds(feedIDs: [String]) -> Promise<[(Feed, [Item])]> {
     var feedIDsModifiedSinceMap = [String: NSDate]()
     for id in feedIDs {
-      feedIDsModifiedSinceMap[id] = findFeed(id)?.lastSyncedTime
+      feedIDsModifiedSinceMap[id] = db.feedWithID(id)?.lastSyncedTime
     }
     return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: feedIDsModifiedSinceMap[$0]) }))
   }
   
-  func saveUserFeeds(feeds: [(Feed, [Item])]) {
-    try! self.realm.write {
+  func saveUserFeeds(feeds: [(Feed, [Item])]) -> Promise<Void> {
+    return db.write { db in
       for (feed, items) in feeds {
-        if findFeed(feed.id) == nil {
-          self.realm.add(feed)
+        if db.feedWithID(feed.id) == nil {
+          db.add(feed)
         }
         
         for item in items {
           item.feed = feed
-         
-          if let oldItem = findItem(item.id) {
+          if let oldItem = db.itemWithID(item.id) {
             item.state = oldItem.state
           }
-         
-          self.realm.add(item, update: true)
+          
+          db.add(item, update: true)
         }
       }
     }
@@ -226,9 +201,8 @@ class DataStore {
   func syncUserFeeds() -> Promise<Void> {
     return fetchUserInfo().then { user in
       return self.fetchUserFeeds(user.feedIDs)
-    }.then { feeds -> Void in
-      self.saveUserFeeds(feeds)
-        print("done saving feeds")
+    }.then { feeds in
+      return self.saveUserFeeds(feeds)
     }
   }
   
@@ -248,13 +222,15 @@ class DataStore {
   func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
     let ep = APIEndpoint.GetUserItemStates(userID: userID)
     Alamofire.request(ep).response { resp in
-      try! self.realm.write {
+      self.db.write { db in
         item.playing = true
         item.state = .InProgress(position: progress)
-        self.realm.add(item, update: true)
+        db.add(item, update: true)
+      }.then {
+        self.uploadItemStates()
+      }.then {
+        onComplete()
       }
-      
-      self.uploadItemStates().then { _ in onComplete() }
     }
   }
 }

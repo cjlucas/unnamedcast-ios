@@ -33,7 +33,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     }
   }
   
-  let datastore = DataStore()
+  let db = try! DB(configuration: nil)
   
   var player: Player {
     get {
@@ -128,7 +128,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
 
     guard let playerItem = player.currentItem() else { return }
     
-    let items = datastore.items.filter("id = %@", playerItem.id)
+    let items = db.items.filter("id = %@", playerItem.id)
     guard let item = items.first else { return }
     
     if player.isPlaying() && player.position > 0 {
@@ -169,18 +169,16 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
 extension AppContainerViewController: PlayerEventHandler {
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
     print("itemDidFinishPlaying", item, nextItem)
-    try! datastore.realm.write {
-      if let item = datastore.items.filter("id = %@", item.id).first {
+    db.write { db in
+      if let item = db.itemWithID(item.id) {
         item.state = .Played
       }
       
-      guard let item = nextItem else { return }
+      guard let nextItem = nextItem else { return }
 
-      if let item = datastore.items.filter("id = %@", item.id).first {
+      if let item = db.itemWithID(nextItem.id) {
         item.state = .InProgress(position: 0)
       }
     }
-    
-    datastore.uploadItemStates()
   }
 }
