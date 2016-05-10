@@ -8,6 +8,7 @@
 
 import Alamofire
 import Foundation
+import Freddy
 
 let rfc3339Formatter: NSDateFormatter = {
   let f = NSDateFormatter()
@@ -32,6 +33,142 @@ func parseDate(s: String) -> NSDate? {
   }
   
   return nil
+}
+
+protocol Endpoint: URLRequestConvertible {
+  associatedtype ResponseType
+  func unmarshalResponse(data: NSData) throws -> ResponseType
+}
+
+// Noop if no ResponseType
+extension Endpoint where ResponseType == Void {
+  func unmarshalResponse(data: NSData) throws -> Void {
+    return
+  }
+}
+
+private func newMutableURLRequest(method: String, components: NSURLComponents) -> NSMutableURLRequest {
+  let req = NSMutableURLRequest()
+  req.HTTPMethod = method
+  req.URL = components.URL
+  return req
+}
+
+private func newMutableURLRequest(method: String, path: String) -> NSMutableURLRequest {
+  let components = NSURLComponents()
+  components.path = path
+  return newMutableURLRequest(method, components: components)
+}
+
+struct LoginEndpoint: Endpoint {
+  var username: String
+  var password: String
+  
+  var URLRequest: NSMutableURLRequest {
+    let components = NSURLComponents()
+    components.queryItems = [
+      NSURLQueryItem(name: "username", value: username),
+      NSURLQueryItem(name: "password", value: password)
+    ]
+    
+    return newMutableURLRequest("GET", components: components)
+  }
+  
+  func unmarshalResponse(data: NSData) throws -> User {
+    return try User(json: try JSON(data: data))
+  }
+}
+
+struct GetFeedEndpoint: Endpoint {
+  let id: String
+  var URLRequest: NSMutableURLRequest {
+    return newMutableURLRequest("GET", path: "/feed/\(id)")
+  }
+  
+  func unmarshalResponse(data: NSData) throws -> Feed {
+    return try Feed(json: try JSON(data: data))
+  }
+}
+
+struct GetFeedItemsEndpoint: Endpoint {
+  var id: String
+  var modificationsSince: NSDate?
+  
+  var URLRequest: NSMutableURLRequest {
+    let components = NSURLComponents()
+    components.path = "/api/feeds/\(id)/items"
+    if let t = modificationsSince {
+      let s = rfc3339Formatter.stringFromDate(t)
+      components.queryItems = [NSURLQueryItem(name: "modified_since", value: s)]
+    }
+    
+    return newMutableURLRequest("GET", components: components)
+  }
+  
+  func unmarshalResponse(data: NSData) throws -> [Item] {
+    return try JSON(data: data).array().map(Item.init)
+  }
+}
+
+struct GetUserEndpoint: Endpoint {
+  var id: String
+  var URLRequest: NSMutableURLRequest {
+    return newMutableURLRequest("GET", path: "/api/users/\(id)")
+  }
+  
+  func unmarshalResponse(data: NSData) throws -> User {
+    return try User(json: try JSON(data: data))
+  }
+}
+
+struct GetUserItemStates: Endpoint {
+  var userID: String
+  var URLRequest: NSMutableURLRequest {
+    return newMutableURLRequest("GET", path: "/api/users/\(userID)/items")
+  }
+  
+  func unmarshalResponse(data: NSData) throws -> [ItemState] {
+    return try JSON(data: data).array().map(ItemState.init)
+  }
+}
+
+struct UpdateUserFeedsEndpoint: Endpoint {
+  var userID: String
+  var feedIDs: [String]
+  typealias ResponseType = Void
+  
+  var URLRequest: NSMutableURLRequest {
+    let req = newMutableURLRequest("PUT", path: "/api/users/\(userID)/feeds")
+    req.HTTPBody = try! JSON.Array(feedIDs.map { JSON.String($0) }).serialize()
+    return req
+  }
+}
+
+struct UpdateUserItemStatesEndpoint: Endpoint {
+  var userID: String
+  var states: [ItemState]
+  typealias ResponseType = Void
+  
+  var URLRequest: NSMutableURLRequest {
+    let req = newMutableURLRequest("PUT", path: "/api/users/\(userID)/feeds")
+    req.HTTPBody = try! JSON.Array(states.map { $0.toJSON() }).serialize()
+    return req
+  }
+}
+
+struct SearchFeedsEndpoint: Endpoint {
+  var query: String
+  
+  var URLRequest: NSMutableURLRequest {
+    let components = NSURLComponents()
+    components.path = "/search_feeds"
+    components.queryItems = [NSURLQueryItem(name: "q", value: query)]
+    return newMutableURLRequest("GET", components: components)
+  }
+  
+  func unmarshalResponse(data: NSData) throws -> [Feed] {
+    return try JSON(data: data).array().map(Feed.init)
+  }
 }
 
 enum APIEndpoint {
