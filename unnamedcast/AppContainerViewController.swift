@@ -169,7 +169,9 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
 extension AppContainerViewController: PlayerEventHandler {
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
     print("itemDidFinishPlaying", item, nextItem)
-    db.write { db in
+    // initializing a db here since this is not guaranteed to be called on the main thread
+    let db = try! DB()
+    try! db.write {
       if let item = db.itemWithID(item.id) {
         item.state = .Played
       }

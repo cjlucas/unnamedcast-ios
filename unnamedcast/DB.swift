@@ -33,7 +33,7 @@ class DB {
     realm.add(obj, update: update)
   }
   
-  required init(configuration: Configuration?) throws {
+  required init(configuration: Configuration? = nil) throws {
     if let conf = configuration {
       realm = try Realm(configuration: conf.realmConfig)
     } else {
@@ -41,12 +41,9 @@ class DB {
     }
   }
   
-  func write(f: (DB) -> Void) -> Promise<Void> {
-    return dispatch_promise(on: bgQueue) {
-      let db = try DB(configuration: Configuration(realmConfig: self.realm.configuration))
-      db.realm.beginWrite()
-      f(db)
-      try db.realm.commitWrite()
-    }
+  func write(f: () -> Void) throws {
+    realm.beginWrite()
+    f()
+    try realm.commitWrite()
   }
 }

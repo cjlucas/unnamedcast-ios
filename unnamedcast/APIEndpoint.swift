@@ -50,7 +50,7 @@ extension APIEndpoint: URLRequestConvertible {
     let req = NSMutableURLRequest()
     let components = NSURLComponents()
     components.scheme = "http"
-    components.host = "192.168.1.19"
+    components.host = "10.5.5.155"
     components.port = 12100
     
     switch self {

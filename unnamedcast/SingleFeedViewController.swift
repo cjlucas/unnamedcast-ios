@@ -11,7 +11,6 @@ import UIKit
 import RealmSwift
 import AVFoundation
 import Alamofire
-import DateTools
 
 class SingleFeedTableViewCell: UITableViewCell {
   @IBOutlet weak var itemTitleLabel: UILabel!

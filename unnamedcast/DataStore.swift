@@ -89,16 +89,16 @@ class DataStore {
     }
   }
   
-  func saveUserStates(states: [ItemState]) -> Promise<Void> {
+  func saveUserStates(states: [ItemState]) throws {
     let start = NSDate()
-   
-    return db.write { db in
+    let db = try DB()
+    try db.write {
       // Reset state for all items
       for item in db.items {
         item.state = State.Played
       }
       
-      print("here1: ", NSDate().timeIntervalSinceDate(start))
+      print("here1: ", start.timeIntervalSinceNow)
       
       for state in states {
         guard let item = db.items
@@ -110,7 +110,7 @@ class DataStore {
           : State.InProgress(position: state.itemPos)
       }
       
-      print("here2: ", NSDate().timeIntervalSinceDate(start))
+      print("here2: ", start.timeIntervalSinceNow)
     }
   }
   
@@ -140,7 +140,7 @@ class DataStore {
     return firstly {
       return fetchUserStates()
     }.then { states in
-      return self.saveUserStates(states)
+      try self.saveUserStates(states)
     }.then {
       return self.uploadItemStates()
     }
@@ -179,8 +179,9 @@ class DataStore {
     return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: feedIDsModifiedSinceMap[$0]) }))
   }
   
-  func saveUserFeeds(feeds: [(Feed, [Item])]) -> Promise<Void> {
-    return db.write { db in
+  func saveUserFeeds(feeds: [(Feed, [Item])]) throws {
+    let db = try DB()
+    try db.write {
       for (feed, items) in feeds {
         if db.feedWithID(feed.id) == nil {
           db.add(feed)
@@ -202,7 +203,7 @@ class DataStore {
     return fetchUserInfo().then { user in
       return self.fetchUserFeeds(user.feedIDs)
     }.then { feeds in
-      return self.saveUserFeeds(feeds)
+      try self.saveUserFeeds(feeds)
     }
   }
   
@@ -220,15 +221,16 @@ class DataStore {
   }
   
   func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
+    let db = try! DB()
     let ep = APIEndpoint.GetUserItemStates(userID: userID)
     Alamofire.request(ep).response { resp in
-      self.db.write { db in
+      try! db.write {
         item.playing = true
         item.state = .InProgress(position: progress)
         db.add(item, update: true)
-      }.then {
-        self.uploadItemStates()
-      }.then {
+      }
+      
+      self.uploadItemStates().then {
         onComplete()
       }
     }
