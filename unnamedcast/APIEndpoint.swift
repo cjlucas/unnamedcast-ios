@@ -75,7 +75,7 @@ struct LoginEndpoint: Endpoint {
   }
   
   func unmarshalResponse(data: NSData) throws -> User {
-    return try User(json: try JSON(data: data))
+    return try User(json: JSON(data: data))
   }
 }
 
@@ -86,7 +86,7 @@ struct GetFeedEndpoint: Endpoint {
   }
   
   func unmarshalResponse(data: NSData) throws -> Feed {
-    return try Feed(json: try JSON(data: data))
+    return try Feed(json: JSON(data: data))
   }
 }
 
@@ -117,7 +117,7 @@ struct GetUserEndpoint: Endpoint {
   }
   
   func unmarshalResponse(data: NSData) throws -> User {
-    return try User(json: try JSON(data: data))
+    return try User(json: JSON(data: data))
   }
 }
 
