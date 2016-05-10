@@ -108,7 +108,7 @@ class DataStore {
   
   func saveUserStates(states: [ItemState]) throws {
     let start = NSDate()
-    let db = try DB()
+    let db = try DB(configuration: config.dbConfiguration)
     try db.write {
       // Reset state for all items
       for item in db.items {
@@ -133,7 +133,7 @@ class DataStore {
   
   func uploadItemStates() -> Promise<Void> {
     return dispatch_promise(on: backgroundQueue) { () -> JSON in
-      let db = try DB()
+      let db = try DB(configuration: self.config.dbConfiguration)
       
       return db.items
         .filter("playing != false")
@@ -190,7 +190,8 @@ class DataStore {
   
   func fetchUserFeeds(feedIDs: [String]) -> Promise<[(Feed, [Item])]> {
     return dispatch_promise(on: backgroundQueue) { () -> [String: NSDate] in
-      let db = try DB()
+      let db = try DB(configuration: self.config.dbConfiguration)
+      
       var feedIDsModifiedSinceMap = [String: NSDate]()
       for id in feedIDs {
         feedIDsModifiedSinceMap[id] = db.feedWithID(id)?.lastSyncedTime
@@ -203,7 +204,7 @@ class DataStore {
   }
   
   func saveUserFeeds(feeds: [(Feed, [Item])]) throws {
-    let db = try DB()
+    let db = try DB(configuration: config.dbConfiguration)
     try db.write {
       for (feed, items) in feeds {
         if db.feedWithID(feed.id) == nil {
@@ -247,7 +248,7 @@ class DataStore {
   }
   
   func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
-    let db = try! DB()
+    let db = try! DB(configuration: config.dbConfiguration)
     let ep = APIEndpoint.GetUserItemStates(userID: userID)
     Alamofire.request(ep).response { resp in
       try! db.write {

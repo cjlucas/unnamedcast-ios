@@ -32,6 +32,10 @@ func loadFixture(name: String, ofType: String) -> NSData {
 }
 
 class unnamedcastUnitTests: XCTestCase {
+  let dbc = DB.Configuration(realmConfig: Realm.Configuration(
+    inMemoryIdentifier: "unnamedcastUnitTests",
+    deleteRealmIfMigrationNeeded: true
+  ))
   
   override func setUp() {
     super.setUp()
@@ -42,6 +46,11 @@ class unnamedcastUnitTests: XCTestCase {
   override func tearDown() {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     super.tearDown()
+  }
+  
+  func dataStoreWithResponses(responses: [JSON]) -> DataStore {
+    let conf = DataStore.Configuration(dbConfiguration: dbc, requestJSON: mockJSONRequester(responses))
+    return try! DataStore(configuration: conf)
   }
   
   func testFeedFromJSON() {
@@ -136,9 +145,7 @@ class unnamedcastUnitTests: XCTestCase {
     
     
     let responses = [JSON.Dictionary(resp1), JSON.Dictionary(resp2), JSON.Array(resp3)]
-    let rc = Realm.Configuration(inMemoryIdentifier: "testInitialUserFeedSync")
-    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
-    let ds = DataStore(configuration: conf)
+    let ds = dataStoreWithResponses(responses)
     ds.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
@@ -148,8 +155,9 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      XCTAssertEqual(ds.feeds.count, 1)
-      XCTAssertEqual(ds.feeds.first!.items.count, 0)
+      let db = try! DB(configuration: self.dbc)
+      XCTAssertEqual(db.feeds.count, 1)
+      XCTAssertEqual(db.feeds.first!.items.count, 0)
     }
   }
   
@@ -220,9 +228,8 @@ class unnamedcastUnitTests: XCTestCase {
       JSON.Dictionary(resp5),
       JSON.Array(resp6),
     ]
-    let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithNewItems")
-    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
-    let ds = DataStore(configuration: conf)
+    
+    let ds = dataStoreWithResponses(responses)
     ds.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
@@ -234,9 +241,10 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      XCTAssertEqual(ds.feeds.count, 1)
-      XCTAssertEqual(ds.items.count, 1)
-      XCTAssertEqual(ds.feeds.first!.items.count, 1)
+      let db = try! DB(configuration: self.dbc)
+      XCTAssertEqual(db.feeds.count, 1)
+      XCTAssertEqual(db.items.count, 1)
+      XCTAssertEqual(db.feeds.first!.items.count, 1)
     }
   }
 
@@ -311,9 +319,7 @@ class unnamedcastUnitTests: XCTestCase {
       JSON.Array(resp6),
     ]
 
-    let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithUpdatedItems")
-    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
-    let ds = DataStore(configuration: conf)
+    let ds = dataStoreWithResponses(responses)
     ds.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
@@ -325,11 +331,12 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      XCTAssertEqual(ds.feeds.count, 1)
-      XCTAssertEqual(ds.items.count, 1)
-      XCTAssertEqual(ds.feeds.first!.items.count, 1)
+      let db = try! DB(configuration: self.dbc)
+      XCTAssertEqual(db.feeds.count, 1)
+      XCTAssertEqual(db.items.count, 1)
+      XCTAssertEqual(db.feeds.first!.items.count, 1)
       
-      let item = ds.feeds.first!.items.first!
+      let item = db.feeds.first!.items.first!
       XCTAssertEqual(item.title, "title2")
     }
   }
@@ -426,9 +433,7 @@ class unnamedcastUnitTests: XCTestCase {
       JSON.Array(resp8),
     ]
   
-    let rc = Realm.Configuration(inMemoryIdentifier: "testUserFeedSyncWithUpdatedItems")
-    let conf = DataStore.Configuration(realmConfig: rc, requestJSON: mockJSONRequester(responses))
-    let ds = DataStore(configuration: conf)
+    let ds = dataStoreWithResponses(responses)
     ds.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
@@ -440,10 +445,11 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      XCTAssertEqual(ds.feeds.count, 2)
-      XCTAssertEqual(ds.items.count, 2)
-      XCTAssertEqual(ds.feeds[0].items.count, 1)
-      XCTAssertEqual(ds.feeds[1].items.count, 1)
+      let db = try! DB(configuration: self.dbc)
+      XCTAssertEqual(db.feeds.count, 2)
+      XCTAssertEqual(db.items.count, 2)
+      XCTAssertEqual(db.feeds[0].items.count, 1)
+      XCTAssertEqual(db.feeds[1].items.count, 1)
     }
   }
 }
