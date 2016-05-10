@@ -34,6 +34,21 @@ private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
   }
 }
 
+private func uploadJSON(req: URLRequestConvertible, data: NSData) -> Promise<JSONResponse> {
+  print(req.URLRequest.URL)
+  
+  return Promise { fulfill, reject in
+    Alamofire.upload(req, data: data).response { resp in
+      if let err = resp.3 {
+        return reject(Error.NetworkError(err.description))
+      }
+      
+      let json = try! JSON(data: resp.2!)
+      return fulfill((req: resp.0!, resp: resp.1!, json: json))
+    }
+  }
+}
+
 class DataStore {
   struct Configuration {
     let dbConfiguration: DB.Configuration?
@@ -45,6 +60,7 @@ class DataStore {
   let db: DB
   let config: Configuration
   let ud = NSUserDefaults.standardUserDefaults()
+  let backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
 
   // TODO(clucas): Wrap NSUserDefaults in a class with these properties
   var userID: String {
@@ -115,23 +131,21 @@ class DataStore {
   }
   
   func uploadItemStates() -> Promise<Void> {
-    return Promise { fulfill, reject in
-      let states = db.items
+    return dispatch_promise(on: backgroundQueue) { () -> JSON in
+      let db = try DB()
+      
+      return db.items
         .filter("playing != false")
         .map { ItemState(item: $0, pos: $0.position.value!) }
-      
-      let ep = APIEndpoint.UpdateUserItemStates(userID: self.userID)
-      let data = try! states.toJSON().serialize()
-      Alamofire.upload(ep, data: data).response { resp in
-        if let err = resp.3 {
-          return reject(Error.NetworkError(err.description))
-        }
-        
-        if let code = resp.1?.statusCode where code != 200 {
-          return reject(Error.APIError("Unexpected status code \(code)"))
-        }
-        
-        return fulfill()
+        .toJSON()
+    }.then(on: backgroundQueue) { json -> Promise<JSONResponse> in
+        let ep = APIEndpoint.UpdateUserItemStates(userID: self.userID)
+        let data = try json.serialize()
+        return uploadJSON(ep, data: data)
+    }.then { resp -> Void in
+      let code = resp.resp.statusCode
+      if code != 200 {
+        throw Error.APIError("Unexpected status code: \(code)")
       }
     }
   }
