@@ -37,12 +37,12 @@ func parseDate(s: String) -> NSDate? {
 
 protocol Endpoint: URLRequestConvertible {
   associatedtype ResponseType
-  func unmarshalResponse(data: NSData) throws -> ResponseType
+  func unmarshalResponse(body: NSData) throws -> ResponseType
 }
 
 // Noop if no ResponseType
 extension Endpoint where ResponseType == Void {
-  func unmarshalResponse(data: NSData) throws -> Void {
+  func unmarshalResponse(body: NSData) throws -> Void {
     return
   }
 }
@@ -58,19 +58,20 @@ struct LoginEndpoint: Endpoint {
     ])
   }
   
-  func unmarshalResponse(data: NSData) throws -> User {
-    return try User(json: JSON(data: data))
+  func unmarshalResponse(body: NSData) throws -> User {
+    return try User(json: JSON(data: body))
   }
 }
 
 struct GetFeedEndpoint: Endpoint {
   let id: String
+  
   var URLRequest: NSMutableURLRequest {
     return NSMutableURLRequest(method: "GET", path: "/feed/\(id)")
   }
   
-  func unmarshalResponse(data: NSData) throws -> Feed {
-    return try Feed(json: JSON(data: data))
+  func unmarshalResponse(body: NSData) throws -> Feed {
+    return try Feed(json: JSON(data: body))
   }
 }
 
@@ -89,19 +90,20 @@ struct GetFeedItemsEndpoint: Endpoint {
                                queryParameters: params)
   }
   
-  func unmarshalResponse(data: NSData) throws -> [Item] {
-    return try JSON(data: data).array().map(Item.init)
+  func unmarshalResponse(body: NSData) throws -> [Item] {
+    return try JSON(data: body).array().map(Item.init)
   }
 }
 
 struct GetUserEndpoint: Endpoint {
   var id: String
+  
   var URLRequest: NSMutableURLRequest {
     return NSMutableURLRequest(method: "GET", path: "/api/users/\(id)")
   }
   
-  func unmarshalResponse(data: NSData) throws -> User {
-    return try User(json: JSON(data: data))
+  func unmarshalResponse(body: NSData) throws -> User {
+    return try User(json: JSON(data: body))
   }
 }
 
@@ -111,15 +113,16 @@ struct GetUserItemStates: Endpoint {
     return NSMutableURLRequest(method: "GET", path: "/api/users/\(userID)/items")
   }
   
-  func unmarshalResponse(data: NSData) throws -> [ItemState] {
-    return try JSON(data: data).array().map(ItemState.init)
+  func unmarshalResponse(body: NSData) throws -> [ItemState] {
+    return try JSON(data: body).array().map(ItemState.init)
   }
 }
 
 struct UpdateUserFeedsEndpoint: Endpoint {
+  typealias ResponseType = Void
+  
   var userID: String
   var feedIDs: [String]
-  typealias ResponseType = Void
   
   var URLRequest: NSMutableURLRequest {
     let body = try! JSON.Array(feedIDs.map { JSON.String($0) }).serialize()
@@ -130,9 +133,10 @@ struct UpdateUserFeedsEndpoint: Endpoint {
 }
 
 struct UpdateUserItemStatesEndpoint: Endpoint {
+  typealias ResponseType = Void
+  
   var userID: String
   var states: [ItemState]
-  typealias ResponseType = Void
   
   var URLRequest: NSMutableURLRequest {
     let body = try! JSON.Array(states.map { $0.toJSON() }).serialize()
@@ -151,8 +155,8 @@ struct SearchFeedsEndpoint: Endpoint {
                                queryParameters: ["q": query])
   }
   
-  func unmarshalResponse(data: NSData) throws -> [Feed] {
-    return try JSON(data: data).array().map(Feed.init)
+  func unmarshalResponse(body: NSData) throws -> [Feed] {
+    return try JSON(data: body).array().map(Feed.init)
   }
 }
 
