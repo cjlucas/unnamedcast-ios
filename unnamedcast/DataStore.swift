@@ -20,10 +20,9 @@ typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
 typealias JSONResponse = (req: NSURLRequest, resp: NSHTTPURLResponse, json: JSON)
 
 private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
-  print(req.URLRequest.URL)
-  
   return Promise { fulfill, reject in
-    Alamofire.request(req).response { resp in
+    let q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
+    Alamofire.request(req).response(queue: q) { resp in
       if let err = resp.3 {
         return reject(Error.NetworkError(err.description))
       }
@@ -35,10 +34,9 @@ private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
 }
 
 private func uploadJSON(req: URLRequestConvertible, data: NSData) -> Promise<JSONResponse> {
-  print(req.URLRequest.URL)
-  
   return Promise { fulfill, reject in
-    Alamofire.upload(req, data: data).response { resp in
+    let q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
+    Alamofire.upload(req, data: data).response(queue: q) { resp in
       if let err = resp.3 {
         return reject(Error.NetworkError(err.description))
       }
@@ -93,15 +91,18 @@ class DataStore {
     }
   }
   
+  // MARK: - User
+  
   func fetchUserInfo() -> Promise<User> {
-    return requestJSON(.GetUserInfo(id: userID)).then { json -> User in
+    return requestJSON(.GetUserInfo(id: userID)).then(on: backgroundQueue) { json -> User in
       return try User(json: json)
     }
   }
   
   func fetchUserStates() -> Promise<[ItemState]> {
-    return requestJSON(.GetUserItemStates(userID: userID)).then { json in
-      return try! json.array().map(ItemState.init)
+    return requestJSON(.GetUserItemStates(userID: userID))
+      .then(on: backgroundQueue) { json in
+        return try! json.array().map(ItemState.init)
     }
   }
   
@@ -153,12 +154,14 @@ class DataStore {
   func syncItemStates() -> Promise<Void> {
     return firstly {
       return fetchUserStates()
-    }.then { states in
+    }.then(on: backgroundQueue) { states in
       try self.saveUserStates(states)
-    }.then {
+    }.then(on: backgroundQueue) {
       return self.uploadItemStates()
     }
   }
+  
+  // MARK: - Feeds
   
   func fetchFeed(feedID: String, itemsModifiedSince: NSDate?) -> Promise<(Feed, [Item])> {
     let promises = [
@@ -166,7 +169,7 @@ class DataStore {
       APIEndpoint.GetFeedItems(id: feedID, modificationsSince: itemsModifiedSince),
     ].map({ self.config.requestJSON(req: $0) })
     
-    return when(promises).then { resps -> (Feed, [Item]) in
+    return when(promises).then(on: backgroundQueue) { resps -> (Feed, [Item]) in
       for resp in resps {
         let code = resp.resp.statusCode
         guard code == 200 else {
@@ -186,11 +189,17 @@ class DataStore {
   }
   
   func fetchUserFeeds(feedIDs: [String]) -> Promise<[(Feed, [Item])]> {
-    var feedIDsModifiedSinceMap = [String: NSDate]()
-    for id in feedIDs {
-      feedIDsModifiedSinceMap[id] = db.feedWithID(id)?.lastSyncedTime
+    return dispatch_promise(on: backgroundQueue) { () -> [String: NSDate] in
+      let db = try DB()
+      var feedIDsModifiedSinceMap = [String: NSDate]()
+      for id in feedIDs {
+        feedIDsModifiedSinceMap[id] = db.feedWithID(id)?.lastSyncedTime
+      }
+      
+      return feedIDsModifiedSinceMap
+    }.then(on: backgroundQueue) { m in
+      return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: m[$0]) }))
     }
-    return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: feedIDsModifiedSinceMap[$0]) }))
   }
   
   func saveUserFeeds(feeds: [(Feed, [Item])]) throws {
@@ -214,12 +223,15 @@ class DataStore {
   }
   
   func syncUserFeeds() -> Promise<Void> {
-    return fetchUserInfo().then { user in
+    return fetchUserInfo()
+    .then(on: backgroundQueue) { user in
       return self.fetchUserFeeds(user.feedIDs)
-    }.then { feeds in
+    }.then(on: backgroundQueue) { feeds in
       try self.saveUserFeeds(feeds)
     }
   }
+  
+  // MARK: -
   
   func sync(onComplete: () -> Void) {
     firstly {

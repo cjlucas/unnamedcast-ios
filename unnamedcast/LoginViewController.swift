@@ -20,7 +20,8 @@ class LoginViewController: UIViewController {
     
     let endpoint = APIEndpoint.Login(user: emailTextField.text!, password: passwordTextField.text!)
     print(endpoint.URLRequest.URL)
-    Alamofire.request(endpoint).response { resp in
+    let q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
+    Alamofire.request(endpoint).response(queue: q) { resp in
       guard resp.1?.statusCode == 200 else { return }
       
       let json = try! JSON(data: resp.2!)
@@ -29,7 +30,9 @@ class LoginViewController: UIViewController {
       NSUserDefaults.standardUserDefaults().setObject(try! json.string("id"), forKey: "user_id")
       let ds = try! DataStore()
       ds.sync {
-        self.performSegueWithIdentifier("Login2Main", sender: self)
+        dispatch_async(dispatch_get_main_queue()) {
+          self.performSegueWithIdentifier("Login2Main", sender: self)
+        }
       }
     }
   }
