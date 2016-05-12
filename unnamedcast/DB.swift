@@ -46,4 +46,8 @@ class DB {
     f()
     try realm.commitWrite()
   }
+  
+  func deleteAll() throws {
+    try write { self.realm.deleteAll() }
+  }
 }

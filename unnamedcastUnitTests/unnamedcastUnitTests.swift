@@ -25,12 +25,11 @@ class mockRequester: EndpointRequestable {
     return dispatch_promise {
       guard self.responses.count > 0 else { fatalError("No responses left to return") }
 
-      let json = self.responses.removeFirst()
-      
       let req = NSURLRequest(URL: self.url)
       let res = NSHTTPURLResponse(URL: self.url, statusCode: 200, HTTPVersion: nil, headerFields: nil)!
+      let body = try! self.responses.removeFirst().serialize()
       
-      return (req, res, try endpoint.unmarshalResponse(json.serialize()))
+      return (req, res, try endpoint.unmarshalResponse(body))
     }
   }
   
@@ -45,7 +44,6 @@ class mockRequester: EndpointRequestable {
 
 func mockJSONRequester(responses: [JSON]) -> JSONRequester {
   var resps = responses
-  
   
   return { (req: URLRequestConvertible) -> Promise<JSONResponse> in
     let okResp = NSHTTPURLResponse(URL: req.URLRequest.URL!, statusCode: 200, HTTPVersion: nil, headerFields: nil)!
@@ -64,24 +62,24 @@ func loadFixture(name: String, ofType: String) -> NSData {
 
 class unnamedcastUnitTests: XCTestCase {
   let dbc = DB.Configuration(realmConfig: Realm.Configuration(
-    inMemoryIdentifier: "unnamedcastUnitTests",
     deleteRealmIfMigrationNeeded: true
   ))
   
   override func setUp() {
     super.setUp()
     continueAfterFailure = false
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    
+    try! DB(configuration: dbc).deleteAll()
   }
   
   override func tearDown() {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
     super.tearDown()
   }
   
   func dataStoreWithResponses(responses: [JSON]) -> DataStore {
-    let conf = DataStore.Configuration(dbConfiguration: dbc, requestJSON: mockJSONRequester(responses))
-    return try! DataStore(configuration: conf)
+    let conf = DataStore.Configuration(dbConfiguration: dbc,
+                                       endpointRequester: mockRequester(responses: responses))
+    return DataStore(configuration: conf)
   }
   
   func testFeedFromJSON() {
@@ -173,7 +171,6 @@ class unnamedcastUnitTests: XCTestCase {
     ]
 
     let resp3: [JSON] = []
-    
     
     let responses = [JSON.Dictionary(resp1), JSON.Dictionary(resp2), JSON.Array(resp3)]
     let ds = dataStoreWithResponses(responses)

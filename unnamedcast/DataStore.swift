@@ -19,47 +19,26 @@ internal enum Error: ErrorType {
 typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
 typealias JSONResponse = (req: NSURLRequest, resp: NSHTTPURLResponse, json: JSON)
 
-private func reqJSON(req: URLRequestConvertible) -> Promise<JSONResponse> {
-  return Promise { fulfill, reject in
-    let q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
-    Alamofire.request(req).response(queue: q) { resp in
-      if let err = resp.3 {
-        return reject(Error.NetworkError(err.description))
-      }
-     
-      let json = try! JSON(data: resp.2!)
-      return fulfill((req: resp.0!, resp: resp.1!, json: json))
-    }
-  }
-}
-
-private func uploadJSON(req: URLRequestConvertible, data: NSData) -> Promise<JSONResponse> {
-  return Promise { fulfill, reject in
-    let q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
-    Alamofire.upload(req, data: data).response(queue: q) { resp in
-      if let err = resp.3 {
-        return reject(Error.NetworkError(err.description))
-      }
-      
-      let json = try! JSON(data: resp.2!)
-      return fulfill((req: resp.0!, resp: resp.1!, json: json))
-    }
-  }
-}
-
 class DataStore {
   struct Configuration {
     let dbConfiguration: DB.Configuration?
-    let requestJSON: JSONRequester
+    let endpointRequester: EndpointRequestable
   }
   
-  static let defaultConfiguration = Configuration(dbConfiguration: nil, requestJSON: reqJSON)
+  static let defaultConfiguration = Configuration(dbConfiguration: nil,
+                                                  endpointRequester: APIClient())
   
-  let db: DB
   let config: Configuration
   let ud = NSUserDefaults.standardUserDefaults()
   let backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
-  let apiClient = APIClient()
+  
+  var requester: EndpointRequestable {
+    return config.endpointRequester
+  }
+  
+  private func newDB() throws -> DB {
+    return try DB(configuration: config.dbConfiguration)
+  }
 
   // TODO(clucas): Wrap NSUserDefaults in a class with these properties
   var userID: String {
@@ -72,30 +51,29 @@ class DataStore {
     set(id) { ud.setObject(id, forKey: "sync_token") }
   }
   
-  required init(configuration: Configuration) throws {
+  required init(configuration: Configuration) {
     config = configuration
-    db = try DB(configuration: config.dbConfiguration)
   }
 
-  convenience init() throws {
-    try self.init(configuration: DataStore.defaultConfiguration)
+  convenience init() {
+    self.init(configuration: DataStore.defaultConfiguration)
   }
   
   // MARK: - User
   
   func fetchUserInfo() -> Promise<User> {
     let ep = GetUserEndpoint(id: userID)
-    return apiClient.request(ep).then { _, _, user in return user }
+    return requester.request(ep).then { _, _, user in return user }
   }
   
   func fetchUserStates() -> Promise<[ItemState]> {
     let ep = GetUserItemStates(userID: userID)
-    return apiClient.request(ep).then { _, _, states in return states }
+    return requester.request(ep).then { _, _, states in return states }
   }
   
   func saveUserStates(states: [ItemState]) throws {
     let start = NSDate()
-    let db = try DB(configuration: config.dbConfiguration)
+    let db = try newDB()
     try db.write {
       // Reset state for all items
       for item in db.items {
@@ -120,14 +98,14 @@ class DataStore {
   
   func uploadItemStates() -> Promise<Void> {
     return dispatch_promise(on: backgroundQueue) { () -> [ItemState] in
-      let db = try DB(configuration: self.config.dbConfiguration)
+      let db = try self.newDB()
       
       return db.items
         .filter("playing != false")
         .map { ItemState(item: $0, pos: $0.position.value!) }
     }.then(on: backgroundQueue) { states -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
       let ep = UpdateUserItemStatesEndpoint(userID: self.userID, states: states)
-      return self.apiClient.request(ep)
+      return self.requester.request(ep)
     }.then { _, _ in return }
   }
   
@@ -144,10 +122,10 @@ class DataStore {
   // MARK: - Feeds
   
   func fetchFeed(feedID: String, itemsModifiedSince: NSDate?) -> Promise<(Feed, [Item])> {
-    let p1 = apiClient.request(GetFeedEndpoint(id: feedID)).then { _, _, feed in
+    let p1 = requester.request(GetFeedEndpoint(id: feedID)).then { _, _, feed in
       return feed
     }
-    let p2 = apiClient.request(GetFeedItemsEndpoint(id: feedID, modificationsSince: itemsModifiedSince)).then { _, _, items in
+    let p2 = requester.request(GetFeedItemsEndpoint(id: feedID, modificationsSince: itemsModifiedSince)).then { _, _, items in
       return items
     }
     
@@ -159,7 +137,7 @@ class DataStore {
   
   func fetchUserFeeds(feedIDs: [String]) -> Promise<[(Feed, [Item])]> {
     return dispatch_promise(on: backgroundQueue) { () -> [String: NSDate] in
-      let db = try DB(configuration: self.config.dbConfiguration)
+      let db = try self.newDB()
       
       var feedIDsModifiedSinceMap = [String: NSDate]()
       for id in feedIDs {
@@ -168,12 +146,12 @@ class DataStore {
       
       return feedIDsModifiedSinceMap
     }.then(on: backgroundQueue) { m in
-      return when(feedIDs.map({ self.fetchFeed($0, itemsModifiedSince: m[$0]) }))
+      return when(feedIDs.map { self.fetchFeed($0, itemsModifiedSince: m[$0]) })
     }
   }
   
   func saveUserFeeds(feeds: [(Feed, [Item])]) throws {
-    let db = try DB(configuration: config.dbConfiguration)
+    let db = try newDB()
     try db.write {
       for (feed, items) in feeds {
         if db.feedWithID(feed.id) == nil {
@@ -217,9 +195,9 @@ class DataStore {
   }
   
   func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
-    let db = try! DB(configuration: config.dbConfiguration)
+    let db = try! newDB()
     let ep = GetUserItemStates(userID: userID)
-    apiClient.request(ep).thenInBackground { req, res, states in
+    requester.request(ep).thenInBackground { req, res, states in
       try! db.write {
         item.playing = true
         item.state = .InProgress(position: progress)
