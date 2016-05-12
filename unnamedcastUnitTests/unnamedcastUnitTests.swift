@@ -42,19 +42,6 @@ class mockRequester: EndpointRequestable {
   }
 }
 
-func mockJSONRequester(responses: [JSON]) -> JSONRequester {
-  var resps = responses
-  
-  return { (req: URLRequestConvertible) -> Promise<JSONResponse> in
-    let okResp = NSHTTPURLResponse(URL: req.URLRequest.URL!, statusCode: 200, HTTPVersion: nil, headerFields: nil)!
-    
-    return Promise { fulfill, reject in
-      guard resps.count > 0 else { fatalError("No responses left to return") }
-      fulfill((req: req.URLRequest, resp: okResp, json: resps.removeFirst()))
-    }
-  }
-}
-
 func loadFixture(name: String, ofType: String) -> NSData {
   let fpath = NSBundle(forClass: unnamedcastUnitTests.self).pathForResource(name, ofType: ofType)
   return NSData(contentsOfFile: fpath!)!
