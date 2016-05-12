@@ -59,6 +59,7 @@ class DataStore {
   let config: Configuration
   let ud = NSUserDefaults.standardUserDefaults()
   let backgroundQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0)
+  let apiClient = APIClient()
 
   // TODO(clucas): Wrap NSUserDefaults in a class with these properties
   var userID: String {
@@ -80,30 +81,16 @@ class DataStore {
     try self.init(configuration: DataStore.defaultConfiguration)
   }
   
-  func requestJSON(endpoint: APIEndpoint, expectedStatusCodes: [Int] = [200]) -> Promise<JSON> {
-    return self.config.requestJSON(req: endpoint).then { resp -> JSON in
-      let code = resp.resp.statusCode
-      if !expectedStatusCodes.contains(code) {
-        throw Error.APIError("Unexpected status code \(code)")
-      }
-      
-      return resp.json
-    }
-  }
-  
   // MARK: - User
   
   func fetchUserInfo() -> Promise<User> {
-    return requestJSON(.GetUserInfo(id: userID)).then(on: backgroundQueue) { json -> User in
-      return try User(json: json)
-    }
+    let ep = GetUserEndpoint(id: userID)
+    return apiClient.request(ep).then { _, _, user in return user }
   }
   
   func fetchUserStates() -> Promise<[ItemState]> {
-    return requestJSON(.GetUserItemStates(userID: userID))
-      .then(on: backgroundQueue) { json in
-        return try! json.array().map(ItemState.init)
-    }
+    let ep = GetUserItemStates(userID: userID)
+    return apiClient.request(ep).then { _, _, states in return states }
   }
   
   func saveUserStates(states: [ItemState]) throws {
@@ -132,23 +119,16 @@ class DataStore {
   }
   
   func uploadItemStates() -> Promise<Void> {
-    return dispatch_promise(on: backgroundQueue) { () -> JSON in
+    return dispatch_promise(on: backgroundQueue) { () -> [ItemState] in
       let db = try DB(configuration: self.config.dbConfiguration)
       
       return db.items
         .filter("playing != false")
         .map { ItemState(item: $0, pos: $0.position.value!) }
-        .toJSON()
-    }.then(on: backgroundQueue) { json -> Promise<JSONResponse> in
-        let ep = APIEndpoint.UpdateUserItemStates(userID: self.userID)
-        let data = try json.serialize()
-        return uploadJSON(ep, data: data)
-    }.then { resp -> Void in
-      let code = resp.resp.statusCode
-      if code != 200 {
-        throw Error.APIError("Unexpected status code: \(code)")
-      }
-    }
+    }.then(on: backgroundQueue) { states -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
+      let ep = UpdateUserItemStatesEndpoint(userID: self.userID, states: states)
+      return self.apiClient.request(ep)
+    }.then { _, _ in return }
   }
   
   func syncItemStates() -> Promise<Void> {
@@ -164,25 +144,14 @@ class DataStore {
   // MARK: - Feeds
   
   func fetchFeed(feedID: String, itemsModifiedSince: NSDate?) -> Promise<(Feed, [Item])> {
-    let promises = [
-      APIEndpoint.GetFeed(id: feedID),
-      APIEndpoint.GetFeedItems(id: feedID, modificationsSince: itemsModifiedSince),
-    ].map({ self.config.requestJSON(req: $0) })
+    let p1 = apiClient.request(GetFeedEndpoint(id: feedID)).then { _, _, feed in
+      return feed
+    }
+    let p2 = apiClient.request(GetFeedItemsEndpoint(id: feedID, modificationsSince: itemsModifiedSince)).then { _, _, items in
+      return items
+    }
     
-    return when(promises).then(on: backgroundQueue) { resps -> (Feed, [Item]) in
-      for resp in resps {
-        let code = resp.resp.statusCode
-        guard code == 200 else {
-          throw Error.APIError("Unexpected status code \(code)")
-        }
-      }
-      
-      let feed = try Feed(json: resps[0].json)
-      var items = [Item]()
-      if let arr = try? resps[1].json.array().map(Item.init) {
-        items = arr
-      }
-    
+    return when(p1, p2).then(on: backgroundQueue) { feed, items -> (Feed, [Item]) in
       print("Fetched feed successfully title=\(feed.title) numItems=\(items.count)")
       return (feed: feed, items: items)
     }
@@ -249,8 +218,8 @@ class DataStore {
   
   func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
     let db = try! DB(configuration: config.dbConfiguration)
-    let ep = APIEndpoint.GetUserItemStates(userID: userID)
-    Alamofire.request(ep).response { resp in
+    let ep = GetUserItemStates(userID: userID)
+    apiClient.request(ep).thenInBackground { req, res, states in
       try! db.write {
         item.playing = true
         item.state = .InProgress(position: progress)

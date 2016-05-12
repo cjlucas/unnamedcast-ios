@@ -12,19 +12,9 @@ import Freddy
 import RealmSwift
 
 class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate {
-  struct Result: JSONDecodable {
-    var id: String
-    var title: String
-    
-    init(json: JSON) throws {
-      id = try json.string("id")
-      title = try json.string("title")
-    }
-  }
-  
   @IBOutlet weak var searchBar: UISearchBar!
   
-  var results = [Result]()
+  var results = [SearchResult]()
   let realm = try! Realm()
   
   
@@ -68,9 +58,8 @@ class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate 
     let add = UIAlertAction(title: "Add", style: .Default) { action in
       let userID = NSUserDefaults.standardUserDefaults().stringForKey("user_id")!
       
-      let endpoint = APIEndpoint.UpdateUserFeeds(userID: userID)
-      let payload = try! NSJSONSerialization.dataWithJSONObject(feedIds, options: NSJSONWritingOptions(rawValue: 0))
-      Alamofire.upload(endpoint, data: payload).response { resp in
+      let ep = UpdateUserFeedsEndpoint(userID: userID, feedIDs: feedIds)
+      APIClient().request(ep).then {_,_ in
         print("Your shit got updated yo")
       }
       
@@ -101,27 +90,10 @@ class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate 
   // MARK: - UISearchBarDelegate
   
   func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-    let endpoint = APIEndpoint.SearchFeeds(query: searchText)
-    Alamofire.request(endpoint).response { resp in
-      guard resp.3 == nil else {
-        print("Error received: \(resp.3!)")
-        return
-      }
-      
-      guard resp.1?.statusCode == 200 else {
-        print("Unexpected status code: \(resp.1?.statusCode)")
-        return
-      }
-      
-      do {
-        let json = try JSON(data: resp.2!).array()
-        self.results = json.map { try! Result(json: $0) }
-        self.tableView.reloadData()
-      } catch {
-        print("Error handling response")
-        print(String(data: resp.2!, encoding: NSUTF8StringEncoding))
-      }
-      
+    let ep = SearchFeedsEndpoint(query: searchText)
+    APIClient().request(ep).then { _, resp, results -> Void in
+      self.results = results
+      self.tableView.reloadData()
     }
   }
 }
