@@ -137,7 +137,7 @@ struct GetFeedEndpoint: Endpoint {
   let id: String
   
   var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "GET", path: "/feed/\(id)")
+    return HTTPRequestComponents(method: "GET", path: "/api/feeds/\(id)")
   }
   
   func unmarshalResponse(body: NSData) throws -> Feed {
@@ -181,7 +181,7 @@ struct GetUserItemStates: Endpoint {
   var userID: String
   
   var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "GET", path: "/api/users/\(userID)/items")
+    return HTTPRequestComponents(method: "GET", path: "/api/users/\(userID)/states")
   }
   
   func unmarshalResponse(body: NSData) throws -> [ItemState] {
