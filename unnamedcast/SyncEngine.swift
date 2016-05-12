@@ -1,5 +1,5 @@
 //
-//  DataStore.swift
+//  SyncEngine.swift
 //  unnamedcast
 //
 //  Created by Christopher Lucas on 3/5/16.
@@ -19,7 +19,7 @@ internal enum Error: ErrorType {
 typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
 typealias JSONResponse = (req: NSURLRequest, resp: NSHTTPURLResponse, json: JSON)
 
-class DataStore {
+class SyncEngine {
   struct Configuration {
     let dbConfiguration: DB.Configuration?
     let endpointRequester: EndpointRequestable
@@ -56,7 +56,7 @@ class DataStore {
   }
 
   convenience init() {
-    self.init(configuration: DataStore.defaultConfiguration)
+    self.init(configuration: SyncEngine.defaultConfiguration)
   }
   
   // MARK: - User

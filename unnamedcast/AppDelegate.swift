@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       self.window?.makeKeyAndVisible()
     } else {
       print("Updating user feeds")
-      try! DataStore().sync {
+      try! SyncEngine().sync {
         print("Updated user feeds")
       }
     }

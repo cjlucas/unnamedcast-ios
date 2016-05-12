@@ -41,8 +41,8 @@
 		839680C41CACBDBA007A4D62 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E345751C94ADAB009F25E6 /* User.swift */; };
 		839680C51CACBDBA007A4D62 /* APIEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* APIEndpoint.swift */; };
 		839680C61CACBDBA007A4D62 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B41C78EC7D00494388 /* Setting.swift */; };
-		839680C71CACBDBA007A4D62 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* DataStore.swift */; };
-		83AFF8AA1C8B7A8900E94AFE /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* DataStore.swift */; };
+		839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
+		83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
 		83C5145A1CACC931003FCBA4 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
 		83E345641C94A5FE009F25E6 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
 		83E345761C94ADAB009F25E6 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E345751C94ADAB009F25E6 /* User.swift */; };
@@ -98,7 +98,7 @@
 		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		837857D21C5D93600026959C /* UIImageColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageColors.swift; sourceTree = "<group>"; };
 		839680BC1CA74A4F007A4D62 /* PlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
-		83AFF8A91C8B7A8900E94AFE /* DataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		83C85B961CACC9E3001FF216 /* Pods_unnamedcastTests.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Pods_unnamedcastTests.framework; path = "Pods/../build/Debug-iphoneos/Pods_unnamedcastTests.framework"; sourceTree = "<group>"; };
 		83E345631C94A5FE009F25E6 /* feed1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = feed1.json; path = ../unnamedcastTests/feed1.json; sourceTree = "<group>"; };
 		83E345691C94A71D009F25E6 /* unnamedcastUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = unnamedcastUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -269,7 +269,7 @@
 				833239B21C78E2DD00494388 /* APIEndpoint.swift */,
 				837857D21C5D93600026959C /* UIImageColors.swift */,
 				833239B41C78EC7D00494388 /* Setting.swift */,
-				83AFF8A91C8B7A8900E94AFE /* DataStore.swift */,
+				83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */,
 				835793A61CDFF9A0003F09FA /* DB.swift */,
 			);
 			path = unnamedcast;
@@ -641,7 +641,7 @@
 				830130461CE42AC600E583DF /* SearchResult.swift in Sources */,
 				8364FAFA1CE1AF47004576F7 /* Request.swift in Sources */,
 				839680C61CACBDBA007A4D62 /* Setting.swift in Sources */,
-				839680C71CACBDBA007A4D62 /* DataStore.swift in Sources */,
+				839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */,
 				839680C21CACBC9A007A4D62 /* unnamedcastUnitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -669,7 +669,7 @@
 				830130431CE42AC600E583DF /* SearchResult.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,
 				8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */,
-				83AFF8AA1C8B7A8900E94AFE /* DataStore.swift in Sources */,
+				83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */,
 				833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

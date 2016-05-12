@@ -76,10 +76,10 @@ class unnamedcastUnitTests: XCTestCase {
     super.tearDown()
   }
   
-  func dataStoreWithResponses(responses: [JSON]) -> DataStore {
-    let conf = DataStore.Configuration(dbConfiguration: dbc,
+  func dataStoreWithResponses(responses: [JSON]) -> SyncEngine {
+    let conf = SyncEngine.Configuration(dbConfiguration: dbc,
                                        endpointRequester: mockRequester(responses: responses))
-    return DataStore(configuration: conf)
+    return SyncEngine(configuration: conf)
   }
   
   func testFeedFromJSON() {

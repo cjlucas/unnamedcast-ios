@@ -23,7 +23,7 @@ class LoginViewController: UIViewController {
     APIClient().request(ep).then { _, _, user in
       NSUserDefaults.standardUserDefaults().setObject(user.id, forKey: "user_id")
     }.then { () -> Void in
-      let ds = try! DataStore()
+      let ds = try! SyncEngine()
       ds.sync {
         dispatch_async(dispatch_get_main_queue()) {
           self.performSegueWithIdentifier("Login2Main", sender: self)
