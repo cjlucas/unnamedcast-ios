@@ -25,7 +25,7 @@ func mockJSONRequester(responses: [JSON]) -> JSONRequester {
     }
   }
 }
-  
+
 func loadFixture(name: String, ofType: String) -> NSData {
   let fpath = NSBundle(forClass: unnamedcastUnitTests.self).pathForResource(name, ofType: ofType)
   return NSData(contentsOfFile: fpath!)!

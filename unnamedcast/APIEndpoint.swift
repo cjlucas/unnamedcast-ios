@@ -36,7 +36,12 @@ func parseDate(s: String) -> NSDate? {
   return nil
 }
 
-struct APIClient {
+protocol EndpointRequestable {
+  func request<E: Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)>
+  func request<E: Endpoint where E.ResponseType == Void>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse)>
+}
+
+struct APIClient: EndpointRequestable {
   struct Request: URLRequestConvertible {
     let scheme = "http"
     let host: String
