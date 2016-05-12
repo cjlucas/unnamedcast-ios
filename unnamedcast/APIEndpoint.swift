@@ -72,7 +72,7 @@ struct APIClient {
   
   func request<E: Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)> {
     let req = buildRequest(endpoint)
-    return Alamofire.request(req).response().then { req, res, body in
+    return Alamofire.request(req).response().thenInBackground { req, res, body in
       return (req!, res!, try endpoint.unmarshalResponse(body!))
     }
   }
