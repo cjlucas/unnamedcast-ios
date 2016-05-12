@@ -12,22 +12,45 @@ import Freddy
 import PromiseKit
 import RealmSwift
 
-class mockRequester: EndpointRequestable {
-  var responses: [JSON]
+class MockRequester: EndpointRequestable {
+  var endpointResponses: [String:[JSON]] = [:]
   let url = NSURLComponents(string: "http://localhost/fakepath")!.URL!
   
-  init(responses: [JSON]) {
-    self.responses = responses
+  func responseKey(method: String, path: String) -> String {
+    return "\(method) \(path)"
+  }
+  
+  func registerResponse(method: String, path: String, response: JSON) {
+    let key = responseKey(method, path: path)
+    
+    if endpointResponses[key] == nil {
+      endpointResponses[key] = []
+    }
+    
+    endpointResponses[key]?.append(response)
   }
   
   func request<E : Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)> {
+    let key = responseKey(endpoint.requestComponents.method, path: endpoint.requestComponents.path)
+    
+    guard var responses = endpointResponses[key] else {
+      fatalError("No response found for key: \(key)")
+    }
+    
+    guard responses.count > 0 else {
+      fatalError("No more responses found for key: \(key)")
+    }
+    
+    let json = responses.removeFirst()
+    endpointResponses[key] = responses
+    
+    guard let body = try? json.serialize() else {
+      fatalError("Could not serialize json")
+    }
     
     return dispatch_promise {
-      guard self.responses.count > 0 else { fatalError("No responses left to return") }
-
       let req = NSURLRequest(URL: self.url)
       let res = NSHTTPURLResponse(URL: self.url, statusCode: 200, HTTPVersion: nil, headerFields: nil)!
-      let body = try! self.responses.removeFirst().serialize()
       
       return (req, res, try endpoint.unmarshalResponse(body))
     }
@@ -63,9 +86,9 @@ class unnamedcastUnitTests: XCTestCase {
     super.tearDown()
   }
   
-  func dataStoreWithResponses(responses: [JSON]) -> SyncEngine {
+  func newSyncEngine(requester: MockRequester) -> SyncEngine {
     let conf = SyncEngine.Configuration(dbConfiguration: dbc,
-                                       endpointRequester: mockRequester(responses: responses))
+                                        endpointRequester: requester)
     return SyncEngine(configuration: conf)
   }
   
@@ -137,35 +160,39 @@ class unnamedcastUnitTests: XCTestCase {
 
   // TODO: move this test to its own class
   func testInitialUserFeedSync() {
-    // TODO: Waiting for Freddy to support proper literal syntax
-    // https://github.com/bignerdranch/Freddy/issues/150
+    let requester = MockRequester()
+   
+    requester.registerResponse("GET",
+                               path: "/api/users/0",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "username": "chris@cjlucas.net",
+                                "feeds": ["56d65493c8747268f348438b"],
+                                "states": []
+                                ]))
     
-    let resp1: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "username": "chris@cjlucas.net",
-      "feeds": ["56d65493c8747268f348438b"],
-      "states": [],
-    ]
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "title": "Some Title",
+                                "url": "http://google.com",
+                                "author": "Author goes Here",
+                                "image_url": "http://google.com/404.png",
+                                "modification_time": "2016-04-03T19:38:03.33Z",
+                                "items": []
+                                ]))
     
-    let resp2: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "title": "Some Title",
-      "url": "http://google.com",
-      "author": "Author goes Here",
-      "image_url": "http://google.com/404.png",
-      "modification_time": "2016-04-03T19:38:03.33Z",
-      "items": []
-    ]
-
-    let resp3: [JSON] = []
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b/items",
+                               response: JSON.Array([]))
     
-    let responses = [JSON.Dictionary(resp1), JSON.Dictionary(resp2), JSON.Array(resp3)]
-    let ds = dataStoreWithResponses(responses)
-    ds.userID = "0"
+    let engine = newSyncEngine(requester)
+    engine.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
     
-    ds.syncUserFeeds().always {
+    engine.syncUserFeeds().always {
       expectation.fulfill()
     }
     
@@ -177,80 +204,85 @@ class unnamedcastUnitTests: XCTestCase {
   }
   
   func testUserFeedSyncWithNewItems() {
-    // TODO: Waiting for Freddy to support proper literal syntax
-    // https://github.com/bignerdranch/Freddy/issues/150
+    let requester = MockRequester()
    
-    // GET /api/users/56d65493c8747268f348438b
-    let resp1: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "username": "chris@cjlucas.net",
-      "feeds": ["56d65493c8747268f348438b"],
-      "states": [],
-    ]
+    requester.registerResponse("GET",
+                               path: "/api/users/0",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "username": "chris@cjlucas.net",
+                                "feeds": ["56d65493c8747268f348438b"],
+                                "states": [],
+                                ]))
     
-    // GET /api/feeds/56d65493c8747268f348438b
-    let resp2: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "title": "Some Title",
-      "url": "http://google.com",
-      "author": "Author goes Here",
-      "image_url": "http://google.com/404.png",
-      "modification_time": "2016-04-03T19:38:03.33Z",
-      "items": []
-    ]
-    
-    let resp3: [JSON] = []
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "title": "Some Title",
+                                "url": "http://google.com",
+                                "author": "Author goes Here",
+                                "image_url": "http://google.com/404.png",
+                                "modification_time": "2016-04-03T19:38:03.33Z",
+                                "items": []
+                                ]))
 
-    // GET /api/users/56d65493c8747268f348438b
-    let resp4 = resp1
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b/items",
+                               response: JSON.Array([]))
 
-    // GET /api/feeds/56d65493c8747268f348438b
-    let resp5: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "title": "Some Title",
-      "url": "http://google.com",
-      "author": "Author goes Here",
-      "image_url": "http://google.com/404.png",
-      "modification_time": "2016-04-03T19:38:03.34Z",
-      "items": [
-        "56d65493c8747268f348438c",
-      ]
-    ]
+    // No modifications
+    requester.registerResponse("GET",
+                               path: "/api/users/0",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "username": "chris@cjlucas.net",
+                                "feeds": ["56d65493c8747268f348438b"],
+                                "states": [],
+                                ]))
     
-    let resp6: [JSON] = [
-      [
-        "id": "56d65493c8747268f348438c",
-        "guid": "guid goes here",
-        "link": "link goes here",
-        "title": "title goes here",
-        "author": "author goes here",
-        "summary": "summary",
-        "description": "description",
-        "duration": 5,
-        "size": 100,
-        "publication_time": "doesnt matter",
-        "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png",
-        "modification_time": "2016-04-03T19:38:03.33Z"
-      ]
-    ]
- 
-    let responses = [
-      JSON.Dictionary(resp1),
-      JSON.Dictionary(resp2),
-      JSON.Array(resp3),
-      JSON.Dictionary(resp4),
-      JSON.Dictionary(resp5),
-      JSON.Array(resp6),
-    ]
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "title": "Some Title",
+                                "url": "http://google.com",
+                                "author": "Author goes Here",
+                                "image_url": "http://google.com/404.png",
+                                "modification_time": "2016-04-03T19:38:03.34Z",
+                                "items": [
+                                  "56d65493c8747268f348438c",
+                                ]
+                                ]))
+
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b/items",
+                               response: JSON.Array([
+                                [
+                                  "id": "56d65493c8747268f348438c",
+                                  "guid": "guid goes here",
+                                  "link": "link goes here",
+                                  "title": "title goes here",
+                                  "author": "author goes here",
+                                  "summary": "summary",
+                                  "description": "description",
+                                  "duration": 5,
+                                  "size": 100,
+                                  "publication_time": "doesnt matter",
+                                  "url": "http://google.com/podcast.mp3",
+                                  "image_url": "http://google.com/404.png",
+                                  "modification_time": "2016-04-03T19:38:03.33Z"
+                                ]
+                              ]))
     
-    let ds = dataStoreWithResponses(responses)
-    ds.userID = "0"
+   
+    let engine = newSyncEngine(requester)
+    engine.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
   
-    ds.syncUserFeeds().then {
-      return ds.syncUserFeeds()
+    engine.syncUserFeeds().then {
+      return engine.syncUserFeeds()
     }.always {
         expectation.fulfill()
     }
@@ -264,83 +296,102 @@ class unnamedcastUnitTests: XCTestCase {
   }
 
   func testUserFeedSyncWithUpdatedItems() {
-    // TODO: Waiting for Freddy to support proper literal syntax
-    // https://github.com/bignerdranch/Freddy/issues/150
+    let requester = MockRequester()
     
-    let resp1: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "username": "chris@cjlucas.net",
-      "feeds": ["56d65493c8747268f348438b"],
-      "states": [],
-    ]
+    requester.registerResponse("GET",
+                               path: "/api/users/0",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "username": "chris@cjlucas.net",
+                                "feeds": ["56d65493c8747268f348438b"],
+                                "states": [],
+                                ]))
     
-    let resp2: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "title": "Some Title",
-      "url": "http://google.com",
-      "author": "Author goes Here",
-      "image_url": "http://google.com/404.png",
-      "modification_time": "2016-04-03T19:38:03.34Z",
-      "items": [
-        "56d65493c8747268f348438c",
-      ]
-    ]
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "title": "Some Title",
+                                "url": "http://google.com",
+                                "author": "Author goes Here",
+                                "image_url": "http://google.com/404.png",
+                                "modification_time": "2016-04-03T19:38:03.34Z",
+                                "items": [
+                                  "56d65493c8747268f348438c",
+                                ]
+                                ]))
     
-    let resp3: [JSON] = [
-      [
-        "id": "56d65493c8747268f348438c",
-        "guid": "guid goes here",
-        "link": "link goes here",
-        "title": "title1",
-        "author": "author goes here",
-        "summary": "summary",
-        "description": "description",
-        "duration": 5,
-        "size": 100,
-        "publication_time": "doesnt matter",
-        "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png",
-        "modification_time": "2016-04-03T19:38:03.33Z"
-      ]
-    ]
-    
-    let resp4 = resp1
-    let resp5 = resp2
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b/items",
+                               response: JSON.Array([
+                                [
+                                  "id": "56d65493c8747268f348438c",
+                                  "guid": "guid goes here",
+                                  "link": "link goes here",
+                                  "title": "title1",
+                                  "author": "author goes here",
+                                  "summary": "summary",
+                                  "description": "description",
+                                  "duration": 5,
+                                  "size": 100,
+                                  "publication_time": "doesnt matter",
+                                  "url": "http://google.com/podcast.mp3",
+                                  "image_url": "http://google.com/404.png",
+                                  "modification_time": "2016-04-03T19:38:03.33Z"
+                                ]
+                                ]))
 
-    let resp6: [JSON] = [
-      [
-        "id": "56d65493c8747268f348438c",
-        "guid": "guid goes here",
-        "link": "link goes here",
-        "title": "title2",
-        "author": "author goes here",
-        "summary": "summary",
-        "description": "description",
-        "duration": 5,
-        "size": 100,
-        "publication_time": "doesnt matter",
-        "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png",
-        "modification_time": "2016-04-03T19:38:04.33Z"
-      ]
-    ]
+    // Begin 2nd sync
+    requester.registerResponse("GET",
+                               path: "/api/users/0",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "username": "chris@cjlucas.net",
+                                "feeds": ["56d65493c8747268f348438b"],
+                                "states": [],
+                                ]))
     
-    let responses = [
-      JSON.Dictionary(resp1),
-      JSON.Dictionary(resp2),
-      JSON.Array(resp3),
-      JSON.Dictionary(resp4),
-      JSON.Dictionary(resp5),
-      JSON.Array(resp6),
-    ]
-
-    let ds = dataStoreWithResponses(responses)
-    ds.userID = "0"
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "title": "Some Title",
+                                "url": "http://google.com",
+                                "author": "Author goes Here",
+                                "image_url": "http://google.com/404.png",
+                                "modification_time": "2016-04-03T19:38:03.34Z",
+                                "items": [
+                                  "56d65493c8747268f348438c",
+                                ]
+                                ]))
+    
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b/items",
+                               response: JSON.Array([
+                                [
+                                  "id": "56d65493c8747268f348438c",
+                                  "guid": "guid goes here",
+                                  "link": "link goes here",
+                                  "title": "title2",
+                                  "author": "author goes here",
+                                  "summary": "summary",
+                                  "description": "description",
+                                  "duration": 5,
+                                  "size": 100,
+                                  "publication_time": "doesnt matter",
+                                  "url": "http://google.com/podcast.mp3",
+                                  "image_url": "http://google.com/404.png",
+                                  "modification_time": "2016-04-03T19:38:04.33Z"
+                                ]
+                                ]))
+    
+    let engine = newSyncEngine(requester)
+    engine.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
     
-    ds.syncUserFeeds().then {
-      return ds.syncUserFeeds()
+    engine.syncUserFeeds().then {
+      return engine.syncUserFeeds()
     }.always {
       expectation.fulfill()
     }
@@ -355,106 +406,143 @@ class unnamedcastUnitTests: XCTestCase {
       XCTAssertEqual(item.title, "title2")
     }
   }
-  
-  func testUserFeedSyncWithNewFeed() {
-    // TODO: Waiting for Freddy to support proper literal syntax
-    // https://github.com/bignerdranch/Freddy/issues/150
-    
-    let resp1: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "username": "chris@cjlucas.net",
-      "feeds": ["56d65493c8747268f348438b"],
-      "states": [],
-    ]
-    
-    let resp2: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "title": "Some Title",
-      "url": "http://google.com",
-      "author": "Author goes Here",
-      "image_url": "http://google.com/404.png",
-      "modification_time": "2016-04-03T19:38:03.34Z",
-      "items": [
-        "56d65493c8747268f348438c",
-      ]
-    ]
-    
-    let resp3: [JSON] = [
-      [
-        "id": "56d65493c8747268f348438c",
-        "guid": "guid goes here",
-        "link": "link goes here",
-        "title": "title1",
-        "author": "author goes here",
-        "summary": "summary",
-        "description": "description",
-        "duration": 5,
-        "size": 100,
-        "publication_time": "doesnt matter",
-        "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png",
-        "modification_time": "2016-04-03T19:38:03.33Z"
-      ]
-    ]
 
-    let resp4: [String: JSON] = [
-      "id": "56d65493c8747268f348438b",
-      "username": "chris@cjlucas.net",
-      "feeds": ["56d65493c8747268f348438b", "56d65493c8747268f348438c"],
-      "states": [],
-    ]
+  func testUserFeedSyncWithNewFeed() {
+    let requester = MockRequester()
     
-    let resp5 = resp2
-    let resp6 = resp3
+    requester.registerResponse("GET",
+                               path: "/api/users/0",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "username": "chris@cjlucas.net",
+                                "feeds": ["56d65493c8747268f348438b"],
+                                "states": [],
+                                ]))
     
-    let resp7: [String: JSON] = [
-      "id": "56d65493c8747268f348438c",
-      "title": "Some Title",
-      "url": "http://google.com",
-      "author": "Author goes Here",
-      "image_url": "http://google.com/404.png",
-      "modification_time": "2016-04-03T19:38:03.34Z",
-      "items": [
-        "56d65493c8747268f348438d",
-      ]
-    ]
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "title": "Some Title",
+                                "url": "http://google.com",
+                                "author": "Author goes Here",
+                                "image_url": "http://google.com/404.png",
+                                "modification_time": "2016-04-03T19:38:03.34Z",
+                                "items": [
+                                  "56d65493c8747268f348438c",
+                                ]
+                                ]))
     
-    let resp8: [JSON] = [
-      [
-        "id": "56d65493c8747268f348438d",
-        "guid": "guid goes here",
-        "link": "link goes here",
-        "title": "title2",
-        "author": "author goes here",
-        "summary": "summary",
-        "description": "description",
-        "duration": 5,
-        "size": 100,
-        "publication_time": "doesnt matter",
-        "url": "http://google.com/podcast.mp3",
-        "image_url": "http://google.com/404.png",
-        "modification_time": "2016-04-03T19:38:03.33Z",
-      ]
-    ]
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b/items",
+                               response: JSON.Array([
+                                [
+                                  "id": "56d65493c8747268f348438c",
+                                  "guid": "guid goes here",
+                                  "link": "link goes here",
+                                  "title": "title1",
+                                  "author": "author goes here",
+                                  "summary": "summary",
+                                  "description": "description",
+                                  "duration": 5,
+                                  "size": 100,
+                                  "publication_time": "doesnt matter",
+                                  "url": "http://google.com/podcast.mp3",
+                                  "image_url": "http://google.com/404.png",
+                                  "modification_time": "2016-04-03T19:38:03.33Z"
+                                ]
+                                ]))
     
-    let responses = [
-      JSON.Dictionary(resp1),
-      JSON.Dictionary(resp2),
-      JSON.Array(resp3),
-      JSON.Dictionary(resp4),
-      JSON.Dictionary(resp5),
-      JSON.Array(resp6),
-      JSON.Dictionary(resp7),
-      JSON.Array(resp8),
-    ]
-  
-    let ds = dataStoreWithResponses(responses)
-    ds.userID = "0"
+    // Start 2nd sync
+    
+    requester.registerResponse("GET",
+                               path: "/api/users/0",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "username": "chris@cjlucas.net",
+                                "feeds": [
+                                  "56d65493c8747268f348438b",
+                                  "56d65493c8747268f348438c"
+                                ],
+                                "states": [],
+                                ]))
+    
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b",
+                               response: JSON.Dictionary([
+                                "id": "56d65493c8747268f348438b",
+                                "title": "Some Title",
+                                "url": "http://google.com",
+                                "author": "Author goes Here",
+                                "image_url": "http://google.com/404.png",
+                                "modification_time": "2016-04-03T19:38:03.34Z",
+                                "items": [
+                                  "56d65493c8747268f348438c",
+                                ]
+                                ]))
+    
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438b/items",
+                               response: JSON.Array([
+                                [
+                                  "id": "56d65493c8747268f348438c",
+                                  "guid": "guid goes here",
+                                  "link": "link goes here",
+                                  "title": "title1",
+                                  "author": "author goes here",
+                                  "summary": "summary",
+                                  "description": "description",
+                                  "duration": 5,
+                                  "size": 100,
+                                  "publication_time": "doesnt matter",
+                                  "url": "http://google.com/podcast.mp3",
+                                  "image_url": "http://google.com/404.png",
+                                  "modification_time": "2016-04-03T19:38:03.33Z"
+                                ]
+                                ]))
+    
+    requester.registerResponse("GET",
+                                path: "/api/feeds/56d65493c8747268f348438c",
+                                response: JSON.Dictionary([
+                                  "id": "56d65493c8747268f348438c",
+                                  "title": "Some Title",
+                                  "url": "http://google.com",
+                                  "author": "Author goes Here",
+                                  "image_url": "http://google.com/404.png",
+                                  "modification_time": "2016-04-03T19:38:03.34Z",
+                                  "items": [
+                                    "56d65493c8747268f348438d",
+                                  ]
+                                ]))
+    
+    
+    requester.registerResponse("GET",
+                               path: "/api/feeds/56d65493c8747268f348438c/items",
+                               response: JSON.Array([
+                                [
+                                  "id": "56d65493c8747268f348438d",
+                                  "guid": "guid goes here",
+                                  "link": "link goes here",
+                                  "title": "title2",
+                                  "author": "author goes here",
+                                  "summary": "summary",
+                                  "description": "description",
+                                  "duration": 5,
+                                  "size": 100,
+                                  "publication_time": "doesnt matter",
+                                  "url": "http://google.com/podcast.mp3",
+                                  "image_url": "http://google.com/404.png",
+                                  "modification_time": "2016-04-03T19:38:03.33Z",
+                                ]
+                                ]))
+    
+    let engine = newSyncEngine(requester)
+    engine.userID = "0"
     
     let expectation = expectationWithDescription("whatever")
     
-    ds.syncUserFeeds().then {
-      return ds.syncUserFeeds()
+    engine.syncUserFeeds().then {
+      return engine.syncUserFeeds()
     }.always {
       expectation.fulfill()
     }
