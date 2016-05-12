@@ -12,6 +12,37 @@ import Freddy
 import PromiseKit
 import RealmSwift
 
+class mockRequester: EndpointRequestable {
+  var responses: [JSON]
+  let url = NSURLComponents(string: "http://localhost/fakepath")!.URL!
+  
+  init(responses: [JSON]) {
+    self.responses = responses
+  }
+  
+  func request<E : Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)> {
+    
+    return dispatch_promise {
+      guard self.responses.count > 0 else { fatalError("No responses left to return") }
+
+      let json = self.responses.removeFirst()
+      
+      let req = NSURLRequest(URL: self.url)
+      let res = NSHTTPURLResponse(URL: self.url, statusCode: 200, HTTPVersion: nil, headerFields: nil)!
+      
+      return (req, res, try endpoint.unmarshalResponse(json.serialize()))
+    }
+  }
+  
+  func request<E : Endpoint where E.ResponseType == Void>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse)> {
+    return dispatch_promise {
+      let req = NSURLRequest(URL: self.url)
+      let res = NSHTTPURLResponse(URL: self.url, statusCode: 200, HTTPVersion: nil, headerFields: nil)!
+      return (req, res)
+    }
+  }
+}
+
 func mockJSONRequester(responses: [JSON]) -> JSONRequester {
   var resps = responses
   
