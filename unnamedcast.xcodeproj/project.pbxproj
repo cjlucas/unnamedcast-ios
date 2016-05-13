@@ -34,6 +34,10 @@
 		8364FB011CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
 		8364FB021CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
 		8364FB031CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
+		8377B5131CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
+		8377B5141CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
+		8377B5151CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
+		8377B5161CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
 		837857C01C5C52400026959C /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
 		837857C21C5C52660026959C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 837857C11C5C52660026959C /* AVFoundation.framework */; };
 		837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
@@ -95,6 +99,7 @@
 		835793A61CDFF9A0003F09FA /* DB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DB.swift; sourceTree = "<group>"; };
 		8364FAF81CE1A64B004576F7 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		8364FAFF1CE41B36004576F7 /* Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
+		8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationDelegateReachable.swift; sourceTree = "<group>"; };
 		837857BF1C5C52400026959C /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		837857C11C5C52660026959C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
@@ -281,6 +286,7 @@
 				83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */,
 				835793A61CDFF9A0003F09FA /* DB.swift */,
 				830130471CE56BCC00E583DF /* APIClient.swift */,
+				8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -652,6 +658,7 @@
 				8364FAFA1CE1AF47004576F7 /* Request.swift in Sources */,
 				839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */,
 				8301304B1CE56BCC00E583DF /* APIClient.swift in Sources */,
+				8377B5161CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				839680C21CACBC9A007A4D62 /* unnamedcastUnitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -669,6 +676,7 @@
 				83E345761C94ADAB009F25E6 /* User.swift in Sources */,
 				830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */,
 				833239B31C78E2DD00494388 /* Endpoint.swift in Sources */,
+				8377B5131CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				830130481CE56BCC00E583DF /* APIClient.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
 				837857C01C5C52400026959C /* Player.swift in Sources */,
@@ -688,6 +696,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8377B5141CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				83E725811C5AEF0D00A0E8D4 /* unnamedcastTests.swift in Sources */,
 				830130491CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130441CE42AC600E583DF /* SearchResult.swift in Sources */,
@@ -699,6 +708,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8377B5151CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				83E7258C1C5AEF0D00A0E8D4 /* unnamedcastUITests.swift in Sources */,
 				8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130451CE42AC600E583DF /* SearchResult.swift in Sources */,

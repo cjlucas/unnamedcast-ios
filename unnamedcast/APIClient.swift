@@ -42,8 +42,8 @@ struct APIClient: EndpointRequestable {
     }
   }
   
-  let host = "192.168.1.19"
-  let port = 12100
+  let host = "cast.cjlucas.net"
+  let port = 80
   
   private func buildRequest<E: Endpoint>(endpoint: E) -> URLRequestConvertible {
     return Request(host: host, port: port, components: endpoint.requestComponents)

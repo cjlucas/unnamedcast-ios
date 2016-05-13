@@ -14,6 +14,8 @@ import RealmSwift
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
   
+  let engine = SyncEngine()
+  
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     let ud = NSUserDefaults.standardUserDefaults()
     
@@ -23,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       self.window?.makeKeyAndVisible()
     } else {
       print("Updating user feeds")
-      SyncEngine().sync().then {
+      engine.sync().then {
         print("Updated user feeds")
       }
     }

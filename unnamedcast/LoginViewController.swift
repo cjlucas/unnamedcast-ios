@@ -11,7 +11,7 @@ import Alamofire
 import Freddy
 import RealmSwift
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, ApplicationDelegateReachable {
   
   @IBOutlet weak var emailTextField: UITextField!
   @IBOutlet weak var passwordTextField: UITextField!
@@ -19,14 +19,18 @@ class LoginViewController: UIViewController {
   @IBAction func loginButtonPressed(sender: AnyObject) {
    
     let ep = LoginEndpoint(username: emailTextField.text!, password: passwordTextField.text!)
-    // TODO: handle error
     APIClient().request(ep).then { _, _, user in
-      NSUserDefaults.standardUserDefaults().setObject(user.id, forKey: "user_id")
+      self.applicationDelegate.engine.userID = user.id
     }.then { () -> Void in
-      let engine = SyncEngine()
-      engine.sync().then {
+      self.applicationDelegate.engine.sync().then {
         self.performSegueWithIdentifier("Login2Main", sender: self)
       }
+    }.error { err in
+      let alert = UIAlertController(title: "Error while syncing",
+                                    message: (err as NSError).description,
+                                    preferredStyle: .Alert)
+      alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+      self.presentViewController(alert, animated: true, completion: nil)
     }
   }
 }
