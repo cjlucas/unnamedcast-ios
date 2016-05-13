@@ -72,14 +72,17 @@ func loadFixture(name: String, ofType: String) -> NSData {
 
 class unnamedcastUnitTests: XCTestCase {
   let dbc = DB.Configuration(realmConfig: Realm.Configuration(
+    inMemoryIdentifier: "unnamedcastUnitTests",
     deleteRealmIfMigrationNeeded: true
   ))
+  var db: DB!
   
   override func setUp() {
     super.setUp()
     continueAfterFailure = false
     
-    try! DB(configuration: dbc).deleteAll()
+    db = try! DB(configuration: dbc)
+    try! db.deleteAll()
   }
   
   override func tearDown() {
@@ -197,9 +200,8 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      let db = try! DB(configuration: self.dbc)
-      XCTAssertEqual(db.feeds.count, 1)
-      XCTAssertEqual(db.feeds.first!.items.count, 0)
+      XCTAssertEqual(self.db.feeds.count, 1)
+      XCTAssertEqual(self.db.feeds.first!.items.count, 0)
     }
   }
   
@@ -288,10 +290,9 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      let db = try! DB(configuration: self.dbc)
-      XCTAssertEqual(db.feeds.count, 1)
-      XCTAssertEqual(db.items.count, 1)
-      XCTAssertEqual(db.feeds.first!.items.count, 1)
+      XCTAssertEqual(self.db.feeds.count, 1)
+      XCTAssertEqual(self.db.items.count, 1)
+      XCTAssertEqual(self.db.feeds.first!.items.count, 1)
     }
   }
 
@@ -397,12 +398,11 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      let db = try! DB(configuration: self.dbc)
-      XCTAssertEqual(db.feeds.count, 1)
-      XCTAssertEqual(db.items.count, 1)
-      XCTAssertEqual(db.feeds.first!.items.count, 1)
+      XCTAssertEqual(self.db.feeds.count, 1)
+      XCTAssertEqual(self.db.items.count, 1)
+      XCTAssertEqual(self.db.feeds.first!.items.count, 1)
       
-      let item = db.feeds.first!.items.first!
+      let item = self.db.feeds.first!.items.first!
       XCTAssertEqual(item.title, "title2")
     }
   }
@@ -548,11 +548,10 @@ class unnamedcastUnitTests: XCTestCase {
     }
     
     waitForExpectationsWithTimeout(5) { err in
-      let db = try! DB(configuration: self.dbc)
-      XCTAssertEqual(db.feeds.count, 2)
-      XCTAssertEqual(db.items.count, 2)
-      XCTAssertEqual(db.feeds[0].items.count, 1)
-      XCTAssertEqual(db.feeds[1].items.count, 1)
+      XCTAssertEqual(self.db.feeds.count, 2)
+      XCTAssertEqual(self.db.items.count, 2)
+      XCTAssertEqual(self.db.feeds[0].items.count, 1)
+      XCTAssertEqual(self.db.feeds[1].items.count, 1)
     }
   }
 }
