@@ -27,7 +27,7 @@ class FeedViewController: UICollectionViewController {
 
     override func viewDidDisappear(animated: Bool) {
         if let token = self.token {
-            self.realm.removeNotification(token)
+          token.stop()
         }
 
         super.viewDidDisappear(animated)
