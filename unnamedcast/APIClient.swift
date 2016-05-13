@@ -16,7 +16,7 @@ internal enum Error: ErrorType {
 }
 
 struct APIClient: EndpointRequestable {
-  private struct Blah: URLRequestConvertible {
+  private struct Request: URLRequestConvertible {
     let scheme = "http"
     let host: String
     let port: Int
@@ -46,15 +46,19 @@ struct APIClient: EndpointRequestable {
   let port = 12100
   
   private func buildRequest<E: Endpoint>(endpoint: E) -> URLRequestConvertible {
-    return Blah(host: host, port: port, components: endpoint.requestComponents)
+    return Request(host: host, port: port, components: endpoint.requestComponents)
   }
   
   func request<E: Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)> {
     let req = buildRequest(endpoint)
-    return Alamofire.request(req).response().recover { err -> (NSURLRequest?, NSHTTPURLResponse?, NSData?) in
-      throw Error.NetworkError(err)
+    
+    return Alamofire.request(req).response()
+      .recover { err -> (NSURLRequest?, NSHTTPURLResponse?, NSData?) in
+        throw Error.NetworkError(err)
+      
     }.thenInBackground { (req: NSURLRequest?, res: NSHTTPURLResponse?, body: NSData?) in
       return (req!, res!, try endpoint.unmarshalResponse(body!))
+      
     }.recover { err -> (NSURLRequest, NSHTTPURLResponse, E.ResponseType) in
       throw Error.JSONError(err)
     }
@@ -62,8 +66,11 @@ struct APIClient: EndpointRequestable {
 
   func request<E: Endpoint where E.ResponseType == Void>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse)> {
     let req = buildRequest(endpoint)
-    return Alamofire.request(req).response().recover { err -> (NSURLRequest?, NSHTTPURLResponse?, NSData?) in
-      throw Error.NetworkError(err)
+    
+    return Alamofire.request(req).response()
+      .recover { err -> (NSURLRequest?, NSHTTPURLResponse?, NSData?) in
+        throw Error.NetworkError(err)
+        
     }.then { req, res, _ in
       return (req!, res!)
     }
