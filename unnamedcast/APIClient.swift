@@ -8,7 +8,12 @@
 
 import Alamofire
 import PromiseKit
+import Freddy
 
+internal enum Error: ErrorType {
+  case NetworkError(ErrorType)
+  case JSONError(ErrorType)
+}
 
 struct APIClient: EndpointRequestable {
   private struct Blah: URLRequestConvertible {
@@ -46,15 +51,20 @@ struct APIClient: EndpointRequestable {
   
   func request<E: Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)> {
     let req = buildRequest(endpoint)
-    return Alamofire.request(req).response()
-      .thenInBackground { (req: NSURLRequest?, res: NSHTTPURLResponse?, body: NSData?) -> (NSURLRequest, NSHTTPURLResponse, E.ResponseType) in
+    return Alamofire.request(req).response().recover { err -> (NSURLRequest?, NSHTTPURLResponse?, NSData?) in
+      throw Error.NetworkError(err)
+    }.thenInBackground { (req: NSURLRequest?, res: NSHTTPURLResponse?, body: NSData?) in
       return (req!, res!, try endpoint.unmarshalResponse(body!))
+    }.recover { err -> (NSURLRequest, NSHTTPURLResponse, E.ResponseType) in
+      throw Error.JSONError(err)
     }
   }
 
   func request<E: Endpoint where E.ResponseType == Void>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse)> {
     let req = buildRequest(endpoint)
-    return Alamofire.request(req).response().then { req, res, _ in
+    return Alamofire.request(req).response().recover { err -> (NSURLRequest?, NSHTTPURLResponse?, NSData?) in
+      throw Error.NetworkError(err)
+    }.then { req, res, _ in
       return (req!, res!)
     }
   }

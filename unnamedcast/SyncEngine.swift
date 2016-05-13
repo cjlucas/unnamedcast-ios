@@ -10,15 +10,6 @@ import Alamofire
 import PromiseKit
 import Freddy
 
-internal enum Error: ErrorType {
-  case NetworkError(String)
-  case APIError(String)
-  case JSONError(String)
-}
-
-typealias JSONRequester = (req: URLRequestConvertible) -> Promise<JSONResponse>
-typealias JSONResponse = (req: NSURLRequest, resp: NSHTTPURLResponse, json: JSON)
-
 class SyncEngine {
   struct Configuration {
     let dbConfiguration: DB.Configuration?
