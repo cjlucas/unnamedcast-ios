@@ -38,7 +38,7 @@
 		837857C01C5C52400026959C /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
 		837857C21C5C52660026959C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 837857C11C5C52660026959C /* AVFoundation.framework */; };
 		837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
-		837857D31C5D93600026959C /* UIImageColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857D21C5D93600026959C /* UIImageColors.swift */; };
+		837857D31C5D93600026959C /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857D21C5D93600026959C /* UIImage.swift */; };
 		839680BD1CA74A4F007A4D62 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839680BC1CA74A4F007A4D62 /* PlayerView.swift */; };
 		839680C21CACBC9A007A4D62 /* unnamedcastUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E3456B1C94A71D009F25E6 /* unnamedcastUnitTests.swift */; };
 		839680C31CACBDBA007A4D62 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83526AD91C5AF19B00C43845 /* Feed.swift */; };
@@ -101,7 +101,7 @@
 		837857BF1C5C52400026959C /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		837857C11C5C52660026959C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
-		837857D21C5D93600026959C /* UIImageColors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageColors.swift; sourceTree = "<group>"; };
+		837857D21C5D93600026959C /* UIImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		839680BC1CA74A4F007A4D62 /* PlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		83C85B961CACC9E3001FF216 /* Pods_unnamedcastTests.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Pods_unnamedcastTests.framework; path = "Pods/../build/Debug-iphoneos/Pods_unnamedcastTests.framework"; sourceTree = "<group>"; };
@@ -193,6 +193,7 @@
 		8364FAFB1CE1B26A004576F7 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				8377B5111CE64A5C00B32588 /* Foundation */,
 				8364FAFE1CE41B29004576F7 /* stdlib */,
 				8364FAFC1CE1B271004576F7 /* Alamofire */,
 			);
@@ -213,6 +214,14 @@
 				8364FAFF1CE41B36004576F7 /* Array.swift */,
 			);
 			name = stdlib;
+			sourceTree = "<group>";
+		};
+		8377B5111CE64A5C00B32588 /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				837857D21C5D93600026959C /* UIImage.swift */,
+			);
+			name = Foundation;
 			sourceTree = "<group>";
 		};
 		839680B91CA74932007A4D62 /* Views */ = {
@@ -272,7 +281,6 @@
 				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
 				837857BF1C5C52400026959C /* Player.swift */,
 				833239B21C78E2DD00494388 /* Endpoint.swift */,
-				837857D21C5D93600026959C /* UIImageColors.swift */,
 				833239B41C78EC7D00494388 /* Setting.swift */,
 				83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */,
 				835793A61CDFF9A0003F09FA /* DB.swift */,
@@ -660,7 +668,7 @@
 				837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */,
 				8364FB001CE41B36004576F7 /* Array.swift in Sources */,
 				83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */,
-				837857D31C5D93600026959C /* UIImageColors.swift in Sources */,
+				837857D31C5D93600026959C /* UIImage.swift in Sources */,
 				83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */,
 				839680BD1CA74A4F007A4D62 /* PlayerView.swift in Sources */,
 				83E345761C94ADAB009F25E6 /* User.swift in Sources */,
