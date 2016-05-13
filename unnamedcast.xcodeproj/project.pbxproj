@@ -12,10 +12,14 @@
 		830130441CE42AC600E583DF /* SearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130421CE42AC600E583DF /* SearchResult.swift */; };
 		830130451CE42AC600E583DF /* SearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130421CE42AC600E583DF /* SearchResult.swift */; };
 		830130461CE42AC600E583DF /* SearchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130421CE42AC600E583DF /* SearchResult.swift */; };
+		830130481CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
+		830130491CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
+		8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
+		8301304B1CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
 		830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */; };
 		8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
 		833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B01C77F47700494388 /* FeedSearchTableViewController.swift */; };
-		833239B31C78E2DD00494388 /* APIEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* APIEndpoint.swift */; };
+		833239B31C78E2DD00494388 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* Endpoint.swift */; };
 		833239B51C78EC7D00494388 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B41C78EC7D00494388 /* Setting.swift */; };
 		833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
@@ -39,7 +43,7 @@
 		839680C21CACBC9A007A4D62 /* unnamedcastUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E3456B1C94A71D009F25E6 /* unnamedcastUnitTests.swift */; };
 		839680C31CACBDBA007A4D62 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83526AD91C5AF19B00C43845 /* Feed.swift */; };
 		839680C41CACBDBA007A4D62 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E345751C94ADAB009F25E6 /* User.swift */; };
-		839680C51CACBDBA007A4D62 /* APIEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* APIEndpoint.swift */; };
+		839680C51CACBDBA007A4D62 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* Endpoint.swift */; };
 		839680C61CACBDBA007A4D62 /* Setting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B41C78EC7D00494388 /* Setting.swift */; };
 		839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
 		83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
@@ -79,10 +83,11 @@
 		4FF47A83A048E006D3B2733D /* Pods-unnamedcastTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-unnamedcastTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-unnamedcastTests/Pods-unnamedcastTests.debug.xcconfig"; sourceTree = "<group>"; };
 		82A9D6D31FAE8675EEDE548C /* Pods-unnamedcastUnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-unnamedcastUnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-unnamedcastUnitTests/Pods-unnamedcastUnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		830130421CE42AC600E583DF /* SearchResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResult.swift; sourceTree = "<group>"; };
+		830130471CE56BCC00E583DF /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCollectionViewCell.swift; sourceTree = "<group>"; };
 		8310483C1C710B9B003FB964 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		833239B01C77F47700494388 /* FeedSearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedSearchTableViewController.swift; sourceTree = "<group>"; };
-		833239B21C78E2DD00494388 /* APIEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIEndpoint.swift; sourceTree = "<group>"; };
+		833239B21C78E2DD00494388 /* Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 		833239B41C78EC7D00494388 /* Setting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Setting.swift; sourceTree = "<group>"; };
 		833F1B101C5B01AE002CCB77 /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleFeedViewController.swift; sourceTree = "<group>"; };
@@ -266,11 +271,12 @@
 				83E725741C5AEF0D00A0E8D4 /* LaunchScreen.storyboard */,
 				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
 				837857BF1C5C52400026959C /* Player.swift */,
-				833239B21C78E2DD00494388 /* APIEndpoint.swift */,
+				833239B21C78E2DD00494388 /* Endpoint.swift */,
 				837857D21C5D93600026959C /* UIImageColors.swift */,
 				833239B41C78EC7D00494388 /* Setting.swift */,
 				83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */,
 				835793A61CDFF9A0003F09FA /* DB.swift */,
+				830130471CE56BCC00E583DF /* APIClient.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -637,11 +643,12 @@
 				835793A81CE00E79003F09FA /* DB.swift in Sources */,
 				839680C31CACBDBA007A4D62 /* Feed.swift in Sources */,
 				839680C41CACBDBA007A4D62 /* User.swift in Sources */,
-				839680C51CACBDBA007A4D62 /* APIEndpoint.swift in Sources */,
+				839680C51CACBDBA007A4D62 /* Endpoint.swift in Sources */,
 				830130461CE42AC600E583DF /* SearchResult.swift in Sources */,
 				8364FAFA1CE1AF47004576F7 /* Request.swift in Sources */,
 				839680C61CACBDBA007A4D62 /* Setting.swift in Sources */,
 				839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */,
+				8301304B1CE56BCC00E583DF /* APIClient.swift in Sources */,
 				839680C21CACBC9A007A4D62 /* unnamedcastUnitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -658,7 +665,8 @@
 				839680BD1CA74A4F007A4D62 /* PlayerView.swift in Sources */,
 				83E345761C94ADAB009F25E6 /* User.swift in Sources */,
 				830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */,
-				833239B31C78E2DD00494388 /* APIEndpoint.swift in Sources */,
+				833239B31C78E2DD00494388 /* Endpoint.swift in Sources */,
+				830130481CE56BCC00E583DF /* APIClient.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
 				837857C01C5C52400026959C /* Player.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
@@ -679,6 +687,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				83E725811C5AEF0D00A0E8D4 /* unnamedcastTests.swift in Sources */,
+				830130491CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130441CE42AC600E583DF /* SearchResult.swift in Sources */,
 				8364FB011CE41B36004576F7 /* Array.swift in Sources */,
 			);
@@ -689,6 +698,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				83E7258C1C5AEF0D00A0E8D4 /* unnamedcastUITests.swift in Sources */,
+				8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130451CE42AC600E583DF /* SearchResult.swift in Sources */,
 				8364FB021CE41B36004576F7 /* Array.swift in Sources */,
 			);

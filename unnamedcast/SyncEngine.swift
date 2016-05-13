@@ -181,16 +181,11 @@ class SyncEngine {
   
   // MARK: -
   
-  func sync(onComplete: () -> Void) {
-    firstly {
+  func sync() -> Promise<Void> {
+    return firstly {
       return self.syncUserFeeds()
     }.then {
       return self.syncItemStates()
-    }.then { () -> Void in
-      print("Synced successfully")
-      onComplete()
-    }.error { err in
-      print("Error while syncing:", err)
     }
   }
   

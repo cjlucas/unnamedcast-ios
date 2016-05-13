@@ -23,7 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       self.window?.makeKeyAndVisible()
     } else {
       print("Updating user feeds")
-      SyncEngine().sync {
+      SyncEngine().sync().then {
         print("Updated user feeds")
       }
     }

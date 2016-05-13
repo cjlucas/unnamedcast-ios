@@ -9,7 +9,7 @@
 import Alamofire
 import PromiseKit
 
-extension Request {
+extension Alamofire.Request {
   public func response() -> Promise<(NSURLRequest?, NSHTTPURLResponse?, NSData?)> {
     return Promise { fulfill, reject in
       response { resp in
