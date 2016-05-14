@@ -25,6 +25,8 @@
 		83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475AC61C60490000F48D33 /* UpNextViewController.swift */; };
 		83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
 		8349DA071C5DACE900C70153 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8349DA061C5DACE900C70153 /* MediaPlayer.framework */; };
+		835177231CE6B0B500064843 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */; };
+		835177241CE6B0E200064843 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
 		83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83526AD91C5AF19B00C43845 /* Feed.swift */; };
 		835793A71CDFF9A0003F09FA /* DB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835793A61CDFF9A0003F09FA /* DB.swift */; };
 		835793A81CE00E79003F09FA /* DB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835793A61CDFF9A0003F09FA /* DB.swift */; };
@@ -649,7 +651,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				835177231CE6B0B500064843 /* AppDelegate.swift in Sources */,
 				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
+				835177241CE6B0E200064843 /* Player.swift in Sources */,
 				835793A81CE00E79003F09FA /* DB.swift in Sources */,
 				839680C31CACBDBA007A4D62 /* Feed.swift in Sources */,
 				839680C41CACBDBA007A4D62 /* User.swift in Sources */,
