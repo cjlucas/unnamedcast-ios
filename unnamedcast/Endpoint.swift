@@ -147,7 +147,7 @@ struct GetUserItemStates: Endpoint {
   }
   
   func unmarshalResponse(body: NSData) throws -> [ItemState] {
-    return try JSON(data: body).array().map(ItemState.init)
+    return try [ItemState](json: JSON(data: body))
   }
 }
 

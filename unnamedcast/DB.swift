@@ -16,7 +16,6 @@ class DB {
   }
   
   private var realm: Realm
-  private let bgQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0);
   
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
@@ -42,9 +41,7 @@ class DB {
   }
   
   func write(f: () -> Void) throws {
-    realm.beginWrite()
-    f()
-    try realm.commitWrite()
+    try realm.write(f)
   }
   
   func deleteAll() throws {
