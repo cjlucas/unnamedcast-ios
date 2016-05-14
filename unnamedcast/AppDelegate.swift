@@ -14,23 +14,18 @@ import RealmSwift
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
   
+  let engine = SyncEngine()
+  
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-    let realm = try! Realm()
-    
     let ud = NSUserDefaults.standardUserDefaults()
     
     if ud.stringForKey("user_id") == nil {
-      try! realm.write {
-        realm.deleteAll()
-      }
-      
-      
       let sb = UIStoryboard(name: "Main", bundle: nil)
       self.window?.rootViewController = sb.instantiateViewControllerWithIdentifier("login")
       self.window?.makeKeyAndVisible()
     } else {
       print("Updating user feeds")
-      DataStore().sync {
+      engine.sync().then {
         print("Updated user feeds")
       }
     }
