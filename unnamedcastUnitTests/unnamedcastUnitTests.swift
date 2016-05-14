@@ -31,7 +31,7 @@ class MockRequester: EndpointRequestable {
   }
   
   func request<E : Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)> {
-    let key = responseKey(endpoint.requestComponents.method, path: endpoint.requestComponents.path)
+    let key = responseKey(endpoint.method, path: endpoint.path)
     
     guard var responses = endpointResponses[key] else {
       fatalError("No response found for key: \(key)")

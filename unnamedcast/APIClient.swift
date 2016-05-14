@@ -15,38 +15,38 @@ internal enum Error: ErrorType {
   case JSONError(ErrorType)
 }
 
-struct APIClient: EndpointRequestable {
-  private struct Request: URLRequestConvertible {
-    let scheme = "http"
-    let host: String
-    let port: Int
-    let components: HTTPRequestComponents
+private struct Request<E: Endpoint>: URLRequestConvertible {
+  let scheme = "http"
+  let host: String
+  let port: Int
+  let endpoint: E
+  
+  var URLRequest: NSMutableURLRequest {
+    let urlComponents = NSURLComponents()
+    urlComponents.scheme = scheme
+    urlComponents.host = host
+    urlComponents.port = port
+    urlComponents.path = endpoint.path
     
-    var URLRequest: NSMutableURLRequest {
-      let urlComponents = NSURLComponents()
-      urlComponents.scheme = scheme
-      urlComponents.host = host
-      urlComponents.port = port
-      urlComponents.path = components.path
-      
-      if let params = components.queryParameters {
-        urlComponents.queryItems = params.map { NSURLQueryItem(name: $0, value: $1) }
-      }
-      
-      let req = NSMutableURLRequest()
-      req.HTTPMethod = components.method
-      req.HTTPBody = components.body
-      req.URL = urlComponents.URL
-      
-      return req
-    }
+    urlComponents.queryItems = endpoint.queryParameters
+      .map { NSURLQueryItem(name: $0, value: $1) }
+    
+    let req = NSMutableURLRequest()
+    req.HTTPMethod = endpoint.method
+    req.HTTPBody = try! endpoint.marshalRequestBody()
+    req.URL = urlComponents.URL
+    
+    return req
   }
+}
+
+struct APIClient: EndpointRequestable {
   
   let host = "cast.cjlucas.net"
   let port = 80
   
   private func buildRequest<E: Endpoint>(endpoint: E) -> URLRequestConvertible {
-    return Request(host: host, port: port, components: endpoint.requestComponents)
+    return Request(host: host, port: port, endpoint: endpoint)
   }
   
   func request<E: Endpoint>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse, E.ResponseType)> {

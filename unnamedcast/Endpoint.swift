@@ -41,29 +41,26 @@ protocol EndpointRequestable {
   func request<E: Endpoint where E.ResponseType == Void>(endpoint: E) -> Promise<(NSURLRequest, NSHTTPURLResponse)>
 }
 
-struct HTTPRequestComponents {
-  var method: String
-  var path: String
-  var queryParameters: [String:String?]?
-  var body: NSData?
-  
-  init(method: String,
-       path: String,
-       queryParameters: [String:String?]? = nil,
-       body: NSData? = nil) {
-    self.method = method
-    self.path = path
-    self.queryParameters = queryParameters
-    self.body = body
-  }
-}
-
 protocol Endpoint {
   associatedtype ResponseType
   
-  var requestComponents: HTTPRequestComponents { get }
-  
+  var method: String { get }
+  var path: String { get }
+  var queryParameters: [String: String?] { get}
+ 
+  func marshalRequestBody() throws -> NSData?
   func unmarshalResponse(body: NSData) throws -> ResponseType
+}
+
+// Default values
+extension Endpoint {
+  var queryParameters: [String: String?] {
+    return [:]
+  }
+
+  func marshalRequestBody() throws -> NSData? {
+    return nil
+  }
 }
 
 extension Endpoint where ResponseType == Void {
@@ -77,11 +74,14 @@ struct LoginEndpoint: Endpoint {
   var username: String
   var password: String
   
-  var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "GET", path: "/login", queryParameters: [
+  let method = "GET"
+  let path = "/login"
+  
+  var queryParameters: [String : String?] {
+    return [
       "username": username,
       "password": password
-    ])
+    ]
   }
   
   func unmarshalResponse(body: NSData) throws -> User {
@@ -92,8 +92,9 @@ struct LoginEndpoint: Endpoint {
 struct GetFeedEndpoint: Endpoint {
   let id: String
   
-  var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "GET", path: "/api/feeds/\(id)")
+  let method = "GET"
+  var path: String {
+    return "/api/feeds/\(id)"
   }
   
   func unmarshalResponse(body: NSData) throws -> Feed {
@@ -105,15 +106,18 @@ struct GetFeedItemsEndpoint: Endpoint {
   var id: String
   var modificationsSince: NSDate?
   
-  var requestComponents: HTTPRequestComponents {
+  let method = "GET"
+  var path: String {
+    return "/api/feeds/\(id)/items"
+  }
+  
+  var queryParameters: [String : String?] {
     var params = [String: String?]()
     if let t = modificationsSince {
       params["modified_since"] = rfc3339Formatter.stringFromDate(t)
     }
     
-    return HTTPRequestComponents(method: "GET",
-                                 path: "/api/feeds/\(id)/items",
-                                 queryParameters: params)
+    return params
   }
   
   func unmarshalResponse(body: NSData) throws -> [Item] {
@@ -124,8 +128,9 @@ struct GetFeedItemsEndpoint: Endpoint {
 struct GetUserEndpoint: Endpoint {
   var id: String
   
-  var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "GET", path: "/api/users/\(id)")
+  let method = "GET"
+  var path: String {
+    return "/api/users/\(id)"
   }
   
   func unmarshalResponse(body: NSData) throws -> User {
@@ -136,8 +141,9 @@ struct GetUserEndpoint: Endpoint {
 struct GetUserItemStates: Endpoint {
   var userID: String
   
-  var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "GET", path: "/api/users/\(userID)/states")
+  let method = "GET"
+  var path: String {
+    return "/api/users/\(userID)/states"
   }
   
   func unmarshalResponse(body: NSData) throws -> [ItemState] {
@@ -151,10 +157,13 @@ struct UpdateUserFeedsEndpoint: Endpoint {
   var userID: String
   var feedIDs: [String]
   
-  var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "PUT",
-                                 path: "/api/users/\(userID)/feeds",
-                                 body: try! feedIDs.toJSON().serialize())
+  let method = "PUT"
+  var path: String {
+    return "/api/users/\(userID)/feeds"
+  }
+  
+  func marshalRequestBody() throws -> NSData? {
+    return try feedIDs.toJSON().serialize()
   }
 }
 
@@ -164,20 +173,23 @@ struct UpdateUserItemStatesEndpoint: Endpoint {
   var userID: String
   var states: [ItemState]
   
-  var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "PUT",
-                                 path: "/api/users/\(userID)/states",
-                                 body: try! states.toJSON().serialize())
+  let method = "PUT"
+  var path: String {
+    return "/api/users/\(userID)/states"
+  }
+  
+  func marshalRequestBody() throws -> NSData? {
+    return try states.toJSON().serialize()
   }
 }
 
 struct SearchFeedsEndpoint: Endpoint {
   var query: String
   
-  var requestComponents: HTTPRequestComponents {
-    return HTTPRequestComponents(method: "GET",
-                                 path: "/search_feeds",
-                                 queryParameters: ["q": query])
+  let method = "GET"
+  let path = "/search_feeds"
+  var queryParameters: [String : String?] {
+    return ["q": query]
   }
   
   func unmarshalResponse(body: NSData) throws -> [SearchResult] {
