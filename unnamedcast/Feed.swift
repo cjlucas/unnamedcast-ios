@@ -82,6 +82,7 @@ class Item: Object, JSONDecodable {
   dynamic var playing: Bool = false
   dynamic var feed: Feed?
   dynamic var modificationDate: NSDate?
+  dynamic var stateModificationTime: NSDate?
   let position = RealmOptional<Double>()
   
   override static func primaryKey() -> String? {
@@ -103,6 +104,8 @@ class Item: Object, JSONDecodable {
       return .Played
     }
     set(newValue) {
+      print("state was set: \(newValue)")
+      
       switch(newValue) {
       case .Unplayed:
         playing = true
@@ -114,6 +117,8 @@ class Item: Object, JSONDecodable {
         playing = true
         self.position.value = position
       }
+      
+      self.stateModificationTime = NSDate()
     }
   }
   

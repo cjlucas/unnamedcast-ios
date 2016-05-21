@@ -32,30 +32,28 @@ class User: JSONDecodable {
 }
 
 class ItemState: JSONDecodable, JSONEncodable {
-  var feedID: String!
-  var itemGUID: String!
+  var itemID: String!
   var itemPos: Double!
-  
+  var modificationTime: NSDate?
+
   convenience init(item: Item, pos: Double) {
     self.init()
     
-    feedID = item.feed?.id
-    itemGUID = item.guid
+    itemID = item.id
     itemPos = pos
   }
   
   convenience required init(json: JSON) throws {
     self.init()
     
-    feedID = try json.string("feed_id")
-    itemGUID = try json.string("item_guid")
+    itemID = try json.string("item_id")
     itemPos = try json.double("position")
+    modificationTime = try rfc3339Formatter.dateFromString(json.string("modification_time"))
   }
  
   func toJSON() -> JSON {
     return [
-      "feed_id": feedID.toJSON(),
-      "item_guid": itemGUID.toJSON(),
+      "item_id": itemID.toJSON(),
       "position": itemPos.toJSON()
     ]
   }

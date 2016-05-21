@@ -131,9 +131,16 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     let items = db.items.filter("id = %@", playerItem.id)
     guard let item = items.first else { return }
     
-    if player.isPlaying() && player.position > 0 {
-//      updateProgressBar(player.position)
-//      datastore.updateItemState(item, progress: Double(player.position)) {}
+    let pos = player.position
+    
+    if player.isPlaying() {
+      dispatch_async(dispatch_get_main_queue()) {
+//        self.updateProgressBar(self.player.position)
+        
+        try! self.db.write {
+          self.db.itemWithID(item.id)?.state = State.InProgress(position: Double(pos))
+        }
+      }
     }
     
     miniPlayerTitleLabel.text = item.title

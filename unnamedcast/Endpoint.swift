@@ -140,10 +140,19 @@ struct GetUserEndpoint: Endpoint {
 
 struct GetUserItemStates: Endpoint {
   var userID: String
+  var modifiedSince: NSDate?
   
   let method = "GET"
   var path: String {
     return "/api/users/\(userID)/states"
+  }
+  
+  var queryParameters: [String : String?] {
+    if let d = modifiedSince {
+      return ["modified_since": rfc3339Formatter.stringFromDate(d)]
+    }
+    
+    return [:]
   }
   
   func unmarshalResponse(body: NSData) throws -> [ItemState] {
@@ -180,6 +189,22 @@ struct UpdateUserItemStatesEndpoint: Endpoint {
   
   func marshalRequestBody() throws -> NSData? {
     return try states.toJSON().serialize()
+  }
+}
+
+struct UpdateUserItemStateEndpoint: Endpoint {
+  typealias ResponseType = Void
+  
+  var userID: String
+  var state: ItemState
+  
+  let method = "PUT"
+  var path: String {
+    return "/api/users/\(userID)/states/\(state.itemID)"
+  }
+  
+  func marshalRequestBody() throws -> NSData? {
+    return try state.toJSON().serialize()
   }
 }
 

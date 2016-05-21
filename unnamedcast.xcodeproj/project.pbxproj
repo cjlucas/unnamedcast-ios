@@ -50,6 +50,10 @@
 		839680C41CACBDBA007A4D62 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E345751C94ADAB009F25E6 /* User.swift */; };
 		839680C51CACBDBA007A4D62 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* Endpoint.swift */; };
 		839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
+		83AC3EAE1CEFEC93000F00F4 /* NSDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */; };
+		83AC3EAF1CEFEC93000F00F4 /* NSDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */; };
+		83AC3EB01CEFEC93000F00F4 /* NSDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */; };
+		83AC3EB11CEFEC93000F00F4 /* NSDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */; };
 		83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
 		83C5145A1CACC931003FCBA4 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
 		83E345641C94A5FE009F25E6 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
@@ -107,6 +111,7 @@
 		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		837857D21C5D93600026959C /* UIImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
 		839680BC1CA74A4F007A4D62 /* PlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
+		83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDate.swift; sourceTree = "<group>"; };
 		83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
 		83C85B961CACC9E3001FF216 /* Pods_unnamedcastTests.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Pods_unnamedcastTests.framework; path = "Pods/../build/Debug-iphoneos/Pods_unnamedcastTests.framework"; sourceTree = "<group>"; };
 		83E345631C94A5FE009F25E6 /* feed1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = feed1.json; path = ../unnamedcastTests/feed1.json; sourceTree = "<group>"; };
@@ -224,6 +229,7 @@
 			isa = PBXGroup;
 			children = (
 				837857D21C5D93600026959C /* UIImage.swift */,
+				83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */,
 			);
 			name = Foundation;
 			sourceTree = "<group>";
@@ -655,6 +661,7 @@
 				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
 				835177241CE6B0E200064843 /* Player.swift in Sources */,
 				835793A81CE00E79003F09FA /* DB.swift in Sources */,
+				83AC3EB11CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				839680C31CACBDBA007A4D62 /* Feed.swift in Sources */,
 				839680C41CACBDBA007A4D62 /* User.swift in Sources */,
 				839680C51CACBDBA007A4D62 /* Endpoint.swift in Sources */,
@@ -682,6 +689,7 @@
 				833239B31C78E2DD00494388 /* Endpoint.swift in Sources */,
 				8377B5131CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				830130481CE56BCC00E583DF /* APIClient.swift in Sources */,
+				83AC3EAE1CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
 				837857C01C5C52400026959C /* Player.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
@@ -704,6 +712,7 @@
 				83E725811C5AEF0D00A0E8D4 /* unnamedcastTests.swift in Sources */,
 				830130491CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130441CE42AC600E583DF /* SearchResult.swift in Sources */,
+				83AC3EAF1CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				8364FB011CE41B36004576F7 /* Array.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -716,6 +725,7 @@
 				83E7258C1C5AEF0D00A0E8D4 /* unnamedcastUITests.swift in Sources */,
 				8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130451CE42AC600E583DF /* SearchResult.swift in Sources */,
+				83AC3EB01CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				8364FB021CE41B36004576F7 /* Array.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
