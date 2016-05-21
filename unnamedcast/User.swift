@@ -34,13 +34,14 @@ class User: JSONDecodable {
 class ItemState: JSONDecodable, JSONEncodable {
   var itemID: String!
   var itemPos: Double!
-  var modificationTime: NSDate?
+  var modificationTime: NSDate!
 
-  convenience init(itemID: String, pos: Double) {
+  convenience init(itemID: String, pos: Double, modificationTime: NSDate) {
     self.init()
     
     self.itemID = itemID
     itemPos = pos
+    self.modificationTime = modificationTime
   }
   
   convenience required init(json: JSON) throws {
@@ -48,13 +49,20 @@ class ItemState: JSONDecodable, JSONEncodable {
     
     itemID = try json.string("item_id")
     itemPos = try json.double("position")
-    modificationTime = try rfc3339Formatter.dateFromString(json.string("modification_time"))
+    
+    let modTime = try json.string("modification_time")
+    if let d = rfc3339Formatter.dateFromString(modTime) {
+      modificationTime = d
+    } else {
+      throw JSON.Error.ValueNotConvertible(value: JSON.String(modTime), to: NSDate.self)
+    }
   }
  
   func toJSON() -> JSON {
     return [
       "item_id": itemID.toJSON(),
-      "position": itemPos.toJSON()
+      "position": itemPos.toJSON(),
+      "modification_time": rfc3339Formatter.stringFromDate(modificationTime).toJSON()
     ]
   }
 }
