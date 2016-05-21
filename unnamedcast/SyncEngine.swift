@@ -94,27 +94,37 @@ class SyncEngine {
       return dispatch_promise {}
     }
     
-    return dispatch_promise(on: backgroundQueue) { () -> [(id: String, state: Item.State)] in
+    let start = NSDate()
+    
+    return dispatch_promise(on: backgroundQueue) { () -> Promise<[(NSURLRequest, NSHTTPURLResponse)]> in
       let db = try self.newDB()
       
-      return db.items
+      let promises = db.items
         .filter("stateModificationTime > %@", lastSyncedTime.dateByAddingTimeInterval(1) )
-        .map { (id: $0.id, state: $0.state) }
-    }.then(on: backgroundQueue) { entry -> Promise<[(NSURLRequest, NSHTTPURLResponse)]> in
-      let promises = entry
-        .map { itemID, state -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
-          switch state {
+        .map { item -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
+          switch item.state {
           case .Played:
-            return self.requester.request(DeleteUserItemStateEndpoint(userID: self.userID, itemID: itemID))
+            return self.requester.request(DeleteUserItemStateEndpoint(userID: self.userID, itemID: item.id))
           case .Unplayed:
-            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: itemID, pos: 0)))
+            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: item.id, pos: 0)))
           case .InProgress(let pos):
-            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: itemID, pos: pos)))
+            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: item.id, pos: pos)))
           }
       }
       
+      print([
+        "event": "prepared_item_state_requests",
+        "duration": -start.timeIntervalSinceNow,
+        "num_requests": promises.count
+      ])
+      
       return when(promises)
-    }.then { _ in return }
+    }.then { _ in
+      print([
+        "event": "item_state_requests_sent",
+        "duration": -start.timeIntervalSinceNow
+      ])
+    }
   }
   
   func syncItemStates() -> Promise<Void> {
