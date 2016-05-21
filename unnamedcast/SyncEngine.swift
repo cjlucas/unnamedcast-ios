@@ -63,8 +63,7 @@ class SyncEngine {
   }
   
   func fetchUserStates() -> Promise<[ItemState]> {
-    let ep = GetUserItemStates(userID: userID,
-                               modifiedSince: lastSyncedTime?.dateByAddingTimeInterval(1))
+    let ep = GetUserItemStates(userID: userID, modifiedSince: lastSyncedTime)
     return requester.request(ep).then { _, _, states in return states }
   }
   
@@ -102,7 +101,7 @@ class SyncEngine {
       let db = try self.newDB()
       
       let promises = db.items
-        .filter("stateModificationTime > %@", lastSyncedTime.dateByAddingTimeInterval(1) )
+        .filter("stateModificationTime > %@", lastSyncedTime)
         .map { item -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
           guard let stateModTime = item.stateModificationTime else {
             fatalError("stateModificationTime is nil")
