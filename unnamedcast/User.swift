@@ -51,7 +51,7 @@ class ItemState: JSONDecodable, JSONEncodable {
     itemPos = try json.double("position")
     
     let modTime = try json.string("modification_time")
-    if let d = rfc3339Formatter.dateFromString(modTime) {
+    if let d = parseDate(modTime) {
       modificationTime = d
     } else {
       throw JSON.Error.ValueNotConvertible(value: JSON.String(modTime), to: NSDate.self)

@@ -90,7 +90,7 @@ class Item: Object, JSONDecodable {
   }
   
   override static func indexedProperties() -> [String] {
-    return ["guid"]
+    return ["stateModificationTime"]
   }
   
   var state: State {

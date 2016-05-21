@@ -76,15 +76,17 @@ class SyncEngine {
         guard let item = db.itemWithID(state.itemID) else { continue }
        
         // Don't update state if local state was updated more recently
-        if let t1 = item.stateModificationTime,
-           let t2 = state.modificationTime
-           where t1 > t2 {
+        if let modTime = item.stateModificationTime where modTime > state.modificationTime {
           continue
         }
-
+        
         item.state = state.itemPos.isZero
           ? .Unplayed
           : .InProgress(position: state.itemPos)
+        
+        // Clear state modification time to prevent uploadUserStates
+        // from uploading states that were just fetched
+        item.stateModificationTime = nil
       }
     }
   }
@@ -102,13 +104,20 @@ class SyncEngine {
       let promises = db.items
         .filter("stateModificationTime > %@", lastSyncedTime.dateByAddingTimeInterval(1) )
         .map { item -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
+          guard let stateModTime = item.stateModificationTime else {
+            fatalError("stateModificationTime is nil")
+          }
+          
           switch item.state {
           case .Played:
             return self.requester.request(DeleteUserItemStateEndpoint(userID: self.userID, itemID: item.id))
           case .Unplayed:
-            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: item.id, pos: 0)))
+            // stateModificationTime is guaranteed to be non-nil because of filter
+            let state = ItemState(itemID: item.id, pos: 0, modificationTime: stateModTime)
+            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: state))
           case .InProgress(let pos):
-            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: item.id, pos: pos)))
+            let state = ItemState(itemID: item.id, pos: pos, modificationTime: stateModTime)
+            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: state))
           }
       }
       
