@@ -60,13 +60,13 @@ class Feed: Object, JSONDecodable {
   }
 }
 
-enum State {
-  case Played
-  case Unplayed
-  case InProgress(position: Double)
-}
-
 class Item: Object, JSONDecodable {
+  enum State {
+    case Played
+    case Unplayed
+    case InProgress(position: Double)
+  }
+  
   dynamic var id: String = ""
   dynamic var guid: String = ""
   dynamic var link: String = ""

@@ -36,10 +36,10 @@ class ItemState: JSONDecodable, JSONEncodable {
   var itemPos: Double!
   var modificationTime: NSDate?
 
-  convenience init(item: Item, pos: Double) {
+  convenience init(itemID: String, pos: Double) {
     self.init()
     
-    itemID = item.id
+    self.itemID = itemID
     itemPos = pos
   }
   

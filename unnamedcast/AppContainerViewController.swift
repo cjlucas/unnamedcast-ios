@@ -138,7 +138,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
 //        self.updateProgressBar(self.player.position)
         
         try! self.db.write {
-          self.db.itemWithID(item.id)?.state = State.InProgress(position: Double(pos))
+          self.db.itemWithID(item.id)?.state = .InProgress(position: Double(pos))
         }
       }
     }

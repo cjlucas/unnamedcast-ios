@@ -208,6 +208,18 @@ struct UpdateUserItemStateEndpoint: Endpoint {
   }
 }
 
+struct DeleteUserItemStateEndpoint: Endpoint {
+  typealias ResponseType = Void
+  
+  var userID: String
+  var itemID: String
+  
+  let method = "DELETE"
+  var path: String {
+    return "/api/users/\(userID)/states/\(itemID)"
+  }
+}
+
 struct SearchFeedsEndpoint: Endpoint {
   var query: String
   

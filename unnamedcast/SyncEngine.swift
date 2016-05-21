@@ -83,8 +83,8 @@ class SyncEngine {
         }
 
         item.state = state.itemPos.isZero
-          ? State.Unplayed
-          : State.InProgress(position: state.itemPos)
+          ? .Unplayed
+          : .InProgress(position: state.itemPos)
       }
     }
   }
@@ -94,17 +94,24 @@ class SyncEngine {
       return dispatch_promise {}
     }
     
-    return dispatch_promise(on: backgroundQueue) { () -> [ItemState] in
+    return dispatch_promise(on: backgroundQueue) { () -> [(id: String, state: Item.State)] in
       let db = try self.newDB()
       
       return db.items
         .filter("stateModificationTime > %@", lastSyncedTime.dateByAddingTimeInterval(1) )
-        .map { print($0.stateModificationTime, lastSyncedTime); return $0 }
-        .map { ItemState(item: $0, pos: $0.position.value!) }
-    }.then(on: backgroundQueue) { states -> Promise<[(NSURLRequest, NSHTTPURLResponse)]> in
-      let promises = states
-        .map { UpdateUserItemStateEndpoint(userID: self.userID, state: $0) }
-        .map { self.requester.request($0) }
+        .map { (id: $0.id, state: $0.state) }
+    }.then(on: backgroundQueue) { entry -> Promise<[(NSURLRequest, NSHTTPURLResponse)]> in
+      let promises = entry
+        .map { itemID, state -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
+          switch state {
+          case .Played:
+            return self.requester.request(DeleteUserItemStateEndpoint(userID: self.userID, itemID: itemID))
+          case .Unplayed:
+            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: itemID, pos: 0)))
+          case .InProgress(let pos):
+            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: ItemState(itemID: itemID, pos: pos)))
+          }
+      }
       
       return when(promises)
     }.then { _ in return }
