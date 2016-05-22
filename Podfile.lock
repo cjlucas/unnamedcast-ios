@@ -25,12 +25,16 @@ PODS:
   - Realm/Headers (0.102.0)
   - RealmSwift (0.102.0):
     - Realm (= 0.102.0)
+  - SDWebImage (3.7.6):
+    - SDWebImage/Core (= 3.7.6)
+  - SDWebImage/Core (3.7.6)
 
 DEPENDENCIES:
   - Alamofire
   - Freddy
   - PromiseKit
   - RealmSwift
+  - SDWebImage
 
 SPEC CHECKSUMS:
   Alamofire: f11d8624a05f5d39e0c99309b3e600a3ba64298a
@@ -39,5 +43,6 @@ SPEC CHECKSUMS:
   PromiseKit: 4e8127c22a9b29d1b44958ab2ec762ea6115cbfb
   Realm: 5d219f9037e3ec2019c599b8227bfc95433cb10e
   RealmSwift: e6f436f9fea1c57b9ad6d1c46d57562c845f3c4c
+  SDWebImage: c325cf02c30337336b95beff20a13df489ec0ec9
 
 COCOAPODS: 0.39.0
