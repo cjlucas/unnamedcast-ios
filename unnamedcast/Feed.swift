@@ -60,13 +60,13 @@ class Feed: Object, JSONDecodable {
   }
 }
 
-enum State {
-  case Played
-  case Unplayed
-  case InProgress(position: Double)
-}
-
 class Item: Object, JSONDecodable {
+  enum State {
+    case Played
+    case Unplayed
+    case InProgress(position: Double)
+  }
+  
   dynamic var id: String = ""
   dynamic var guid: String = ""
   dynamic var link: String = ""
@@ -82,6 +82,7 @@ class Item: Object, JSONDecodable {
   dynamic var playing: Bool = false
   dynamic var feed: Feed?
   dynamic var modificationDate: NSDate?
+  dynamic var stateModificationTime: NSDate?
   let position = RealmOptional<Double>()
   
   override static func primaryKey() -> String? {
@@ -89,7 +90,7 @@ class Item: Object, JSONDecodable {
   }
   
   override static func indexedProperties() -> [String] {
-    return ["guid"]
+    return ["stateModificationTime"]
   }
   
   var state: State {
@@ -114,6 +115,8 @@ class Item: Object, JSONDecodable {
         playing = true
         self.position.value = position
       }
+      
+      self.stateModificationTime = NSDate()
     }
   }
   

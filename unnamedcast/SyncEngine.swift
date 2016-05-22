@@ -42,6 +42,11 @@ class SyncEngine {
     set(id) { ud.setObject(id, forKey: "sync_token") }
   }
   
+  var lastSyncedTime: NSDate? {
+    get { return ud.objectForKey("last_synced_time") as? NSDate }
+    set(t) { ud.setObject(t, forKey: "last_synced_time") }
+  }
+  
   required init(configuration: Configuration) {
     config = configuration
   }
@@ -58,46 +63,65 @@ class SyncEngine {
   }
   
   func fetchUserStates() -> Promise<[ItemState]> {
-    let ep = GetUserItemStates(userID: userID)
+    let ep = GetUserItemStates(userID: userID, modifiedSince: lastSyncedTime)
     return requester.request(ep).then { _, _, states in return states }
   }
   
   func saveUserStates(states: [ItemState]) throws {
-    let start = NSDate()
     let db = try newDB()
+    
     try db.write {
-      // Reset state for all items
-      for item in db.items {
-        item.state = State.Played
-      }
-      
-      print("here1: ", start.timeIntervalSinceNow)
-      
       for state in states {
-        guard let item = db.items
-          .filter("guid = %@ AND feed.id = %@", state.itemGUID, state.feedID)
-          .first else { continue }
-
-        item.state = state.itemPos.isZero
-          ? State.Unplayed
-          : State.InProgress(position: state.itemPos)
+        guard let item = db.itemWithID(state.itemID) else { continue }
+       
+        // Don't update state if local state was updated more recently
+        if let modTime = item.stateModificationTime where modTime > state.modificationTime {
+          continue
+        }
+        
+        item.state = state.state
+        
+        // Clear state modification time to prevent uploadUserStates
+        // from uploading states that were just fetched
+        item.stateModificationTime = nil
       }
-      
-      print("here2: ", start.timeIntervalSinceNow)
     }
   }
   
   func uploadItemStates() -> Promise<Void> {
-    return dispatch_promise(on: backgroundQueue) { () -> [ItemState] in
+    guard let lastSyncedTime = lastSyncedTime else {
+      return dispatch_promise {}
+    }
+    
+    let start = NSDate()
+    
+    return dispatch_promise(on: backgroundQueue) { () -> Promise<[(NSURLRequest, NSHTTPURLResponse)]> in
       let db = try self.newDB()
       
-      return db.items
-        .filter("playing != false")
-        .map { ItemState(item: $0, pos: $0.position.value!) }
-    }.then(on: backgroundQueue) { states -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
-      let ep = UpdateUserItemStatesEndpoint(userID: self.userID, states: states)
-      return self.requester.request(ep)
-    }.then { _, _ in return }
+      let promises = db.items
+        .filter("stateModificationTime > %@", lastSyncedTime)
+        .map { item -> Promise<(NSURLRequest, NSHTTPURLResponse)> in
+          guard let stateModTime = item.stateModificationTime else {
+            fatalError("stateModificationTime is nil")
+          }
+          
+          let state = ItemState(itemID: item.id, state: item.state, modificationTime: stateModTime)
+          return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: state))
+      }
+      
+      print([
+        "event": "prepared_item_state_requests",
+        "duration": -start.timeIntervalSinceNow,
+        "num_requests": promises.count
+      ])
+      
+      return when(promises)
+    }.then { _ in
+      print([
+        "event": "item_state_requests_sent",
+        "duration": -start.timeIntervalSinceNow
+      ])
+    }
   }
   
   func syncItemStates() -> Promise<Void> {
@@ -153,6 +177,7 @@ class SyncEngine {
           item.feed = feed
           if let oldItem = db.itemWithID(item.id) {
             item.state = oldItem.state
+            item.stateModificationTime = oldItem.stateModificationTime
           }
           
           db.add(item, update: true)
@@ -177,22 +202,8 @@ class SyncEngine {
       return self.syncUserFeeds()
     }.then {
       return self.syncItemStates()
-    }
-  }
-  
-  func updateItemState(item: Item, progress: Double, onComplete: () -> Void) {
-    let db = try! newDB()
-    let ep = GetUserItemStates(userID: userID)
-    requester.request(ep).thenInBackground { req, res, states in
-      try! db.write {
-        item.playing = true
-        item.state = .InProgress(position: progress)
-        db.add(item, update: true)
-      }
-      
-      self.uploadItemStates().then {
-        onComplete()
-      }
+    }.then {
+      self.lastSyncedTime = NSDate()
     }
   }
 }

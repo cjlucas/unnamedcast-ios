@@ -32,31 +32,63 @@ class User: JSONDecodable {
 }
 
 class ItemState: JSONDecodable, JSONEncodable {
-  var feedID: String!
-  var itemGUID: String!
-  var itemPos: Double!
-  
-  convenience init(item: Item, pos: Double) {
+  var itemID: String!
+  var state: Item.State = .Unplayed
+  var modificationTime: NSDate!
+
+  convenience init(itemID: String, state: Item.State, modificationTime: NSDate) {
     self.init()
     
-    feedID = item.feed?.id
-    itemGUID = item.guid
-    itemPos = pos
+    self.itemID = itemID
+    self.state = state
+    self.modificationTime = modificationTime
   }
   
   convenience required init(json: JSON) throws {
     self.init()
     
-    feedID = try json.string("feed_id")
-    itemGUID = try json.string("item_guid")
-    itemPos = try json.double("position")
+    itemID = try json.string("item_id")
+    let itemPos = try json.double("position")
+   
+    let code = try json.int("state")
+    switch code {
+    case 0:
+      state = .Unplayed
+    case 1:
+      state = .InProgress(position: itemPos)
+    case 2:
+      state = .Played
+    default:
+      fatalError("unexpected state \(code)")
+    }
+    
+    let modTime = try json.string("modification_time")
+    if let d = parseDate(modTime) {
+      modificationTime = d
+    } else {
+      throw JSON.Error.ValueNotConvertible(value: JSON.String(modTime), to: NSDate.self)
+    }
   }
  
   func toJSON() -> JSON {
+    var state = 0
+    var position = 0.0
+    
+    switch self.state {
+    case .Unplayed:
+      state = 0
+    case .InProgress(let pos):
+      state = 1
+      position = pos
+    case .Played:
+      state = 2
+    }
+    
     return [
-      "feed_id": feedID.toJSON(),
-      "item_guid": itemGUID.toJSON(),
-      "position": itemPos.toJSON()
+      "item_id": itemID.toJSON(),
+      "state": state.toJSON(),
+      "position": position.toJSON(),
+      "modification_time": rfc3339Formatter.stringFromDate(modificationTime).toJSON()
     ]
   }
 }

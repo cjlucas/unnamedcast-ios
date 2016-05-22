@@ -555,3 +555,134 @@ class unnamedcastUnitTests: XCTestCase {
     }
   }
 }
+
+func ==(lhs: Item.State, rhs: Item.State) -> Bool {
+  switch (lhs, rhs) {
+  case (.Unplayed, .Unplayed):
+    return true
+  case (.InProgress(let lhsPos), .InProgress(let rhsPos)):
+    return lhsPos == rhsPos
+  case (.Played, .Played):
+    return true
+  default:
+    return false
+  }
+}
+
+class testItemStateSync: XCTestCase {
+  let dbc = DB.Configuration(realmConfig: Realm.Configuration(
+    inMemoryIdentifier: "testItemStateSync",
+    deleteRealmIfMigrationNeeded: true
+    ))
+  var db: DB!
+  
+  let userID = "56d65493c8747268f348438d"
+  let feedID = "56d65493c8747268f348438e"
+  
+  override func setUp() {
+    super.setUp()
+    continueAfterFailure = false
+    
+    db = try! DB(configuration: dbc)
+    try! db.deleteAll()
+    
+    NSUserDefaults.resetStandardUserDefaults()
+    
+    let feed = Feed()
+    feed.id = feedID
+    
+    try! db.write {
+      self.db.add(feed)
+    }
+  }
+  
+  func newSyncEngine(requester: MockRequester) -> SyncEngine {
+    let conf = SyncEngine.Configuration(dbConfiguration: dbc,
+                                        endpointRequester: requester)
+    let e = SyncEngine(configuration: conf)
+    e.userID = userID
+    
+    return e
+  }
+
+  
+  func addItem(item: Item) {
+    try! db.write {
+      item.feed = self.db.feedWithID(self.feedID)
+      self.db.add(item)
+    }
+  }
+  
+  func testFetchItemStates() {
+    let item = Item()
+    item.id = "56d65493c8747268f348438f"
+    addItem(item)
+    
+    let requester = MockRequester()
+    
+    requester.registerResponse("GET",
+                               path: "/api/users/\(userID)/states",
+                               response: JSON.Array([
+                                [
+                                  "item_id": "56d65493c8747268f348438f",
+                                  "state": 1,
+                                  "position": 5.5,
+                                  "modification_time": "2016-04-03T19:38:03.33Z",
+                                ]
+                               ]))
+    
+    let expectation = expectationWithDescription("")
+
+    let engine = newSyncEngine(requester)
+   
+    firstly {
+      engine.syncItemStates()
+    }.recover { err in
+      XCTFail("syncItemStates failed with reason: \(err)")
+    }.always {
+      expectation.fulfill()
+    }
+    
+    waitForExpectationsWithTimeout(5) { _ in
+      let feed = self.db.feedWithID(self.feedID)
+      XCTAssert(feed!.items.first!.state == .InProgress(position: 5.5))
+    }
+  }
+
+  func testFetchItemStates_OutdatedState() {
+    let item = Item()
+    item.id = "56d65493c8747268f348438f"
+    item.state = .InProgress(position: 5.5)
+    addItem(item)
+    
+    let requester = MockRequester()
+    
+    requester.registerResponse("GET",
+                               path: "/api/users/\(userID)/states",
+                               response: JSON.Array([
+                                [
+                                  "item_id": "56d65493c8747268f348438f",
+                                  "state": 1,
+                                  "position": 10,
+                                  "modification_time": "2000-04-03T19:38:03.33Z",
+                                ]
+                               ]))
+    
+    let expectation = expectationWithDescription("")
+
+    let engine = newSyncEngine(requester)
+   
+    firstly {
+      engine.syncItemStates()
+    }.recover { err in
+      XCTFail("syncItemStates failed with reason: \(err)")
+    }.always {
+      expectation.fulfill()
+    }
+    
+    waitForExpectationsWithTimeout(5) { _ in
+      let feed = self.db.feedWithID(self.feedID)
+      XCTAssert(feed!.items.first!.state == item.state)
+    }
+  }
+}
