@@ -79,9 +79,7 @@ class SyncEngine {
           continue
         }
         
-        item.state = state.itemPos.isZero
-          ? .Unplayed
-          : .InProgress(position: state.itemPos)
+        item.state = state.state
         
         // Clear state modification time to prevent uploadUserStates
         // from uploading states that were just fetched
@@ -107,17 +105,8 @@ class SyncEngine {
             fatalError("stateModificationTime is nil")
           }
           
-          switch item.state {
-          case .Played:
-            return self.requester.request(DeleteUserItemStateEndpoint(userID: self.userID, itemID: item.id))
-          case .Unplayed:
-            // stateModificationTime is guaranteed to be non-nil because of filter
-            let state = ItemState(itemID: item.id, pos: 0, modificationTime: stateModTime)
-            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: state))
-          case .InProgress(let pos):
-            let state = ItemState(itemID: item.id, pos: pos, modificationTime: stateModTime)
-            return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: state))
-          }
+          let state = ItemState(itemID: item.id, state: item.state, modificationTime: stateModTime)
+          return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: state))
       }
       
       print([

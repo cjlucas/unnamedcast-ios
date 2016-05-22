@@ -33,14 +33,14 @@ class User: JSONDecodable {
 
 class ItemState: JSONDecodable, JSONEncodable {
   var itemID: String!
-  var itemPos: Double!
+  var state: Item.State = .Unplayed
   var modificationTime: NSDate!
 
-  convenience init(itemID: String, pos: Double, modificationTime: NSDate) {
+  convenience init(itemID: String, state: Item.State, modificationTime: NSDate) {
     self.init()
     
     self.itemID = itemID
-    itemPos = pos
+    self.state = state
     self.modificationTime = modificationTime
   }
   
@@ -48,7 +48,19 @@ class ItemState: JSONDecodable, JSONEncodable {
     self.init()
     
     itemID = try json.string("item_id")
-    itemPos = try json.double("position")
+    let itemPos = try json.double("position")
+   
+    let code = try json.int("state")
+    switch code {
+    case 0:
+      state = .Unplayed
+    case 1:
+      state = .InProgress(position: itemPos)
+    case 2:
+      state = .Played
+    default:
+      fatalError("unexpected state \(code)")
+    }
     
     let modTime = try json.string("modification_time")
     if let d = parseDate(modTime) {
@@ -59,9 +71,23 @@ class ItemState: JSONDecodable, JSONEncodable {
   }
  
   func toJSON() -> JSON {
+    var state = 0
+    var position = 0.0
+    
+    switch self.state {
+    case .Unplayed:
+      state = 0
+    case .InProgress(let pos):
+      state = 1
+      position = pos
+    case .Played:
+      state = 3
+    }
+    
     return [
       "item_id": itemID.toJSON(),
-      "position": itemPos.toJSON(),
+      "state": state.toJSON(),
+      "position": position.toJSON(),
       "modification_time": rfc3339Formatter.stringFromDate(modificationTime).toJSON()
     ]
   }
