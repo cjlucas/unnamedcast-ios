@@ -81,7 +81,7 @@ class ItemState: JSONDecodable, JSONEncodable {
       state = 1
       position = pos
     case .Played:
-      state = 3
+      state = 2
     }
     
     return [

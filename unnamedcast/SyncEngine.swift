@@ -130,11 +130,7 @@ class SyncEngine {
     }.then(on: backgroundQueue) { states in
       try self.saveUserStates(states)
     }.then(on: backgroundQueue) {
-      if self.lastSyncedTime != nil {
-        return self.uploadItemStates()
-      }
-      
-      return dispatch_promise {}
+      return self.uploadItemStates()
     }
   }
   
