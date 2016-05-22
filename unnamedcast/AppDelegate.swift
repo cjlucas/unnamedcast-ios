@@ -8,6 +8,7 @@
 
 import UIKit
 import Alamofire
+import PromiseKit
 import RealmSwift
 
 @UIApplicationMain
@@ -17,6 +18,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   let engine = SyncEngine()
   
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    application.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
+    
+    application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
+    
+    let n = UILocalNotification()
+    n.fireDate = NSDate(timeIntervalSinceNow: 5)
+    n.alertBody = "You opened the app"
+    n.timeZone = NSTimeZone.defaultTimeZone()
+    application.scheduleLocalNotification(n)
+    
     let ud = NSUserDefaults.standardUserDefaults()
     
     if ud.stringForKey("user_id") == nil {
@@ -35,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     ud.removeObjectForKey("player")
-  
+    
     // Override point for customization after application launch.
     return true
   }
@@ -64,6 +75,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     NSUserDefaults.standardUserDefaults().setObject(data, forKey: "player")
     print("App will terminate. Archived", data.length, "worth of data")
   }
-  
-  
+
+  func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
+    let n = UILocalNotification()
+    n.fireDate = NSDate(timeIntervalSinceNow: 5)
+    n.alertBody = "performFetchWithCompletionHandler"
+    n.timeZone = NSTimeZone.defaultTimeZone()
+    application.scheduleLocalNotification(n)
+    
+    firstly {
+      return engine.sync()
+    }.recover { err in
+      completionHandler(.Failed)
+    }.always {
+      // TODO: determine whether there was new data or not
+      completionHandler(.NewData)
+    }
+  }
 }
