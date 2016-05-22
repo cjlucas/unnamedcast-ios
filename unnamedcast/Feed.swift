@@ -104,8 +104,6 @@ class Item: Object, JSONDecodable {
       return .Played
     }
     set(newValue) {
-      print("state was set: \(newValue)")
-      
       switch(newValue) {
       case .Unplayed:
         playing = true

@@ -176,22 +176,6 @@ struct UpdateUserFeedsEndpoint: Endpoint {
   }
 }
 
-struct UpdateUserItemStatesEndpoint: Endpoint {
-  typealias ResponseType = Void
-  
-  var userID: String
-  var states: [ItemState]
-  
-  let method = "PUT"
-  var path: String {
-    return "/api/users/\(userID)/states"
-  }
-  
-  func marshalRequestBody() throws -> NSData? {
-    return try states.toJSON().serialize()
-  }
-}
-
 struct UpdateUserItemStateEndpoint: Endpoint {
   typealias ResponseType = Void
   
@@ -205,18 +189,6 @@ struct UpdateUserItemStateEndpoint: Endpoint {
   
   func marshalRequestBody() throws -> NSData? {
     return try state.toJSON().serialize()
-  }
-}
-
-struct DeleteUserItemStateEndpoint: Endpoint {
-  typealias ResponseType = Void
-  
-  var userID: String
-  var itemID: String
-  
-  let method = "DELETE"
-  var path: String {
-    return "/api/users/\(userID)/states/\(itemID)"
   }
 }
 
