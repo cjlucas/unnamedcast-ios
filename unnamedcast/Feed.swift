@@ -107,7 +107,7 @@ class Item: Object, JSONDecodable {
       switch(newValue) {
       case .Unplayed:
         playing = true
-        position.value = 0
+        position.value = nil
       case .Played:
         playing = false
         position.value = 0
