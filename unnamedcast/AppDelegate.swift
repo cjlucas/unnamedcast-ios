@@ -19,14 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     application.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
-    
     application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
-    
-    let n = UILocalNotification()
-    n.fireDate = NSDate(timeIntervalSinceNow: 5)
-    n.alertBody = "You opened the app"
-    n.timeZone = NSTimeZone.defaultTimeZone()
-    application.scheduleLocalNotification(n)
     
     let ud = NSUserDefaults.standardUserDefaults()
     
@@ -85,11 +78,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     firstly {
       return engine.sync()
-    }.recover { err in
-      completionHandler(.Failed)
     }.always {
+      let n = UILocalNotification()
+      n.fireDate = NSDate(timeIntervalSinceNow: 5)
+      n.alertBody = "performFetchWithCompletionHandler done"
+      n.timeZone = NSTimeZone.defaultTimeZone()
+      application.scheduleLocalNotification(n)
+      
       // TODO: determine whether there was new data or not
       completionHandler(.NewData)
+    }.error { err -> () in
+      let n = UILocalNotification()
+      n.fireDate = NSDate(timeIntervalSinceNow: 5)
+      n.alertBody = "performFetchWithCompletionHandler errored"
+      n.timeZone = NSTimeZone.defaultTimeZone()
+      application.scheduleLocalNotification(n)
+      
+      completionHandler(.Failed)
     }
   }
 }
