@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
+import SDWebImage
 
 import Alamofire
 
@@ -97,14 +98,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     for port in sess.currentRoute.outputs {
       print(port.portName)
     }
-    
-    updateUI(nil)
-  }
-  
-  override func viewDidAppear(animated: Bool) {
-    super.viewDidAppear(animated)
-    startUpdateUITimer()
-    
+
     if let item = player.currentItem() {
       if item.hasVideo() {
         showVideoView()
@@ -112,6 +106,13 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
         showArtworkView()
       }
     }
+    
+    updateUI(nil)
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    startUpdateUITimer()
   }
   
   override func viewDidDisappear(animated: Bool) {
@@ -150,17 +151,15 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   // MARK: UI -
   
   private func showArtworkView() {
-    guard let url = player.currentItem()?.imageUrl else { return }
-    
-    Alamofire.request(.GET, url).responseData { resp in
-      if let data = resp.data, let image = UIImage(data: data) {
+    guard let url = NSURL(string: player.currentItem()!.imageUrl) else { return }
+   
+    SDWebImageManager
+      .sharedManager()
+      .downloadImageWithURL(url, options: SDWebImageOptions.HighPriority, progress: nil) { img, _, _, _, _ in
         dispatch_async(dispatch_get_main_queue()) {
-          self.setColors(image.getColors())
-          self.contentView.setImage(image)
+          self.setColors(img.getColors())
+          self.contentView.setImage(img)
         }
-      } else {
-        print("Could not get data", resp)
-      }
     }
   }
   
