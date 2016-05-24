@@ -73,9 +73,22 @@ class SingleFeedViewController: UITableViewController {
     cell.itemTitleLabel.text = item.title
     cell.itemSummaryLabel.text = item.summary
     
-    let pubDateStr = NSDateFormatter.localizedStringFromDate(item.pubDate!, dateStyle: .MediumStyle, timeStyle: .ShortStyle)
-   
+    var metadata = [String]()
+    
+    print(item.title, item.state)
+    
+    if let date = item.pubDate ?? item.modificationDate {
+      let s = NSDateFormatter.localizedStringFromDate(date,
+                                                      dateStyle: .MediumStyle,
+                                                      timeStyle: .ShortStyle)
+      metadata.append(s)
+    }
+ 
     var duration = item.duration
+    if case .InProgress(let pos) = item.state {
+      duration -= Int(Double(duration) * pos)
+    }
+   
     let hours = duration / 3600
     duration %= 3600
     let minutes = duration / 60
@@ -86,9 +99,19 @@ class SingleFeedViewController: UITableViewController {
     }
     
     durationStrArr.append("\(minutes) minutes")
-    
-    cell.itemMetadataLabel.text = "Added \(pubDateStr) \u{2022} \(durationStrArr.joinWithSeparator(" ")) \u{2022} \(item.size / 1024 / 1024) MB"
 
+    if case .InProgress(_) = item.state {
+      durationStrArr.append("left")
+    }
+    
+    metadata.append(durationStrArr.joinWithSeparator(" "))
+    
+    if item.size > 0 {
+      metadata.append("\(item.size / 1024 / 1024) MB")
+    }
+    
+    cell.itemMetadataLabel.text = metadata.joinWithSeparator(" \u{2022} ")
+    
     var textColor: UIColor
     switch (item.state) {
     case .Played:
