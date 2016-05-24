@@ -111,9 +111,12 @@ class Item: Object, JSONDecodable {
       case .Played:
         playing = false
         position.value = 0
-      case .InProgress(let position):
+      case .InProgress(let position) where position.isFinite:
+        // Only store the position if the value is finite and non NaN
         playing = true
         self.position.value = position
+      default:
+        return
       }
       
       self.stateModificationTime = NSDate()
