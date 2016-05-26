@@ -62,7 +62,7 @@ class FeedViewController: UICollectionViewController {
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
     if let vc = segue.destinationViewController as? SingleFeedViewController,
       let id = selectedFeedId {
-      vc.feedId = id
+      vc.feedID = id
     }
   }
 }

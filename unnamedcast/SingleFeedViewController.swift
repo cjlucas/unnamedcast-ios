@@ -12,61 +12,58 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
-class SingleFeedTableViewCell: UITableViewCell {
-  @IBOutlet weak var itemTitleLabel: UILabel!
-  @IBOutlet weak var itemSummaryLabel: UILabel!
-  @IBOutlet weak var itemMetadataLabel: UILabel!
+protocol SingleFeedViewModelDelegate {
+  func didSelectItem(item: Item)
 }
 
-class SingleFeedViewController: UITableViewController {
-  var feedId: String?
-  var realm = try! Realm()
-  var token: NotificationToken?
+class SingleFeedViewModel: NSObject, UITableViewDataSource {
+  private var delegate: SingleFeedViewModelDelegate?
+  private var tableView: UITableView
+  private var headerView: UIView // TODO: extract these two views into their own class
+  private var headerImageView: UIImageView
   
-  @IBOutlet weak var headerView: UIView!
-  @IBOutlet weak var headerImageView: UIImageView!
+  private let db = try! DB()
+  private var feed: Feed!
   
-  
-  lazy var feed: Feed = {
-    guard let id = self.feedId else { fatalError("Feed not set") }
-    return self.realm.objects(Feed).filter("id == '\(id)'").first!
-  }()
-  
-  override func viewWillAppear(animated: Bool) {
-    super.viewWillAppear(animated)
-  }
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-  
+  required init(feedID: String,
+       tableView: UITableView,
+       headerView: UIView,
+       headerImageView: UIImageView,
+       delegate: SingleFeedViewModelDelegate? = nil) {
+    
+    guard let feed = self.db.feedWithID(feedID) else {
+      fatalError("Feed was not found")
+    }
+
+    self.feed = feed
+    self.delegate = delegate
+    self.tableView = tableView
+    self.headerView = headerView
+    self.headerImageView = headerImageView
+
     self.tableView.estimatedRowHeight = 44
     self.tableView.rowHeight = UITableViewAutomaticDimension
-    
-    self.title = feed.title
-    
-//    token = feed.addNotificationBlock { items in
-//      self.tableView.reloadData()
-//    }
-    
+
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
       if let data = resp.data {
         let image = UIImage(data: data)!
         
         let bgImageView = UIImageView(image: image)
         bgImageView.contentMode = .Center
-        self.headerView.insertSubview(bgImageView, belowSubview: self.headerImageView)
+        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
         
         let effect = UIBlurEffect(style: .Dark)
         let ev = UIVisualEffectView(effect: effect)
-        ev.frame = self.headerView.bounds
-        self.headerView.insertSubview(ev, belowSubview: self.headerImageView)
+        ev.frame = headerView.bounds
+        headerView.insertSubview(ev, belowSubview: headerImageView)
         
-        self.headerImageView.image = image
+        headerImageView.image = image
       }
     }
+
   }
   
-  override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+  @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
     
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
@@ -75,15 +72,13 @@ class SingleFeedViewController: UITableViewController {
     
     var metadata = [String]()
     
-    print(item.title, item.state)
-    
     if let date = item.pubDate ?? item.modificationDate {
       let s = NSDateFormatter.localizedStringFromDate(date,
                                                       dateStyle: .MediumStyle,
                                                       timeStyle: .ShortStyle)
       metadata.append(s)
     }
- 
+    
     var duration = item.duration
     if case .InProgress(let pos) = item.state {
       duration -= Int(Double(duration) * pos)
@@ -99,7 +94,7 @@ class SingleFeedViewController: UITableViewController {
     }
     
     durationStrArr.append("\(minutes) minutes")
-
+    
     if case .InProgress(_) = item.state {
       durationStrArr.append("left")
     }
@@ -128,7 +123,7 @@ class SingleFeedViewController: UITableViewController {
     return cell
   }
   
-  override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+  @objc func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
     let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
     
     let p = Player.sharedPlayer
@@ -138,11 +133,49 @@ class SingleFeedViewController: UITableViewController {
       p.seekToPos(position)
     }
     
-    performSegueWithIdentifier("ThePlayerSegue", sender: self)
+    delegate?.didSelectItem(item)
   }
   
   
-  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  @objc func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return feed.items.count
   }
+}
+
+class SingleFeedTableViewCell: UITableViewCell {
+  @IBOutlet weak var itemTitleLabel: UILabel!
+  @IBOutlet weak var itemSummaryLabel: UILabel!
+  @IBOutlet weak var itemMetadataLabel: UILabel!
+}
+
+class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelegate {
+  var feedID: String!
+  
+  @IBOutlet weak var headerView: UIView!
+  @IBOutlet weak var headerImageView: UIImageView!
+  
+  private var viewModel: SingleFeedViewModel!
+  
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+  }
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    guard let feedID = feedID else { fatalError("feedID was not set") }
+    viewModel = SingleFeedViewModel(feedID: feedID,
+                                    tableView: tableView,
+                                    headerView: headerView,
+                                    headerImageView: headerImageView,
+                                    delegate: self)
+    
+  }
+
+  // MARK: ViewModelDelegate
+  
+  func didSelectItem(item: Item) {
+    self.performSegueWithIdentifier("ThePlayerSegue", sender: self)
+  }
+  
 }
