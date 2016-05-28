@@ -7,7 +7,8 @@ target 'unnamedcast' do
   pod 'Freddy'
   pod 'RealmSwift'
   pod 'Alamofire'
-  pod 'PromiseKit'
+  pod 'PromiseKit/CorePromise'
+  pod 'PromiseKit/UIKit'
   pod 'SDWebImage'
 end
 
@@ -15,7 +16,8 @@ target 'unnamedcastTests' do
   pod 'Freddy'
   pod 'RealmSwift'
   pod 'Alamofire'
-  pod 'PromiseKit'
+  pod 'PromiseKit/CorePromise'
+  pod 'PromiseKit/UIKit'
   pod 'SDWebImage'
 end
 
@@ -23,7 +25,8 @@ target 'unnamedcastUnitTests' do
   pod 'Freddy'
   pod 'RealmSwift'
   pod 'Alamofire'
-  pod 'PromiseKit'
+  pod 'PromiseKit/UIKit'
+  pod 'SDWebImage'
 end
 
 target 'unnamedcastUITests' do
