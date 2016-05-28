@@ -63,6 +63,8 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
 
   }
   
+  // MARK: - UITableViewDataSource
+  
   @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
     
@@ -162,14 +164,15 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
     guard let feedID = feedID else { fatalError("feedID was not set") }
+    
     viewModel = SingleFeedViewModel(feedID: feedID,
                                     tableView: tableView,
                                     headerView: headerView,
                                     headerImageView: headerImageView,
                                     delegate: self)
     
+    tableView.dataSource = viewModel
   }
 
   // MARK: ViewModelDelegate
