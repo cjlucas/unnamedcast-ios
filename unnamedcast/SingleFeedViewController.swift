@@ -87,7 +87,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
                       position: position)
   }
   
-  // MARK: - UITableViewDataSource
+  // MARK: UITableViewDataSource
   
   @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let item = items[indexPath.row]
@@ -150,7 +150,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
   
   @objc func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return feed.items.count
+    return items.count
   }
 }
 
@@ -181,7 +181,7 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
     tableView.dataSource = viewModel
   }
   
-  // MARK: - UITableViewDelegate
+  // MARK: UITableViewDelegate
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
     let p = Player.sharedPlayer
