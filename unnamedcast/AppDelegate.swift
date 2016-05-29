@@ -15,9 +15,14 @@ import RealmSwift
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
   
+  let db = try! DB()
   let engine = SyncEngine()
   
+  let player = Player()
+  
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    Player.sharedPlayer = player
+    
     application.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
     application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
     
@@ -39,6 +44,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     ud.removeObjectForKey("player")
+    
+    player.delegate = self
     
     // Override point for customization after application launch.
     return true
@@ -96,5 +103,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       
       completionHandler(.Failed)
     }
+  }
+}
+
+extension AppDelegate: PlayerDataSource {
+  func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata? {
+    let db = try! DB()
+    if let item = db.itemWithID(item.id) {
+      return PlayerItem.Metadata(title: item.title, duration: Double(item.duration))
+    }
+    
+    return nil
   }
 }

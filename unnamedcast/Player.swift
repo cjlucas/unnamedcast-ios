@@ -11,7 +11,7 @@ import AVFoundation
 import MediaPlayer
 
 protocol PlayerDataSource {
-  func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata
+  func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata?
 }
 
 class PlayerItem: NSObject, NSCoding {
@@ -233,7 +233,7 @@ class Player: NSObject, NSCoding {
     guard let item = currentItem() else { return }
     
     var time = pos * item.avItem.duration.seconds
-    if let duration = delegate?.metadataForItem(item).duration {
+    if let duration = delegate?.metadataForItem(item)?.duration {
       time = pos * Double(duration)
     }
 
