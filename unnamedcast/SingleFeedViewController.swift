@@ -12,6 +12,9 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
+protocol SingleFeedViewControllerDelegate {
+}
+
 protocol SingleFeedViewModelDelegate {
   func feedDidUpdate()
 }
