@@ -17,6 +17,8 @@ protocol PlayerDataSource {
 class PlayerItem: NSObject, NSCoding {
   struct Metadata {
     let title: String
+    let artist: String
+    let albumTitle: String
     let duration: Double
   }
   
@@ -254,6 +256,8 @@ class Player: NSObject, NSCoding {
     
     if let data = delegate?.metadataForItem(item) {
       info[MPMediaItemPropertyTitle] = data.title
+      info[MPMediaItemPropertyArtist] = data.artist
+      info[MPMediaItemPropertyAlbumTitle] = data.albumTitle
       info[MPMediaItemPropertyPlaybackDuration] = data.duration
     }
 

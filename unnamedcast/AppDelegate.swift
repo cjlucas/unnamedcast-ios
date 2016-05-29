@@ -110,7 +110,10 @@ extension AppDelegate: PlayerDataSource {
   func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata? {
     let db = try! DB()
     if let item = db.itemWithID(item.id) {
-      return PlayerItem.Metadata(title: item.title, duration: Double(item.duration))
+      return PlayerItem.Metadata(title: item.title,
+                                 artist: item.author,
+                                 albumTitle: item.feed!.title,
+                                 duration: Double(item.duration))
     }
     
     return nil
