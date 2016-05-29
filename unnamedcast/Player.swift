@@ -27,16 +27,16 @@ class PlayerItem: NSObject, NSCoding {
   lazy var avItem: AVPlayerItem = {
     return AVPlayerItem(URL: self.url)
   }()
+
+  init(id: String, url: NSURL) {
+    self.id = id
+    self.url = url
+  }
   
   func hasVideo() -> Bool {
     return avItem.tracks
       .filter({$0.assetTrack.mediaType == AVMediaTypeVideo})
       .count > 0
-  }
-  
-  init(id: String, url: NSURL) {
-    self.id = id
-    self.url = url
   }
   
   // MARK: NSCoding
