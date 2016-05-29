@@ -15,13 +15,25 @@ import RealmSwift
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
   
+  let db = try! DB()
   let engine = SyncEngine()
   
+  var player: Player!
+  
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    let ud = NSUserDefaults.standardUserDefaults()
+    if let data = ud.objectForKey("player") as? NSData {
+      Player.sharedPlayer = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! Player
+    }
+    
+    ud.removeObjectForKey("player")
+  
+    player = Player.sharedPlayer
+    player.delegate = self
+    
     application.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
     application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
     
-    let ud = NSUserDefaults.standardUserDefaults()
     
     if ud.stringForKey("user_id") == nil {
       let sb = UIStoryboard(name: "Main", bundle: nil)
@@ -34,13 +46,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       }
     }
     
-    if let data = ud.objectForKey("player") as? NSData {
-      Player.sharedPlayer = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! Player
-    }
-    
-    ud.removeObjectForKey("player")
-    
-    // Override point for customization after application launch.
     return true
   }
   
@@ -96,5 +101,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       
       completionHandler(.Failed)
     }
+  }
+}
+
+extension AppDelegate: PlayerDataSource {
+  func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata? {
+    let db = try! DB()
+    if let item = db.itemWithID(item.id) {
+      return PlayerItem.Metadata(title: item.title,
+                                 artist: item.feed!.author,
+                                 albumTitle: item.feed!.title,
+                                 duration: Double(item.duration))
+    }
+    
+    return nil
   }
 }
