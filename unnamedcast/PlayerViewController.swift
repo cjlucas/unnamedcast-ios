@@ -230,7 +230,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   func updateUI(timer: NSTimer?) {
     guard let item = currentItem else { return }
     
-    currentPositionSlider?.value = player.position
+    currentPositionSlider?.value = Float(player.position)
     updateCurrentTimeLabel(player.currentTime())
     currentRemTimeLabel?.text = timeString(item.duration)
   }

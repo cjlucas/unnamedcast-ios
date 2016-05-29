@@ -37,7 +37,7 @@ class PlayerItem: NSObject, NSCoding {
   
   func hasVideo() -> Bool {
     return avItem.tracks
-      .filter({$0.assetTrack.mediaType == AVMediaTypeVideo})
+      .filter { $0.assetTrack.mediaType == AVMediaTypeVideo }
       .count > 0
   }
   
@@ -71,6 +71,9 @@ class Player: NSObject, NSCoding {
   
   // Array of all items, items.first is always the currently playing item
   private var items = [PlayerItem]()
+  
+  private var itemDidPlayNotificationToken: AnyObject? = nil
+  private var itemTimeJumpedNotificationToken: AnyObject? = nil
   
   var forwardSkipInterval: Int = 30 {
     didSet {
@@ -109,11 +112,11 @@ class Player: NSObject, NSCoding {
       player.rate = rate
     }
   }
-  
-  var position: Float {
+ 
+  var position: Double {
     get {
-      let pos = currentTime().seconds
-      return Float(pos / (player.currentItem?.duration.seconds)!)
+      guard let item = player.currentItem else { return 0 }
+      return currentTime().seconds / item.duration.seconds
     }
   }
   
@@ -150,10 +153,17 @@ class Player: NSObject, NSCoding {
   }
   
   private func setNotificationForCurrentItem() {
-    guard let item = items.first else { fatalError() }
-    
+    guard let item = items.first else { fatalError("item list is empty") }
+
     let nc = NSNotificationCenter.defaultCenter()
-    nc.addObserverForName(AVPlayerItemDidPlayToEndTimeNotification, object: item.avItem, queue: NSOperationQueue.mainQueue()) { notification in
+    
+    for token in [itemDidPlayNotificationToken, itemTimeJumpedNotificationToken] {
+      if let token = token { nc.removeObserver(token) }
+    }
+    
+    itemDidPlayNotificationToken = nc.addObserverForName(AVPlayerItemDidPlayToEndTimeNotification,
+                                                         object: item.avItem,
+                                                         queue: NSOperationQueue.mainQueue()) { notification in
       let item = self.items.removeFirst()
       let next = self.items.first
       print("Finished playing \(item), next is \(next)")
@@ -168,12 +178,12 @@ class Player: NSObject, NSCoding {
       }
     }
     
-    nc.addObserverForName(AVPlayerItemTimeJumpedNotification,
-      object: item.avItem,
-      queue: NSOperationQueue.mainQueue()) { notification in
-        self.updateNowPlayingInfo([
-          MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime().seconds
-        ])
+    itemTimeJumpedNotificationToken = nc.addObserverForName(AVPlayerItemTimeJumpedNotification,
+                                                            object: item.avItem,
+                                                            queue: NSOperationQueue.mainQueue()) { notification in
+      self.updateNowPlayingInfo([
+        MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime().seconds
+      ])
     }
   }
   
@@ -187,7 +197,6 @@ class Player: NSObject, NSCoding {
   
   func play() {
     player.play()
-    print(player.currentItem)
   }
   
   func currentItem() -> PlayerItem? {
@@ -292,8 +301,8 @@ class Player: NSObject, NSCoding {
       queueItem(item)
     }
     
-    let itemPos = d.decodeCMTimeForKey("item_pos")
-    player.seekToTime(itemPos)
+    let time = d.decodeCMTimeForKey("item_pos")
+    seekToTime(time)
     updateNowPlayingInfo()
   }
   
