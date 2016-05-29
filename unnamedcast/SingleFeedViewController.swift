@@ -13,7 +13,6 @@ import AVFoundation
 import Alamofire
 
 protocol SingleFeedViewModelDelegate {
-  func didSelectItem(indexPath: NSIndexPath)
   func feedDidUpdate()
 }
 
@@ -26,6 +25,10 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private let db = try! DB()
   private var feed: Feed!
   private var updateFeedToken: NotificationToken!
+  
+  var items: Results<Item> {
+    return self.feed.items.sorted("pubDate", ascending: false)
+  }
   
   required init(feedID: String,
        tableView: UITableView,
@@ -72,10 +75,14 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     updateFeedToken.stop()
   }
   
+  func idForItemAtIndexPath(path: NSIndexPath) -> String {
+    return items[path.row].id
+  }
+  
   // MARK: - UITableViewDataSource
   
   @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
+    let item = items[indexPath.row]
     
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
     cell.itemTitleLabel.text = item.title
@@ -134,20 +141,6 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     return cell
   }
   
-  @objc func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
-    
-    let p = Player.sharedPlayer
-    p.playItem(PlayerItem(item))
-    
-    if case .InProgress(let position) = item.state {
-      p.seekToPos(position)
-    }
-    
-    delegate?.didSelectItem(indexPath)
-  }
-  
-  
   @objc func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return feed.items.count
   }
@@ -182,6 +175,19 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
                                     delegate: self)
     
     tableView.dataSource = viewModel
+  }
+
+  // MARK: - UITableViewDelegate
+  
+  override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+//    let p = Player.sharedPlayer
+//    
+//    // TODO: add position to playItem
+//    p.playItem(PlayerItem(item))
+//    
+//    if case .InProgress(let position) = item.state {
+//      p.seekToPos(position)
+//    }
   }
 
   // MARK: ViewModelDelegate
