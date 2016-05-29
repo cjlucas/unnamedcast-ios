@@ -32,6 +32,15 @@ class DB {
     realm.add(obj, update: update)
   }
   
+  func addNotificationBlockForFeedUpdate(feed: Feed, block: () -> ()) -> NotificationToken {
+    return self.realm
+      .objects(Feed.self)
+      .filter("id = %@", feed.id)
+      .addNotificationBlock { (res: RealmCollectionChange<Results<Feed>>) in
+        block()
+    }
+  }
+  
   required init(configuration: Configuration? = nil) throws {
     if let conf = configuration {
       realm = try Realm(configuration: conf.realmConfig)

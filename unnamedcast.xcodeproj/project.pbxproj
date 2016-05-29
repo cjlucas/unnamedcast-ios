@@ -17,6 +17,7 @@
 		830130491CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
 		8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
 		8301304B1CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
+		8309D5CE1CFA68BA0062CDD1 /* DBTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8309D5CD1CFA68BA0062CDD1 /* DBTests.swift */; };
 		830D997C1C5C4827003CC4BB /* FeedCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */; };
 		8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
 		833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B01C77F47700494388 /* FeedSearchTableViewController.swift */; };
@@ -26,10 +27,6 @@
 		83475AC71C60490000F48D33 /* UpNextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475AC61C60490000F48D33 /* UpNextViewController.swift */; };
 		83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
 		8349DA071C5DACE900C70153 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8349DA061C5DACE900C70153 /* MediaPlayer.framework */; };
-		8349EDB01CF543A00017E35D /* SingleFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8349EDAF1CF543A00017E35D /* SingleFeedViewModel.swift */; };
-		8349EDB11CF543A00017E35D /* SingleFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8349EDAF1CF543A00017E35D /* SingleFeedViewModel.swift */; };
-		8349EDB21CF543A00017E35D /* SingleFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8349EDAF1CF543A00017E35D /* SingleFeedViewModel.swift */; };
-		8349EDB31CF543A00017E35D /* SingleFeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8349EDAF1CF543A00017E35D /* SingleFeedViewModel.swift */; };
 		835177231CE6B0B500064843 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */; };
 		835177241CE6B0E200064843 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
 		83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83526AD91C5AF19B00C43845 /* Feed.swift */; };
@@ -99,6 +96,7 @@
 		82A9D6D31FAE8675EEDE548C /* Pods-unnamedcastUnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-unnamedcastUnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-unnamedcastUnitTests/Pods-unnamedcastUnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		830130421CE42AC600E583DF /* SearchResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResult.swift; sourceTree = "<group>"; };
 		830130471CE56BCC00E583DF /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		8309D5CD1CFA68BA0062CDD1 /* DBTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBTests.swift; sourceTree = "<group>"; };
 		830D997B1C5C4827003CC4BB /* FeedCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCollectionViewCell.swift; sourceTree = "<group>"; };
 		8310483C1C710B9B003FB964 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		833239B01C77F47700494388 /* FeedSearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedSearchTableViewController.swift; sourceTree = "<group>"; };
@@ -108,7 +106,6 @@
 		83475AC61C60490000F48D33 /* UpNextViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpNextViewController.swift; sourceTree = "<group>"; };
 		83475B291C62DB5000F48D33 /* AppContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppContainerViewController.swift; sourceTree = "<group>"; };
 		8349DA061C5DACE900C70153 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
-		8349EDAF1CF543A00017E35D /* SingleFeedViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleFeedViewModel.swift; sourceTree = "<group>"; };
 		83526AD91C5AF19B00C43845 /* Feed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
 		835793A61CDFF9A0003F09FA /* DB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DB.swift; sourceTree = "<group>"; };
 		8364FAF81CE1A64B004576F7 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
@@ -199,14 +196,6 @@
 			name = Controllers;
 			sourceTree = "<group>";
 		};
-		8349EDAD1CF5435B0017E35D /* ViewModels */ = {
-			isa = PBXGroup;
-			children = (
-				8349EDAF1CF543A00017E35D /* SingleFeedViewModel.swift */,
-			);
-			name = ViewModels;
-			sourceTree = "<group>";
-		};
 		83526AD81C5AF08300C43845 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -267,6 +256,7 @@
 				83E3456B1C94A71D009F25E6 /* unnamedcastUnitTests.swift */,
 				83E345631C94A5FE009F25E6 /* feed1.json */,
 				83E3456D1C94A71D009F25E6 /* Info.plist */,
+				8309D5CD1CFA68BA0062CDD1 /* DBTests.swift */,
 			);
 			path = unnamedcastUnitTests;
 			sourceTree = "<group>";
@@ -302,7 +292,6 @@
 				839680B91CA74932007A4D62 /* Views */,
 				83526AD81C5AF08300C43845 /* Models */,
 				8310483B1C710AE4003FB964 /* Controllers */,
-				8349EDAD1CF5435B0017E35D /* ViewModels */,
 				83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */,
 				83E725721C5AEF0D00A0E8D4 /* Assets.xcassets */,
 				83E725771C5AEF0D00A0E8D4 /* Info.plist */,
@@ -711,6 +700,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8309D5CE1CFA68BA0062CDD1 /* DBTests.swift in Sources */,
 				835177231CE6B0B500064843 /* AppDelegate.swift in Sources */,
 				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
 				835177241CE6B0E200064843 /* Player.swift in Sources */,
@@ -719,7 +709,6 @@
 				839680C31CACBDBA007A4D62 /* Feed.swift in Sources */,
 				839680C41CACBDBA007A4D62 /* User.swift in Sources */,
 				839680C51CACBDBA007A4D62 /* Endpoint.swift in Sources */,
-				8349EDB31CF543A00017E35D /* SingleFeedViewModel.swift in Sources */,
 				830130461CE42AC600E583DF /* SearchResult.swift in Sources */,
 				8364FAFA1CE1AF47004576F7 /* Request.swift in Sources */,
 				839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */,
@@ -747,7 +736,6 @@
 				83AC3EAE1CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
 				837857C01C5C52400026959C /* Player.swift in Sources */,
-				8349EDB01CF543A00017E35D /* SingleFeedViewModel.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
 				835793A71CDFF9A0003F09FA /* DB.swift in Sources */,
 				8364FAF91CE1A64B004576F7 /* Request.swift in Sources */,
@@ -769,7 +757,6 @@
 				830130491CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130441CE42AC600E583DF /* SearchResult.swift in Sources */,
 				83AC3EAF1CEFEC93000F00F4 /* NSDate.swift in Sources */,
-				8349EDB11CF543A00017E35D /* SingleFeedViewModel.swift in Sources */,
 				8364FB011CE41B36004576F7 /* Array.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -783,7 +770,6 @@
 				8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130451CE42AC600E583DF /* SearchResult.swift in Sources */,
 				83AC3EB01CEFEC93000F00F4 /* NSDate.swift in Sources */,
-				8349EDB21CF543A00017E35D /* SingleFeedViewModel.swift in Sources */,
 				8364FB021CE41B36004576F7 /* Array.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

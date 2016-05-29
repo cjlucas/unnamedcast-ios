@@ -13,7 +13,8 @@ import AVFoundation
 import Alamofire
 
 protocol SingleFeedViewModelDelegate {
-  func didSelectItem(item: Item)
+  func didSelectItem(indexPath: NSIndexPath)
+  func feedDidUpdate()
 }
 
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
@@ -24,6 +25,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   private let db = try! DB()
   private var feed: Feed!
+  private var updateFeedToken: NotificationToken!
   
   required init(feedID: String,
        tableView: UITableView,
@@ -33,6 +35,10 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
+    }
+  
+    updateFeedToken = self.db.addNotificationBlockForFeedUpdate(feed) {
+      delegate?.feedDidUpdate()
     }
 
     self.feed = feed
@@ -60,7 +66,10 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
         headerImageView.image = image
       }
     }
-
+  }
+  
+  deinit {
+    updateFeedToken.stop()
   }
   
   // MARK: - UITableViewDataSource
@@ -135,7 +144,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
       p.seekToPos(position)
     }
     
-    delegate?.didSelectItem(item)
+    delegate?.didSelectItem(indexPath)
   }
   
   
@@ -177,8 +186,14 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
 
   // MARK: ViewModelDelegate
   
-  func didSelectItem(item: Item) {
+  func didSelectItem(indexPath: NSIndexPath) {
     self.performSegueWithIdentifier("ThePlayerSegue", sender: self)
+  }
+  
+  func feedDidUpdate() {
+    tableView.beginUpdates()
+    tableView.reloadData()
+    tableView.endUpdates()
   }
   
 }
