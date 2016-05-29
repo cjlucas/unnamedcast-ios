@@ -75,8 +75,16 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     updateFeedToken.stop()
   }
   
-  func idForItemAtIndexPath(path: NSIndexPath) -> String {
-    return items[path.row].id
+  func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
+    let item = items[path.row]
+    var position = 0.0
+    if case .InProgress(let pos) = item.state {
+      position = pos * Double(item.duration)
+    }
+    
+    return PlayerItem(id: item.id,
+                      url: NSURL(string: item.audioURL)!,
+                      position: position)
   }
   
   // MARK: - UITableViewDataSource
@@ -160,10 +168,6 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
   
   private var viewModel: SingleFeedViewModel!
   
-  override func viewWillAppear(animated: Bool) {
-    super.viewWillAppear(animated)
-  }
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
@@ -176,30 +180,20 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
     
     tableView.dataSource = viewModel
   }
-
+  
   // MARK: - UITableViewDelegate
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-//    let p = Player.sharedPlayer
-//    
-//    // TODO: add position to playItem
-//    p.playItem(PlayerItem(item))
-//    
-//    if case .InProgress(let position) = item.state {
-//      p.seekToPos(position)
-//    }
+    let p = Player.sharedPlayer
+    p.playItem(viewModel.playerItemAtIndexPath(indexPath))
+    performSegueWithIdentifier("ThePlayerSegue", sender: self)
   }
 
   // MARK: ViewModelDelegate
-  
-  func didSelectItem(indexPath: NSIndexPath) {
-    self.performSegueWithIdentifier("ThePlayerSegue", sender: self)
-  }
   
   func feedDidUpdate() {
     tableView.beginUpdates()
     tableView.reloadData()
     tableView.endUpdates()
   }
-  
 }
