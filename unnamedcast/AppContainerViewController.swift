@@ -126,7 +126,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     }
     
 
-    guard let playerItem = player.currentItem() else { return }
+    guard let playerItem = player.currentItem else { return }
     
     let items = db.items.filter("id = %@", playerItem.id)
     guard let item = items.first else { return }

@@ -40,7 +40,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   weak var currentRemTimeLabel: UILabel?
   
   var currentItem: Item? {
-    guard let id = player.currentItem()?.id else { return nil }
+    guard let id = player.currentItem?.id else { return nil }
     return db.itemWithID(id)
   }
   
@@ -59,7 +59,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   // MARK: Lifecycle -
   
   override func viewDidLoad() {
-    guard let id = player.currentItem()?.id,
+    guard let id = player.currentItem?.id,
       let item = db.itemWithID(id) else {
       fatalError("no item is playing or item with id does not exist")
     }
@@ -105,7 +105,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
       print(port.portName)
     }
 
-    if let item = player.currentItem() {
+    if let item = player.currentItem {
       if item.hasVideo() {
         showVideoView()
       } else {

@@ -58,10 +58,45 @@ protocol PlayerEventHandler: class {
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?)
 }
 
+struct Playlist {
+  private var items = [PlayerItem]()
+  
+  var isEmpty: Bool {
+    return items.isEmpty
+  }
+  
+  var currentItem: PlayerItem? {
+    return items.first
+  }
+  
+  var queuedItems: [PlayerItem] {
+    guard items.count > 1 else { return [] }
+    return Array(items[1..<items.count])
+  }
+  
+  var count: Int {
+    return items.count
+  }
+  
+  mutating func queueItem(item: PlayerItem) {
+    items.append(item)
+  }
+  
+  mutating func removeAll() {
+    items.removeAll()
+  }
+  
+  mutating func pop() -> PlayerItem? {
+    guard !isEmpty else { return nil }
+    return items.removeFirst()
+  }
+}
+
 class Player: NSObject, NSCoding {
   static var sharedPlayer = Player()
   
   let player = AVPlayer()
+  private(set) var playlist = Playlist()
   
   internal var delegate: PlayerDataSource? = nil
   
@@ -69,11 +104,12 @@ class Player: NSObject, NSCoding {
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
   private let eventHandlers = NSHashTable(options: .WeakMemory)
   
-  // Array of all items, items.first is always the currently playing item
-  private var items = [PlayerItem]()
-  
   private var itemDidPlayNotificationToken: AnyObject? = nil
   private var itemTimeJumpedNotificationToken: AnyObject? = nil
+  
+  var currentItem: PlayerItem? {
+    return playlist.currentItem
+  }
   
   var forwardSkipInterval: Int = 30 {
     didSet {
@@ -153,7 +189,7 @@ class Player: NSObject, NSCoding {
   }
   
   private func setNotificationForCurrentItem() {
-    guard let item = items.first else { fatalError("item list is empty") }
+    guard let item = currentItem else { fatalError("item list is empty") }
 
     let nc = NSNotificationCenter.defaultCenter()
     
@@ -164,18 +200,19 @@ class Player: NSObject, NSCoding {
     itemDidPlayNotificationToken = nc.addObserverForName(AVPlayerItemDidPlayToEndTimeNotification,
                                                          object: item.avItem,
                                                          queue: NSOperationQueue.mainQueue()) { notification in
-      let item = self.items.removeFirst()
-      let next = self.items.first
-      print("Finished playing \(item), next is \(next)")
-      
-      if next != nil {
-        self.playNextItem()
+      guard let item = self.playlist.pop() else {
+        fatalError("Received AVPlayerItemDidPlayToEndTimeNotification with empty playlist")
       }
+                                                          
+      let next = self.playlist.currentItem
+      print("Finished playing \(item), next is \(next)")
       
       for handler in self.eventHandlers.allObjects {
         let handler = handler as! PlayerEventHandler
         handler.itemDidFinishPlaying(item, nextItem: next)
       }
+
+      self.playNextItem()
     }
     
     itemTimeJumpedNotificationToken = nc.addObserverForName(AVPlayerItemTimeJumpedNotification,
@@ -188,34 +225,25 @@ class Player: NSObject, NSCoding {
   }
   
   func isPlaying() -> Bool {
-    return player.rate > 0 && items.count > 0 && player.error == nil
+    return player.rate > 0 && playlist.count > 0 && player.error == nil
   }
   
   func isPaused() -> Bool {
-    return player.rate == 0 && items.count > 0 && player.error == nil
+    return player.rate == 0 && playlist.count > 0 && player.error == nil
   }
   
   func play() {
     player.play()
   }
   
-  func currentItem() -> PlayerItem? {
-    return items.first
-  }
-  
-  func queuedItems() -> [PlayerItem] {
-    guard items.count > 1 else { return [] }
-    return Array(items[1..<items.count])
-  }
-  
   func playItem(item: PlayerItem) {
-    items.removeAll()
-    items.append(item)
+    playlist.removeAll()
+    playlist.queueItem(item)
     playNextItem()
   }
   
   func playNextItem() {
-    guard let item = items.first else { fatalError() }
+    guard let item = currentItem else { fatalError() }
     
     player.replaceCurrentItemWithPlayerItem(item.avItem)
     play()
@@ -224,8 +252,9 @@ class Player: NSObject, NSCoding {
   }
   
   func queueItem(item: PlayerItem) {
-    items.append(item)
-    if items.count == 1 {
+    playlist.queueItem(item)
+    
+    if playlist.count == 1 {
       player.replaceCurrentItemWithPlayerItem(item.avItem)
     }
   }
@@ -241,7 +270,7 @@ class Player: NSObject, NSCoding {
 
   // pos is a float between 0 and 1
   func seekToPos(pos: Double) {
-    guard let item = currentItem() else { return }
+    guard let item = currentItem else { return }
     
     var time = pos * item.avItem.duration.seconds
     if let duration = delegate?.metadataForItem(item)?.duration {
@@ -257,7 +286,7 @@ class Player: NSObject, NSCoding {
   }
   
   private func updateNowPlayingInfo() {
-    guard let item = items.first else { return }
+    guard let item = currentItem else { return }
     
     var info: [String: AnyObject] = [
       MPMediaItemPropertyTitle: item.url
@@ -295,7 +324,7 @@ class Player: NSObject, NSCoding {
     self.init()
     
     let decodedItems = d.decodeObjectForKey("items") as! [PlayerItem]
-    
+   
     for item in decodedItems {
       print("Queueing item", item)
       queueItem(item)
@@ -307,7 +336,7 @@ class Player: NSObject, NSCoding {
   }
   
   func encodeWithCoder(c: NSCoder) {
-    c.encodeObject(items, forKey: "items")
+    c.encodeObject(playlist.items, forKey: "items")
     c.encodeCMTime(currentTime(), forKey: "item_pos")
   }
   
