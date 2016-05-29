@@ -24,15 +24,17 @@ class PlayerItem: NSObject, NSCoding {
   
   var url: NSURL!
   var id: String!
+  var initialTime: CMTime!
   // TODO: AVPlayerItemDelegate
   
   lazy var avItem: AVPlayerItem = {
     return AVPlayerItem(URL: self.url)
   }()
 
-  init(id: String, url: NSURL) {
+  init(id: String, url: NSURL, position: Double = 0) {
     self.id = id
     self.url = url
+    self.initialTime = CMTimeMakeWithSeconds(position, 1000)
   }
   
   func hasVideo() -> Bool {
@@ -247,6 +249,11 @@ class Player: NSObject, NSCoding {
     
     player.replaceCurrentItemWithPlayerItem(item.avItem)
     play()
+    
+    if !item.initialTime.seconds.isZero {
+      seekToTime(item.initialTime)
+    }
+    
     setNotificationForCurrentItem()
     updateNowPlayingInfo()
   }
@@ -330,14 +337,12 @@ class Player: NSObject, NSCoding {
       queueItem(item)
     }
     
-    let time = d.decodeCMTimeForKey("item_pos")
-    seekToTime(time)
     updateNowPlayingInfo()
   }
   
   func encodeWithCoder(c: NSCoder) {
+    playlist.currentItem?.initialTime = currentTime()
     c.encodeObject(playlist.items, forKey: "items")
-    c.encodeCMTime(currentTime(), forKey: "item_pos")
   }
   
   // MARK: Event Handlers

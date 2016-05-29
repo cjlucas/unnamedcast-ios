@@ -132,11 +132,15 @@ class SingleFeedViewController: UITableViewController {
     let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
     
     let p = Player.sharedPlayer
-    p.playItem(PlayerItem(id: item.id, url: NSURL(string: item.audioURL)!))
     
-    if case .InProgress(let position) = item.state {
-      p.seekToPos(position)
+    var position = 0.0
+    if case .InProgress(let pos) = item.state {
+      position = pos * Double(item.duration)
     }
+    
+    p.playItem(PlayerItem(id: item.id,
+                          url: NSURL(string: item.audioURL)!,
+                          position: position))
     
     performSegueWithIdentifier("ThePlayerSegue", sender: self)
   }
