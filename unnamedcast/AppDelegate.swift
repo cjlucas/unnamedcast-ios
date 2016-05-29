@@ -75,30 +75,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   func application(application: UIApplication, performFetchWithCompletionHandler completionHandler: (UIBackgroundFetchResult) -> Void) {
-    let n = UILocalNotification()
-    n.fireDate = NSDate(timeIntervalSinceNow: 5)
-    n.alertBody = "performFetchWithCompletionHandler"
-    n.timeZone = NSTimeZone.defaultTimeZone()
-    application.scheduleLocalNotification(n)
-    
     firstly {
       return engine.sync()
     }.always {
-      let n = UILocalNotification()
-      n.fireDate = NSDate(timeIntervalSinceNow: 5)
-      n.alertBody = "performFetchWithCompletionHandler done"
-      n.timeZone = NSTimeZone.defaultTimeZone()
-      application.scheduleLocalNotification(n)
-      
       // TODO: determine whether there was new data or not
       completionHandler(.NewData)
     }.error { err -> () in
-      let n = UILocalNotification()
-      n.fireDate = NSDate(timeIntervalSinceNow: 5)
-      n.alertBody = "performFetchWithCompletionHandler errored"
-      n.timeZone = NSTimeZone.defaultTimeZone()
-      application.scheduleLocalNotification(n)
-      
       completionHandler(.Failed)
     }
   }
