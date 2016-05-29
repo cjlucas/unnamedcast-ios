@@ -10,21 +10,22 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+protocol PlayerDataSource {
+  func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata
+}
+
 class PlayerItem: NSObject, NSCoding {
-  var url: String!
-  var link: String!
-  var title: String!
-  var subtitle: String!
-  var desc: String!
-  var feedTitle: String!
-  var duration: Int!
-  var imageUrl: String!
-  var author: String!
+  struct Metadata {
+    let title: String
+    let duration: Double
+  }
+  
+  var url: NSURL!
   var id: String!
-  // TODO: delegation
+  // TODO: AVPlayerItemDelegate
   
   lazy var avItem: AVPlayerItem = {
-    return AVPlayerItem(URL: NSURL(string: self.url)!)
+    return AVPlayerItem(URL: self.url)
   }()
   
   func hasVideo() -> Bool {
@@ -33,46 +34,20 @@ class PlayerItem: NSObject, NSCoding {
       .count > 0
   }
   
-  init(_ item: Item) {
-    url = item.audioURL
-    title = item.title
-    link = item.link
-    subtitle = ""
-    desc = ""
-    duration = item.duration
-    imageUrl = item.feed?.imageUrl
-    author = item.author
-    id = item.id
-    
-    feedTitle = item.feed?.title
+  init(id: String, url: NSURL) {
+    self.id = id
+    self.url = url
   }
   
   // MARK: NSCoding
   
   required init?(coder d: NSCoder) {
-    url = d.decodeObjectForKey("url") as! String
-    link = d.decodeObjectForKey("link") as! String
-    title = d.decodeObjectForKey("title") as! String
-    subtitle = d.decodeObjectForKey("subtitle") as! String
-    desc = d.decodeObjectForKey("description") as! String
-    feedTitle = d.decodeObjectForKey("feed_title") as! String
-    duration = d.decodeIntegerForKey("duration")
-    imageUrl = d.decodeObjectForKey("image_url") as! String
-    author = d.decodeObjectForKey("author") as! String
-    feedTitle = d.decodeObjectForKey("feed_title") as! String
+    url = d.decodeObjectForKey("url") as! NSURL
     id = d.decodeObjectForKey("id") as! String
   }
   
   func encodeWithCoder(c: NSCoder) {
     c.encodeObject(url, forKey: "url")
-    c.encodeObject(link, forKey: "link")
-    c.encodeObject(title, forKey: "title")
-    c.encodeObject(subtitle, forKey: "subtitle")
-    c.encodeObject(description, forKey: "description")
-    c.encodeInteger(duration, forKey: "duration")
-    c.encodeObject(imageUrl, forKey: "image_url")
-    c.encodeObject(author, forKey: "author")
-    c.encodeObject(feedTitle, forKey: "feed_title")
     c.encodeObject(id, forKey: "id")
   }
 }
@@ -85,6 +60,8 @@ class Player: NSObject, NSCoding {
   static var sharedPlayer = Player()
   
   let player = AVPlayer()
+  
+  internal var delegate: PlayerDataSource? = nil
   
   private let audioSession = AVAudioSession.sharedInstance()
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
@@ -232,7 +209,7 @@ class Player: NSObject, NSCoding {
     player.replaceCurrentItemWithPlayerItem(item.avItem)
     play()
     setNotificationForCurrentItem()
-    setNowPlayingInfoForCurrentItem()
+    updateNowPlayingInfo()
   }
   
   func queueItem(item: PlayerItem) {
@@ -245,29 +222,42 @@ class Player: NSObject, NSCoding {
   func pause() {
     player.pause()
   }
-  
+
+  // TODO: deprecate in favor of a Double alternative
   func seekToTime(time: CMTime) {
     player.seekToTime(time)
   }
-  
+
   // pos is a float between 0 and 1
   func seekToPos(pos: Double) {
-    if let curItem = currentItem() {
-      let time = pos * Double(curItem.duration)
-      seekToTime(CMTimeMakeWithSeconds(time, 1))
+    guard let item = currentItem() else { return }
+    
+    var time = pos * item.avItem.duration.seconds
+    if let duration = delegate?.metadataForItem(item).duration {
+      time = pos * Double(duration)
     }
+
+    seekToTime(CMTimeMakeWithSeconds(time, 1000))
   }
-  
+ 
+  // TODO: deprecate in favor of a Double alternative
   func currentTime() -> CMTime {
     return player.currentTime()
   }
   
-  private func setNowPlayingInfoForCurrentItem() {
+  private func updateNowPlayingInfo() {
     guard let item = items.first else { return }
-    updateNowPlayingInfo([
-      MPMediaItemPropertyTitle: item.title,
-      MPMediaItemPropertyPlaybackDuration: item.duration
-    ])
+    
+    var info: [String: AnyObject] = [
+      MPMediaItemPropertyTitle: item.url
+    ]
+    
+    if let data = delegate?.metadataForItem(item) {
+      info[MPMediaItemPropertyTitle] = data.title
+      info[MPMediaItemPropertyPlaybackDuration] = data.duration
+    }
+
+    updateNowPlayingInfo(info)
   }
   
   private func updateNowPlayingInfo(info: [String: AnyObject]) {
@@ -300,7 +290,7 @@ class Player: NSObject, NSCoding {
     
     let itemPos = d.decodeCMTimeForKey("item_pos")
     player.seekToTime(itemPos)
-    setNowPlayingInfoForCurrentItem()
+    updateNowPlayingInfo()
   }
   
   func encodeWithCoder(c: NSCoder) {
