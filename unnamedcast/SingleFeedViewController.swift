@@ -132,7 +132,7 @@ class SingleFeedViewController: UITableViewController {
     let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
     
     let p = Player.sharedPlayer
-    p.playItem(PlayerItem(item))
+    p.playItem(PlayerItem(id: item.id, url: NSURL(string: item.audioURL)!))
     
     if case .InProgress(let position) = item.state {
       p.seekToPos(position)

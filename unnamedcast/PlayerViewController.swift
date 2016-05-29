@@ -16,6 +16,8 @@ import Alamofire
 class PlayerViewController: UIViewController, PlayerEventHandler {
   let player = Player.sharedPlayer
   
+  let db = try! DB()
+  
   @IBOutlet weak var contentView: PlayerView!
   @IBOutlet weak var skipBackwardButton: UIButton!
   @IBOutlet weak var playPauseButton: UIButton!
@@ -37,6 +39,11 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   weak var currentCurTimeLabel: UILabel?
   weak var currentRemTimeLabel: UILabel?
   
+  var currentItem: Item? {
+    guard let id = player.currentItem?.id else { return nil }
+    return db.itemWithID(id)
+  }
+  
   @IBAction func playerViewTapped(sender: AnyObject) {
     print("tapped", self.playerControls.alpha)
     UIView.animateWithDuration(0.2) {
@@ -52,7 +59,10 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   // MARK: Lifecycle -
   
   override func viewDidLoad() {
-    let item = player.currentItem()
+    guard let id = player.currentItem?.id,
+      let item = db.itemWithID(id) else {
+      fatalError("no item is playing or item with id does not exist")
+    }
     
     player.registerEventHandler(self)
     
@@ -60,14 +70,10 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     currentCurTimeLabel = curTimeLabel
     currentRemTimeLabel = durationLabel
     
-    if item == nil {
-      fatalError("PlayerViewController loaded without a current item")
-    }
-    
     //        player.delegate = self
     
-    titleLabel.text = item?.title
-    authorLabel.text = item?.author
+    titleLabel.text = item.title
+    authorLabel.text = item.author
     
     volumeView.showsRouteButton = true
     volumeView.showsVolumeSlider = false
@@ -99,7 +105,7 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
       print(port.portName)
     }
 
-    if let item = player.currentItem() {
+    if let item = player.currentItem {
       if item.hasVideo() {
         showVideoView()
       } else {
@@ -151,11 +157,13 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   // MARK: UI -
   
   private func showArtworkView() {
-    guard let url = NSURL(string: player.currentItem()!.imageUrl) else { return }
+    guard let item = currentItem else { return }
+    guard let url = NSURL(string: item.imageURL) else { return }
    
     SDWebImageManager
       .sharedManager()
       .downloadImageWithURL(url, options: SDWebImageOptions.HighPriority, progress: nil) { img, _, _, _, _ in
+        if img == nil { return }
         dispatch_async(dispatch_get_main_queue()) {
           self.setColors(img.getColors())
           self.contentView.setImage(img)
@@ -220,11 +228,11 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   }
   
   func updateUI(timer: NSTimer?) {
-    currentPositionSlider?.value = player.position
+    guard let item = currentItem else { return }
+    
+    currentPositionSlider?.value = Float(player.position)
     updateCurrentTimeLabel(player.currentTime())
-    if let item = player.currentItem() {
-      currentRemTimeLabel?.text = timeString(item.duration)
-    }
+    currentRemTimeLabel?.text = timeString(item.duration)
   }
   
   func updateCurrentTimeLabel(curTime: CMTime) {
@@ -232,7 +240,8 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
   }
   
   @IBAction func onPositionSliderValueChange(sender: UISlider) {
-    guard let item = player.currentItem() else { return }
+    guard let item = currentItem else { return }
+    
     let time = Double(sender.value) * Double(item.duration)
     updateCurrentTimeLabel(CMTimeMakeWithSeconds(time, 1))
   }
