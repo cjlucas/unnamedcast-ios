@@ -214,7 +214,9 @@ class Player: NSObject, NSCoding {
         handler.itemDidFinishPlaying(item, nextItem: next)
       }
 
-      self.playNextItem()
+      if next != nil {
+        self.playNextItem()
+      }
     }
     
     itemTimeJumpedNotificationToken = nc.addObserverForName(AVPlayerItemTimeJumpedNotification,
@@ -245,7 +247,10 @@ class Player: NSObject, NSCoding {
   }
   
   func playNextItem() {
-    guard let item = currentItem else { fatalError() }
+    guard let item = currentItem else {
+      print("playNextItem was called with no current item. This is probably a bug.")
+      return
+    }
     
     player.replaceCurrentItemWithPlayerItem(item.avItem)
     play()
