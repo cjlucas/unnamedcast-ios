@@ -156,6 +156,8 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   }
   
   @IBAction func miniPlayerViewTapped(sender: UITapGestureRecognizer) {
+    hideMiniPlayerView()
+    
     let sb = UIStoryboard(name: "Main", bundle: nil)
     let vc = sb.instantiateViewControllerWithIdentifier("PlayerViewController")
     self.navigationViewController.pushViewController(vc, animated: true)
