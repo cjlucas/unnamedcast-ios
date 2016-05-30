@@ -242,11 +242,6 @@ class PlayerContentViewSegue: UIStoryboardSegue {
 }
 
 class PlayerContainerViewController: UIViewController {
-  enum Segue {
-    case Standard
-    case Fullscreen
-  }
-  
   var standardViewController: StandardPlayerContentViewController!
   var fullscreenViewController: FullscreenPlayerContentViewController!
   
@@ -320,8 +315,7 @@ class MasterPlayerViewController: UIViewController, PlayerEventHandler {
       }
       
       print("hithere")
-      v.miniPlayerHidden = true
-//      v.toggleMiniPlayerView()
+      v.hideMiniPlayerView()
       break
     }
   }

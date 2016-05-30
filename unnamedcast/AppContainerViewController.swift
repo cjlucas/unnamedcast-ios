@@ -21,7 +21,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   
   @IBOutlet weak var progressBarWidthConstraint: NSLayoutConstraint!
   
-  var miniPlayerHidden: Bool {
+  private(set) var miniPlayerHidden: Bool {
     get {
       return self.miniPlayerViewPositionConstraint.constant != 0
     }
