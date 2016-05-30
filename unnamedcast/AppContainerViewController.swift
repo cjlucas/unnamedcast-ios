@@ -104,7 +104,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   }
   
   private func shouldShowMiniPlayer() -> Bool {
-    guard (self.navigationViewController.topViewController as? PlayerViewController) == nil else { return false }
+    guard (self.navigationViewController.topViewController as? MasterPlayerViewController) == nil else { return false }
     return player.isPlaying() || player.isPaused()
   }
   
@@ -164,7 +164,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   // MARK: UINavigationControllerDelegate -
   
   func navigationController(navigationController: UINavigationController, willShowViewController viewController: UIViewController, animated: Bool) {
-    if let _ = viewController as? PlayerViewController {
+    if let _ = viewController as? MasterPlayerViewController {
       print("MADE IT")
       hideMiniPlayerView()
     } else if shouldShowMiniPlayer() {
