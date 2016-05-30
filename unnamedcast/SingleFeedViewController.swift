@@ -20,14 +20,32 @@ protocol SingleFeedViewModelDelegate {
 }
 
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
-  private var delegate: SingleFeedViewModelDelegate?
   private var tableView: UITableView
   private var headerView: UIView // TODO: extract these two views into their own class
   private var headerImageView: UIImageView
   
   private let db = try! DB()
   private var feed: Feed!
-  private var updateFeedToken: NotificationToken!
+  
+  private var delegateInfo: (delegate: SingleFeedViewModelDelegate, token: NotificationToken)?
+  
+  private var delegate: SingleFeedViewModelDelegate? {
+    get {
+      guard let info = delegateInfo else { return nil }
+      return info.delegate
+    }
+    
+    set(newValue) {
+      delegateInfo?.token.stop()
+      
+      if let delegate = newValue {
+        let token = self.db.addNotificationBlockForFeedUpdate(feed) {
+          self.delegate?.feedDidUpdate()
+        }
+        delegateInfo = (delegate: delegate, token: token)
+      }
+    }
+  }
   
   var items: Results<Item> {
     return self.feed.items.sorted("pubDate", ascending: false)
@@ -42,13 +60,8 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
-  
-    updateFeedToken = self.db.addNotificationBlockForFeedUpdate(feed) {
-      delegate?.feedDidUpdate()
-    }
 
     self.feed = feed
-    self.delegate = delegate
     self.tableView = tableView
     self.headerView = headerView
     self.headerImageView = headerImageView
@@ -75,7 +88,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
   
   deinit {
-    updateFeedToken.stop()
+    delegate = nil
   }
   
   func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
@@ -178,8 +191,8 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
     viewModel = SingleFeedViewModel(feedID: feedID,
                                     tableView: tableView,
                                     headerView: headerView,
-                                    headerImageView: headerImageView,
-                                    delegate: self)
+                                    headerImageView: headerImageView)
+    viewModel.delegate = self
     
     tableView.dataSource = viewModel
   }
