@@ -285,8 +285,6 @@ class PlayerContainerViewController: UIViewController {
     view.addSubview(segue.destinationViewController.view)
     segue.destinationViewController.didMoveToParentViewController(self)
     
-    
-    
     switch id {
     case "standardPlayer":
       standardViewController = segue.destinationViewController as! StandardPlayerContentViewController
@@ -301,13 +299,15 @@ class PlayerContainerViewController: UIViewController {
   }
 }
 
-class MasterPlayerViewController: UIViewController {
+class MasterPlayerViewController: UIViewController, PlayerEventHandler {
   weak var containerViewController: PlayerContainerViewController!
   
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (master)")
     toggleMiniPlayerView()
+  
+    Player.sharedPlayer.registerEventHandler(self)
   }
   
   func toggleMiniPlayerView() {
@@ -327,11 +327,18 @@ class MasterPlayerViewController: UIViewController {
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    print("HITHERE")
     guard let id = segue.identifier where id == "PlayerViewEmbedded" else {
       fatalError("Unexpected segue")
     }
   
     containerViewController = segue.destinationViewController as! PlayerContainerViewController
+  }
+  
+  // MARK: PlayerEventHandler
+  
+  func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
+    if nextItem == nil {
+      self.navigationController?.popViewControllerAnimated(true)
+    }
   }
 }
