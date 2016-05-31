@@ -184,9 +184,25 @@ class FullscreenPlayerContentViewController: UIViewController {
   @IBOutlet weak var timeSlider: UISlider!
   @IBOutlet weak var remTimeLabel: UILabel!
   
+  var controlsHidden: Bool {
+    get {
+      return self.playerControls.alpha.isZero
+    }
+    set(hidden) {
+      let alpha: CGFloat = hidden ? 0 : 1
+      for view in [self.playerControls,
+                   self.curTimeLabel,
+                   self.timeSlider,
+                   self.remTimeLabel] {
+        view.alpha = alpha
+      }
+    }
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (fullscreen)")
+    controlsHidden = true
     
     viewModel = PlayerContentViewModel(playerView: playerView,
                                        timeSlider: timeSlider,
@@ -219,18 +235,16 @@ class FullscreenPlayerContentViewController: UIViewController {
   }
   
   @IBAction func playerViewTapped(sender: AnyObject) {
-    let alpha: CGFloat = self.playerControls.alpha.isZero ? 1 : 0
+    let wasHidden = controlsHidden
+
+    UIView.animateWithDuration(0.2) {
+      self.controlsHidden = !wasHidden
+    }
     
-    if alpha == 1 {
+    if wasHidden {
       viewModel.startRefreshTimer()
     } else {
       viewModel.stopRefreshTimer()
-    }
-    
-    UIView.animateWithDuration(0.2) {
-      for view in [self.playerControls, self.curTimeLabel, self.timeSlider, self.remTimeLabel] {
-        view.alpha = alpha
-      }
     }
   }
 }
