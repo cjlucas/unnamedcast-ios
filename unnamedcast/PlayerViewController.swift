@@ -256,13 +256,10 @@ class PlayerContainerViewController: UIViewController {
     currentSegueIdentifier = "standardPlayer"
   }
   
-  override func showViewController(vc: UIViewController, sender: AnyObject?) {
-    print("GOT A showViewController from \(sender)")
-  }
-  
   override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-    print("view will transition")
-    currentSegueIdentifier = currentSegueIdentifier == "standardPlayer" ? "fullscreenPlayer" : "standardPlayer"
+    currentSegueIdentifier = currentSegueIdentifier == "standardPlayer"
+      ? "fullscreenPlayer"
+      : "standardPlayer"
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -300,12 +297,12 @@ class MasterPlayerViewController: UIViewController, PlayerEventHandler {
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (master)")
-    toggleMiniPlayerView()
+    hideMiniPlayerView()
   
     Player.sharedPlayer.registerEventHandler(self)
   }
   
-  func toggleMiniPlayerView() {
+  func hideMiniPlayerView() {
     // hide mini player
     var vc = self.parentViewController
     while vc != nil {
