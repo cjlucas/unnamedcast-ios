@@ -48,11 +48,13 @@ class PlayerItem: NSObject, NSCoding {
   required init?(coder d: NSCoder) {
     url = d.decodeObjectForKey("url") as! NSURL
     id = d.decodeObjectForKey("id") as! String
+    initialTime = d.decodeCMTimeForKey("initialTime")
   }
   
   func encodeWithCoder(c: NSCoder) {
     c.encodeObject(url, forKey: "url")
     c.encodeObject(id, forKey: "id")
+    c.encodeCMTime(initialTime, forKey: "initialTime")
   }
 }
 
@@ -240,6 +242,15 @@ class Player: NSObject, NSCoding {
     player.play()
   }
   
+  func replaceCurrentItemWithItem(item: PlayerItem) {
+    player.replaceCurrentItemWithPlayerItem(item.avItem)
+    
+    let time = item.initialTime
+    if time.isValid && !time.seconds.isZero {
+      seekToTime(item.initialTime)
+    }
+  }
+  
   func playItem(item: PlayerItem) {
     playlist.removeAll()
     playlist.queueItem(item)
@@ -251,13 +262,9 @@ class Player: NSObject, NSCoding {
       print("playNextItem was called with no current item. This is probably a bug.")
       return
     }
-    
-    player.replaceCurrentItemWithPlayerItem(item.avItem)
+   
+    replaceCurrentItemWithItem(item)
     play()
-    
-    if !item.initialTime.seconds.isZero {
-      seekToTime(item.initialTime)
-    }
     
     setNotificationForCurrentItem()
     updateNowPlayingInfo()
@@ -267,7 +274,7 @@ class Player: NSObject, NSCoding {
     playlist.queueItem(item)
     
     if playlist.count == 1 {
-      player.replaceCurrentItemWithPlayerItem(item.avItem)
+      replaceCurrentItemWithItem(item)
     }
   }
   
