@@ -14,9 +14,10 @@ import SDWebImage
 import Alamofire
 
 class PlayerContentViewModel {
-  let player = Player.sharedPlayer
   let db = try! DB()
-  
+ 
+  private var player: PlayerController
+  private var playerLayer: AVPlayerLayer
   private var playerView: PlayerView
   private var timeSlider: UISlider
   private var curTimeLabel: UILabel
@@ -31,12 +32,16 @@ class PlayerContentViewModel {
     return db.itemWithID(item.id)
   }
   
-  init(playerView: PlayerView,
+  init(player: PlayerController,
+       playerLayer: AVPlayerLayer,
+       playerView: PlayerView,
        timeSlider: UISlider,
        curTimeLabel: UILabel,
        remTimeLabel: UILabel,
        titleLabel: UILabel? = nil,
        authorLabel: UILabel? = nil) {
+    self.player = player
+    self.playerLayer = playerLayer
     self.playerView = playerView
     self.timeSlider = timeSlider
     self.curTimeLabel = curTimeLabel
@@ -47,7 +52,7 @@ class PlayerContentViewModel {
     update()
     
     if let item = player.currentItem where item.hasVideo() {
-      playerView.setPlayer(player.player)
+      playerView.setPlayer(playerLayer)
     } else {
       guard let imageURL = currentItem?.feed?.imageUrl,
         let url = NSURL(string: imageURL) else { return }
@@ -85,7 +90,7 @@ class PlayerContentViewModel {
     guard let item = currentItem else { return }
     
     let time = Double(timeSlider.value) * Double(item.duration)
-    player.seekToTime(CMTimeMakeWithSeconds(time, 1000))
+    player.seekToTime(time)
   }
   
   private func timeString(seconds: Int) -> String {
@@ -105,12 +110,11 @@ class PlayerContentViewModel {
   
   @objc func update() {
     guard let item = currentItem else { return }
-    
-    let time = player.currentTime().seconds
-    
-    self.timeSlider.value = Float(player.position)
-    self.curTimeLabel.text = timeString(Int(time))
-    self.remTimeLabel.text = "-\(timeString(item.duration - Int(time)))"
+  
+    let curTime = player.currentTime
+    self.timeSlider.value = Float(curTime / Double(item.duration))
+    self.curTimeLabel.text = timeString(Int(curTime))
+    self.remTimeLabel.text = "-\(timeString(item.duration - Int(curTime)))"
     
     if let label = titleLabel {
       label.text = item.title
@@ -123,7 +127,8 @@ class PlayerContentViewModel {
 }
 
 class StandardPlayerContentViewController: UIViewController {
-  let player = Player.sharedPlayer
+  var player: PlayerController!
+  var playerLayer: AVPlayerLayer!
   
   private var viewModel: PlayerContentViewModel!
   
@@ -137,9 +142,11 @@ class StandardPlayerContentViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    print("viewDidLoad (standard)")
+    print("viewDidLoad (standard) \(player)")
     
-    viewModel = PlayerContentViewModel(playerView: playerView,
+    viewModel = PlayerContentViewModel(player: player,
+                                       playerLayer: playerLayer,
+                                       playerView: playerView,
                                        timeSlider: timeSlider,
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel,
@@ -160,21 +167,22 @@ class StandardPlayerContentViewController: UIViewController {
   }
   
   @IBAction func rewindButtonPressed(sender: AnyObject) {
-    player.seekToTime(CMTimeSubtract(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
+    player.seekToTime(player.currentTime - 30)
   }
   
   @IBAction func playPauseButtonPressed(sender: AnyObject) {
-    player.isPlaying() ? player.pause() : player.play()
+    player.isPlaying ? player.pause() : player.play()
   }
   
   @IBAction func forwardButtonPressed(sender: AnyObject) {
-    player.seekToTime(CMTimeAdd(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
+    player.seekToTime(player.currentTime + 30)
   }
 }
 
 class FullscreenPlayerContentViewController: UIViewController {
-  let player = Player.sharedPlayer
-
+  var player: PlayerController!
+  var playerLayer: AVPlayerLayer!
+  
   private var viewModel: PlayerContentViewModel!
   
   @IBOutlet weak var playerView: PlayerView!
@@ -204,7 +212,9 @@ class FullscreenPlayerContentViewController: UIViewController {
     print("viewDidLoad (fullscreen)")
     controlsHidden = true
     
-    viewModel = PlayerContentViewModel(playerView: playerView,
+    viewModel = PlayerContentViewModel(player: player,
+                                       playerLayer: playerLayer,
+                                       playerView: playerView,
                                        timeSlider: timeSlider,
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel)
@@ -223,15 +233,15 @@ class FullscreenPlayerContentViewController: UIViewController {
   }
   
   @IBAction func rewindButtonPressed(sender: AnyObject) {
-    player.seekToTime(CMTimeSubtract(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
+    player.seekToTime(player.currentTime - 30)
   }
   
   @IBAction func playPauseButtonPressed(sender: AnyObject) {
-    player.isPlaying() ? player.pause() : player.play()
+    player.isPlaying ? player.pause() : player.play()
   }
   
   @IBAction func forwardButtonPressed(sender: AnyObject) {
-    player.seekToTime(CMTimeAdd(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
+    player.seekToTime(player.currentTime + 30)
   }
   
   @IBAction func playerViewTapped(sender: AnyObject) {
@@ -308,12 +318,14 @@ class PlayerContainerViewController: UIViewController {
 class MasterPlayerViewController: UIViewController, PlayerEventHandler {
   weak var containerViewController: PlayerContainerViewController!
   
+  var player: PlayerController!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (master)")
     hideMiniPlayerView()
   
-    Player.sharedPlayer.registerEventHandler(self)
+    player.registerForEvents(self)
   }
   
   func hideMiniPlayerView() {

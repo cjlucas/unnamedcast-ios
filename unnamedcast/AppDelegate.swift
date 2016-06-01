@@ -6,10 +6,12 @@
 //  Copyright © 2016 Christopher Lucas. All rights reserved.
 //
 
+import AVFoundation
 import UIKit
 import Alamofire
 import PromiseKit
 import RealmSwift
+import Swinject
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -18,33 +20,71 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   let db = try! DB()
   let engine = SyncEngine()
   
-  var player: Player!
+  var player: PlayerService!
   
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    // Player deserialization
     let ud = NSUserDefaults.standardUserDefaults()
     if let data = ud.objectForKey("player") as? NSData {
-      Player.sharedPlayer = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! Player
+      player = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! PlayerService
+    } else {
+      player = PlayerService()
     }
     
     ud.removeObjectForKey("player")
-  
-    player = Player.sharedPlayer
     player.delegate = self
+    
+    let start = NSDate()
+    
+    // Dependency injection for player service
+    let container = Container()
+    let playerProxy = PlayerServiceProxy(player: player)
+//    let playerLayer = AVPlayerLayer(player: player.player)
+    
+    container.registerForStoryboard(StandardPlayerContentViewController.self, name: nil) { r, c in
+      c.player = playerProxy
+      c.playerLayer = AVPlayerLayer(player: self.player.player)
+    }
+    
+    container.registerForStoryboard(FullscreenPlayerContentViewController.self, name: nil) { r, c in
+      c.player = playerProxy
+      c.playerLayer = AVPlayerLayer(player: self.player.player)
+    }
+
+    container.registerForStoryboard(MasterPlayerViewController.self, name: nil) { r, c in
+      c.player = playerProxy
+    }
+
+    container.registerForStoryboard(AppContainerViewController.self, name: nil) { r, c in
+      c.player = playerProxy
+    }
+
+    container.registerForStoryboard(SingleFeedViewController.self, name: nil) { r, c in
+      c.player = playerProxy
+    }
+    
+    print(-start.timeIntervalSinceNow * 1000)
+    
     
     application.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
     application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
     
+    let sb = SwinjectStoryboard.create(name: "Main", bundle: nil, container: container)
     
     if ud.stringForKey("user_id") == nil {
-      let sb = UIStoryboard(name: "Main", bundle: nil)
       self.window?.rootViewController = sb.instantiateViewControllerWithIdentifier("login")
       self.window?.makeKeyAndVisible()
     } else {
+      self.window?.rootViewController = sb.instantiateInitialViewController()
       print("Updating user feeds")
+      // TODO: do some profiling with this method. it takes ~30 milliseconds to execute
+      // Also, syncing here is unnecessary since we use performFetchWithCompletionHandler
       engine.sync().then {
         print("Updated user feeds")
       }
     }
+    
+    print(-start.timeIntervalSinceNow * 1000)
     
     return true
   }
@@ -69,7 +109,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   
   func applicationWillTerminate(application: UIApplication) {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    let data = NSKeyedArchiver.archivedDataWithRootObject(Player.sharedPlayer)
+    let data = NSKeyedArchiver.archivedDataWithRootObject(player)
     NSUserDefaults.standardUserDefaults().setObject(data, forKey: "player")
     print("App will terminate. Archived", data.length, "worth of data")
   }

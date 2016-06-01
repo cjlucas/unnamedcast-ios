@@ -553,6 +553,10 @@
         <scene sceneID="fj5-sX-cOm">
             <objects>
                 <viewController id="GPb-43-CUe" customClass="PlayerContainerViewController" customModule="unnamedcast" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="bDM-Po-AAk"/>
+                        <viewControllerLayoutGuide type="bottom" id="IQK-Fe-20e"/>
+                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="Sw8-6m-ib7">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

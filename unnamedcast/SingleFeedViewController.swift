@@ -184,6 +184,8 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
   
   private var viewModel: SingleFeedViewModel!
   
+  var player: PlayerController!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
@@ -200,8 +202,7 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
   // MARK: UITableViewDelegate
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    let p = Player.sharedPlayer
-    p.playItem(viewModel.playerItemAtIndexPath(indexPath))
+    player.playItem(viewModel.playerItemAtIndexPath(indexPath))
     performSegueWithIdentifier("ThePlayerSegue", sender: self)
   }
 

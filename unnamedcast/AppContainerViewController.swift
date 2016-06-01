@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Swinject
 
 class AppContainerViewController: UIViewController, UINavigationControllerDelegate {
   @IBOutlet weak var miniPlayerView: UIView!
@@ -34,14 +35,10 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   }
   
   let db = try! DB(configuration: nil)
+ 
+  var player: PlayerController!
   
-  var player: Player {
-    get {
-      return Player.sharedPlayer
-    }
-  }
-  
-  var timer: NSTimer?
+  var timer: NSTimer? // TODO: rename me
   
   var navigationViewController: UINavigationController! {
     return self.childViewControllers.first as? UINavigationController
@@ -50,7 +47,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   override func viewDidLoad() {
     super.viewDidLoad()
    
-    player.registerEventHandler(self)
+    player.registerForEvents(self)
     timer = NSTimer.scheduledTimerWithTimeInterval(1,
                                                    target: self,
                                                    selector: #selector(AppContainerViewController.updateMiniPlayer(_:)),
@@ -105,7 +102,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   
   private func shouldShowMiniPlayer() -> Bool {
     guard (self.navigationViewController.topViewController as? MasterPlayerViewController) == nil else { return false }
-    return player.isPlaying() || player.isPaused()
+    return player.isPlaying || player.isPaused
   }
   
   /*
@@ -127,28 +124,21 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     
 
     guard let playerItem = player.currentItem else { return }
+    guard let item = db.itemWithID(playerItem.id) else { return }
     
-    let items = db.items.filter("id = %@", playerItem.id)
-    guard let item = items.first else { return }
+    let pos = player.currentTime / Double(item.duration)
     
-    let pos = player.position
-    
-    if player.isPlaying() {
-      dispatch_async(dispatch_get_main_queue()) {
-//        self.updateProgressBar(self.player.position)
-        
-        try! self.db.write {
-          self.db.itemWithID(item.id)?.state = .InProgress(position: Double(pos))
-        }
+    if player.isPlaying {
+      try! self.db.write {
+        item.state = .InProgress(position: pos)
       }
     }
     
     miniPlayerTitleLabel.text = item.title
-    
   }
   
   @IBAction func togglePlayPause(sender: AnyObject) {
-    if player.isPlaying() {
+    if player.isPlaying {
       player.pause()
     } else {
       player.play()
@@ -156,9 +146,9 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   }
   
   @IBAction func miniPlayerViewTapped(sender: UITapGestureRecognizer) {
+    guard let sb = storyboard else { fatalError("storyboard is nil") }
     hideMiniPlayerView()
-    
-    let sb = UIStoryboard(name: "Main", bundle: nil)
+  
     let vc = sb.instantiateViewControllerWithIdentifier("PlayerViewController")
     self.navigationViewController.pushViewController(vc, animated: true)
   }

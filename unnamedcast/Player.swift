@@ -10,6 +10,85 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+protocol PlayerController {
+  // Volume is from 0.0-1.0
+  var volume: Float { get set }
+  
+  // In seconds
+  var currentTime: Double { get }
+  
+  var currentItem: PlayerItem? { get }
+  
+  var isPlaying: Bool { get }
+  var isPaused: Bool { get }
+ 
+  // Controls
+  func seekToTime(seconds: Double)
+  func play()
+  func pause()
+  
+  // Playlist management
+  func playItem(item: PlayerItem)
+  func queueItem(item: PlayerItem)
+  
+  func registerForEvents(handler: PlayerEventHandler)
+}
+
+public var sharedPlayerService = PlayerService()
+
+struct PlayerServiceProxy: PlayerController {
+  var player: PlayerService
+  
+  var volume: Float {
+    get {
+      return player.volume
+    }
+    set(val) {
+      player.volume = val
+    }
+  }
+  
+  var currentTime: Double {
+    return player.currentTime().seconds
+  }
+  
+  var currentItem: PlayerItem? {
+    return player.currentItem
+  }
+  
+  var isPlaying: Bool {
+    return player.isPlaying()
+  }
+  
+  var isPaused: Bool {
+    return player.isPaused()
+  }
+  
+  func seekToTime(seconds: Double) {
+    player.seekToTime(CMTimeMakeWithSeconds(seconds, 1000))
+  }
+  
+  func play() {
+    player.play()
+  }
+  
+  func pause() {
+    player.pause()
+  }
+  
+  func playItem(item: PlayerItem) {
+    player.playItem(item)
+  }
+  
+  func queueItem(item: PlayerItem) {
+    player.queueItem(item)
+  }
+  
+  func registerForEvents(handler: PlayerEventHandler) {
+    player.registerEventHandler(handler)
+  }
+}
+
 protocol PlayerDataSource {
   func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata?
 }
@@ -96,9 +175,7 @@ struct Playlist {
   }
 }
 
-class Player: NSObject, NSCoding {
-  static var sharedPlayer = Player()
-  
+public class PlayerService: NSObject, NSCoding {
   let player = AVPlayer()
   private(set) var playlist = Playlist()
   
@@ -339,7 +416,7 @@ class Player: NSObject, NSCoding {
   
   // MARK: NSCoding
   
-  required convenience init?(coder d: NSCoder) {
+  required convenience public init?(coder d: NSCoder) {
     self.init()
     
     let decodedItems = d.decodeObjectForKey("items") as! [PlayerItem]
@@ -352,7 +429,7 @@ class Player: NSObject, NSCoding {
     updateNowPlayingInfo()
   }
   
-  func encodeWithCoder(c: NSCoder) {
+  public func encodeWithCoder(c: NSCoder) {
     playlist.currentItem?.initialTime = currentTime()
     c.encodeObject(playlist.items, forKey: "items")
   }

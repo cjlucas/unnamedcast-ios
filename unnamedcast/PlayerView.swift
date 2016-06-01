@@ -30,18 +30,17 @@ class PlayerView: UIView {
     imageView = nil
   }
   
-  func setPlayer(player: AVPlayer) {
+  func setPlayer(layer: AVPlayerLayer) {
     removeImage()
     removePlayer()
-    
-    let view = UIView(frame: bounds)
-    let layer = AVPlayerLayer(player: player)
     
     layer.frame = bounds
     layer.videoGravity = AVLayerVideoGravityResizeAspect
     
-    playerView?.translatesAutoresizingMaskIntoConstraints = false
+    let view = UIView(frame: bounds)
+    view.translatesAutoresizingMaskIntoConstraints = false
     view.layer.addSublayer(layer)
+    
     addSubview(view)
     sendSubviewToBack(view)
     
