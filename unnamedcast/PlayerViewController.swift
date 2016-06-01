@@ -93,8 +93,10 @@ class PlayerContentViewModel {
     player.seekToTime(time)
   }
   
-  private func timeString(seconds: Int) -> String {
-    var secs = seconds
+  private func timeString(seconds: Double) -> String {
+    guard seconds.isNormal else { return "00:00" }
+    
+    var secs = Int(seconds)
     let hours = secs / 3600
     secs -= hours * 3600
     
@@ -112,9 +114,10 @@ class PlayerContentViewModel {
     guard let item = currentItem else { return }
   
     let curTime = player.currentTime
-    self.timeSlider.value = Float(curTime / Double(item.duration))
-    self.curTimeLabel.text = timeString(Int(curTime))
-    self.remTimeLabel.text = "-\(timeString(item.duration - Int(curTime)))"
+    let duration = Double(item.duration)
+    self.timeSlider.value = Float(curTime / duration)
+    self.curTimeLabel.text = timeString(curTime)
+    self.remTimeLabel.text = "-\(timeString(duration - curTime))"
     
     if let label = titleLabel {
       label.text = item.title

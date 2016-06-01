@@ -179,7 +179,7 @@ public class PlayerService: NSObject, NSCoding {
   let player = AVPlayer()
   private(set) var playlist = Playlist()
   
-  internal var delegate: PlayerDataSource? = nil
+  internal var dataSource: PlayerDataSource? = nil
   
   private let audioSession = AVAudioSession.sharedInstance()
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
@@ -369,7 +369,7 @@ public class PlayerService: NSObject, NSCoding {
     guard let item = currentItem else { return }
     
     var time = pos * item.avItem.duration.seconds
-    if let duration = delegate?.metadataForItem(item)?.duration {
+    if let duration = dataSource?.metadataForItem(item)?.duration {
       time = pos * Double(duration)
     }
 
@@ -388,7 +388,7 @@ public class PlayerService: NSObject, NSCoding {
       MPMediaItemPropertyTitle: item.url
     ]
     
-    if let data = delegate?.metadataForItem(item) {
+    if let data = dataSource?.metadataForItem(item) {
       info[MPMediaItemPropertyTitle] = data.title
       info[MPMediaItemPropertyArtist] = data.artist
       info[MPMediaItemPropertyAlbumTitle] = data.albumTitle

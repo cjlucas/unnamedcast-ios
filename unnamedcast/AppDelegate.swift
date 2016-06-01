@@ -32,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     ud.removeObjectForKey("player")
-    player.delegate = self
+    player.dataSource = self
     
     let start = NSDate()
     
