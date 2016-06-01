@@ -51,6 +51,19 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     return self.feed.items.sorted("pubDate", ascending: false)
   }
   
+  private func itemAtIndexPath(path: NSIndexPath) -> Item! {
+//    if let item = itemsCache[path.row] {
+//      return item
+//    }
+//    
+    let item = items[path.row]
+//    itemsCache[path.row] = item
+    
+    return item
+  }
+  
+  var item: Item!
+  
   required init(feedID: String,
        tableView: UITableView,
        headerView: UIView,
@@ -66,9 +79,9 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     self.headerView = headerView
     self.headerImageView = headerImageView
 
-    self.tableView.estimatedRowHeight = 44
+    self.tableView.estimatedRowHeight = 140
     self.tableView.rowHeight = UITableViewAutomaticDimension
-
+    
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
       if let data = resp.data {
         let image = UIImage(data: data)!
@@ -106,7 +119,9 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   // MARK: UITableViewDataSource
   
   @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let item = items[indexPath.row]
+    let start = NSDate()
+    let item = itemAtIndexPath(indexPath)
+    print("here1", -start.timeIntervalSinceNow * 1000)
     
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
     cell.itemTitleLabel.text = item.title
@@ -162,6 +177,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
       lbl.textColor = textColor
     }
     
+    print("here2", -start.timeIntervalSinceNow * 1000)
     return cell
   }
   
@@ -202,10 +218,13 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
   // MARK: UITableViewDelegate
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    print("did select row")
+    print(viewModel.playerItemAtIndexPath(indexPath))
     player.playItem(viewModel.playerItemAtIndexPath(indexPath))
+    print(player.currentItem, player.queuedItems)
     performSegueWithIdentifier("ThePlayerSegue", sender: self)
   }
-
+  
   // MARK: ViewModelDelegate
   
   func feedDidUpdate() {

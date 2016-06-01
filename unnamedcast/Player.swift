@@ -18,6 +18,7 @@ protocol PlayerController {
   var currentTime: Double { get }
   
   var currentItem: PlayerItem? { get }
+  var queuedItems: [PlayerItem] { get }
   
   var isPlaying: Bool { get }
   var isPaused: Bool { get }
@@ -54,6 +55,10 @@ struct PlayerServiceProxy: PlayerController {
   
   var currentItem: PlayerItem? {
     return player.currentItem
+  }
+  
+  var queuedItems: [PlayerItem] {
+    return player.playlist.queuedItems
   }
   
   var isPlaying: Bool {
@@ -328,13 +333,7 @@ public class PlayerService: NSObject, NSCoding {
     }
   }
   
-  func playItem(item: PlayerItem) {
-    playlist.removeAll()
-    playlist.queueItem(item)
-    playNextItem()
-  }
-  
-  func playNextItem() {
+  private func playNextItem() {
     guard let item = currentItem else {
       print("playNextItem was called with no current item. This is probably a bug.")
       return
@@ -345,6 +344,12 @@ public class PlayerService: NSObject, NSCoding {
     
     setNotificationForCurrentItem()
     updateNowPlayingInfo()
+  }
+  
+  func playItem(item: PlayerItem) {
+    playlist.removeAll()
+    playlist.queueItem(item)
+    playNextItem()
   }
   
   func queueItem(item: PlayerItem) {

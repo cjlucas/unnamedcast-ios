@@ -46,7 +46,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   
   override func viewDidLoad() {
     super.viewDidLoad()
-   
+  
     player.registerForEvents(self)
     timer = NSTimer.scheduledTimerWithTimeInterval(1,
                                                    target: self,
