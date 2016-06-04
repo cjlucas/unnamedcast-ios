@@ -112,7 +112,12 @@ class PlayerContentViewModel {
   
   @objc func update() {
     guard let item = currentItem else { return }
-  
+    
+    print("in update", player.currentItem?.avItem.status.rawValue)
+    print(player.currentItem?.avItem.accessLog()?.events)
+    print(player.currentItem?.avItem.errorLog()?.events)
+    print(player.currentItem?.avItem.error)
+    
     let curTime = player.currentTime
     let duration = Double(item.duration)
     self.timeSlider.value = Float(curTime / duration)

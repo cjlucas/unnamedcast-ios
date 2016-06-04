@@ -82,7 +82,9 @@ struct PlayerServiceProxy: PlayerController {
   }
   
   func playItem(item: PlayerItem) {
+    print("playItem (in \(player))")
     player.playItem(item)
+    print("played item")
   }
   
   func queueItem(item: PlayerItem) {
@@ -112,7 +114,11 @@ class PlayerItem: NSObject, NSCoding {
   // TODO: AVPlayerItemDelegate
   
   lazy var avItem: AVPlayerItem = {
-    return AVPlayerItem(URL: self.url)
+    return AVPlayerItem(asset: self.asset)
+  }()
+  
+  private lazy var asset: AVAsset = {
+    return AVURLAsset(URL: self.url)
   }()
 
   init(id: String, url: NSURL, position: Double = 0) {
@@ -122,8 +128,8 @@ class PlayerItem: NSObject, NSCoding {
   }
   
   func hasVideo() -> Bool {
-    return avItem.tracks
-      .filter { $0.assetTrack.mediaType == AVMediaTypeVideo }
+    return asset.tracks
+      .filter { $0.mediaType == AVMediaTypeVideo }
       .count > 0
   }
   
@@ -181,7 +187,7 @@ struct Playlist {
 }
 
 public class PlayerService: NSObject, NSCoding {
-  let player = AVPlayer()
+  let player = AVQueuePlayer()
   private(set) var playlist = Playlist()
   
   internal var dataSource: PlayerDataSource? = nil
@@ -325,11 +331,30 @@ public class PlayerService: NSObject, NSCoding {
   }
   
   func replaceCurrentItemWithItem(item: PlayerItem) {
-    player.replaceCurrentItemWithPlayerItem(item.avItem)
-    
-    let time = item.initialTime
-    if time.isValid && !time.seconds.isZero {
-      seekToTime(item.initialTime)
+    item.asset.loadValuesAsynchronouslyForKeys(["status"]) {
+      print("OMGHERE")
+      dispatch_async(dispatch_get_main_queue()) {
+        print("before replace \(item.avItem.status.rawValue)")
+        print(item.asset.tracks)
+        if let curAVItem = self.player.currentItem {
+          self.player.insertItem(item.avItem, afterItem: curAVItem)
+          self.player.advanceToNextItem()
+        } else {
+          self.player.insertItem(item.avItem, afterItem: nil)
+        }
+        
+//        self.player.replaceCurrentItemWithPlayerItem(item.avItem)
+        print("after replace \(item.avItem.status.rawValue)")
+        
+        let time = item.initialTime
+        if time.isValid && !time.seconds.isZero {
+          self.seekToTime(item.initialTime)
+        }
+
+        self.play()
+        
+        print("after seek \(item.avItem.status.rawValue)")
+      }
     }
   }
   
@@ -338,18 +363,24 @@ public class PlayerService: NSObject, NSCoding {
       print("playNextItem was called with no current item. This is probably a bug.")
       return
     }
-   
+    print("thread: \(NSThread.isMainThread())")
     replaceCurrentItemWithItem(item)
-    play()
+//    play()
     
     setNotificationForCurrentItem()
     updateNowPlayingInfo()
   }
   
   func playItem(item: PlayerItem) {
+    if let item = player.currentItem {
+      item.asset.cancelLoading()
+    }
+    
     playlist.removeAll()
     playlist.queueItem(item)
     playNextItem()
+    
+    print("end of playItem")
   }
   
   func queueItem(item: PlayerItem) {
