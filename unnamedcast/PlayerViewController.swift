@@ -155,23 +155,6 @@ class StandardPlayerContentViewController: UIViewController {
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var authorLabel: UILabel!
   
-  override func viewDidAppear(animated: Bool) {
-    super.viewDidAppear(animated)
-    viewModel.startRefreshTimer()
-    
-    layerProvider.register(String(self.dynamicType)) { layer in
-      self.viewModel.playerLayer = layer
-    }
-    
-  }
-  
-  override func viewDidDisappear(animated: Bool) {
-    super.viewDidDisappear(animated)
-    
-    viewModel.stopRefreshTimer()
-    layerProvider.unregister(String(self.dynamicType))
-  }
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (standard) \(player)")
@@ -183,6 +166,23 @@ class StandardPlayerContentViewController: UIViewController {
                                        remTimeLabel: remTimeLabel,
                                        titleLabel: titleLabel,
                                        authorLabel: authorLabel)
+  }
+  
+  override func didMoveToParentViewController(parent: UIViewController?) {
+    super.didMoveToParentViewController(parent)
+
+    viewModel.startRefreshTimer()
+    
+    layerProvider.register(String(self.dynamicType)) { layer in
+      self.viewModel.playerLayer = layer
+    }
+  }
+  
+  override func removeFromParentViewController() {
+    super.removeFromParentViewController()
+    
+    viewModel.stopRefreshTimer()
+    layerProvider.unregister(String(self.dynamicType))
   }
   
   // MARK: Actions
@@ -237,21 +237,6 @@ class FullscreenPlayerContentViewController: UIViewController {
     }
   }
   
-  override func viewDidAppear(animated: Bool) {
-    super.viewDidAppear(animated)
-    viewModel.startRefreshTimer()
-    
-    layerProvider.register(String(self.dynamicType)) { layer in
-      self.viewModel.playerLayer = layer
-    }
-  }
-
-  override func viewDidDisappear(animated: Bool) {
-    super.viewDidDisappear(animated)
-    viewModel.stopRefreshTimer()
-    
-    layerProvider.unregister(String(self.dynamicType))
-  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -263,6 +248,23 @@ class FullscreenPlayerContentViewController: UIViewController {
                                        timeSlider: timeSlider,
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel)
+  }
+  
+  override func didMoveToParentViewController(parent: UIViewController?) {
+    super.didMoveToParentViewController(parent)
+    
+    viewModel.startRefreshTimer()
+    
+    layerProvider.register(String(self.dynamicType)) { layer in
+      self.viewModel.playerLayer = layer
+    }
+  }
+  
+  override func removeFromParentViewController() {
+    super.removeFromParentViewController()
+    
+    viewModel.stopRefreshTimer()
+    layerProvider.unregister(String(self.dynamicType))
   }
   
   // MARK: Actions
