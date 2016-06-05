@@ -112,6 +112,9 @@ class PlayerContentViewModel {
   
   @objc func update() {
     guard let item = currentItem else { return }
+   
+    print(player.currentItem?.avItem.status.rawValue)
+    print(player.currentItem?.avItem.error)
   
     let curTime = player.currentTime
     let duration = Double(item.duration)
@@ -143,6 +146,16 @@ class StandardPlayerContentViewController: UIViewController {
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var authorLabel: UILabel!
   
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    viewModel.startRefreshTimer()
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (standard) \(player)")
@@ -155,7 +168,6 @@ class StandardPlayerContentViewController: UIViewController {
                                        remTimeLabel: remTimeLabel,
                                        titleLabel: titleLabel,
                                        authorLabel: authorLabel)
-    viewModel.startRefreshTimer()
   }
   
   // MARK: Actions
@@ -210,6 +222,16 @@ class FullscreenPlayerContentViewController: UIViewController {
     }
   }
   
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    viewModel.startRefreshTimer()
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (fullscreen)")
@@ -221,7 +243,6 @@ class FullscreenPlayerContentViewController: UIViewController {
                                        timeSlider: timeSlider,
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel)
-    viewModel.startRefreshTimer()
   }
   
   // MARK: Actions
