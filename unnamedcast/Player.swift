@@ -338,7 +338,6 @@ public class PlayerService: NSObject, NSCoding {
   }
   
   func replaceCurrentItemWithItem(item: PlayerItem) {
-    player.currentItem?.asset.cancelLoading()
     player.pause()
     player.replaceCurrentItemWithPlayerItem(nil)
     

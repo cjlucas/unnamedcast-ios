@@ -167,6 +167,16 @@ class StandardPlayerContentViewController: UIViewController {
                                        titleLabel: titleLabel,
                                        authorLabel: authorLabel)
   }
+ 
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    viewModel.startRefreshTimer()
+  }
+  
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
+  }
   
   override func didMoveToParentViewController(parent: UIViewController?) {
     super.didMoveToParentViewController(parent)
@@ -237,7 +247,6 @@ class FullscreenPlayerContentViewController: UIViewController {
     }
   }
   
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (fullscreen)")
@@ -248,6 +257,16 @@ class FullscreenPlayerContentViewController: UIViewController {
                                        timeSlider: timeSlider,
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel)
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    viewModel.startRefreshTimer()
+  }
+  
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
   }
   
   override func didMoveToParentViewController(parent: UIViewController?) {
