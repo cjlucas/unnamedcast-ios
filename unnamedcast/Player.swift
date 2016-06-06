@@ -186,8 +186,20 @@ struct Playlist {
   }
 }
 
+// This is a necessary workaround thanks to (probably) bugs in AVPlayer.
+// When attempting to play my troublesome vidfeeder videos that can take
+// a long time to respond, the player will timeout eventually and fail
+// with error "Cannot Complete Action". If this error occurs, any attempt
+// to play another item will fail because the error will not clear.
+//
+// Multiple workarounds were attempted, including implementing the AVAsset
+// loader delegate, but the same issues were seen in that case.
+protocol PlayerServiceDelegate {
+  func backendPlayerDidChange(player: AVPlayer)
+}
+
 public class PlayerService: NSObject, NSCoding {
-  let player = AVQueuePlayer()
+  private(set) var player = AVPlayer()
   private(set) var playlist = Playlist()
   
   internal var dataSource: PlayerDataSource? = nil
@@ -195,9 +207,10 @@ public class PlayerService: NSObject, NSCoding {
   private let audioSession = AVAudioSession.sharedInstance()
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
   private let eventHandlers = NSHashTable(options: .WeakMemory)
+  var delegate: PlayerServiceDelegate?
   
-  private var itemDidPlayNotificationToken: AnyObject? = nil
-  private var itemTimeJumpedNotificationToken: AnyObject? = nil
+  private var itemDidPlayNotificationToken: AnyObject?
+  private var itemTimeJumpedNotificationToken: AnyObject?
   
   var currentItem: PlayerItem? {
     return playlist.currentItem
@@ -331,30 +344,15 @@ public class PlayerService: NSObject, NSCoding {
   }
   
   func replaceCurrentItemWithItem(item: PlayerItem) {
-    item.asset.loadValuesAsynchronouslyForKeys(["status"]) {
-      print("OMGHERE")
-      dispatch_async(dispatch_get_main_queue()) {
-        print("before replace \(item.avItem.status.rawValue)")
-        print(item.asset.tracks)
-        if let curAVItem = self.player.currentItem {
-          self.player.insertItem(item.avItem, afterItem: curAVItem)
-          self.player.advanceToNextItem()
-        } else {
-          self.player.insertItem(item.avItem, afterItem: nil)
-        }
-        
-//        self.player.replaceCurrentItemWithPlayerItem(item.avItem)
-        print("after replace \(item.avItem.status.rawValue)")
-        
-        let time = item.initialTime
-        if time.isValid && !time.seconds.isZero {
-          self.seekToTime(item.initialTime)
-        }
-
-        self.play()
-        
-        print("after seek \(item.avItem.status.rawValue)")
-      }
+    player.pause()
+    player.replaceCurrentItemWithPlayerItem(nil)
+    
+    player = AVPlayer(playerItem: item.avItem)
+    delegate?.backendPlayerDidChange(player)
+    
+    let time = item.initialTime
+    if time.isValid && !time.seconds.isZero {
+      seekToTime(item.initialTime)
     }
   }
   

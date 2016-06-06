@@ -13,14 +13,47 @@ import PromiseKit
 import RealmSwift
 import Swinject
 
+typealias LayerChangeHandler = (AVPlayerLayer) -> ()
+protocol AVPlayerLayerProvider {
+  func register(identifier: String, layerChangeHandler: LayerChangeHandler)
+  func unregister(identifier: String)
+}
+
+private class PlayerLayerProvider: AVPlayerLayerProvider {
+  private var registrars = [String:LayerChangeHandler]()
+  
+  var playerLayer: AVPlayerLayer {
+    didSet {
+      print("notifiying registrars")
+      for (_, handler) in registrars {
+        handler(playerLayer)
+      }
+    }
+  }
+  
+  init(playerLayer: AVPlayerLayer) {
+    self.playerLayer = playerLayer
+  }
+  
+  func register(identifier: String, layerChangeHandler: LayerChangeHandler) {
+    registrars[identifier] = layerChangeHandler
+    layerChangeHandler(playerLayer)
+  }
+  
+  func unregister(identifier: String) {
+    registrars.removeValueForKey(identifier)
+  }
+}
+
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, PlayerDataSource, PlayerServiceDelegate {
   var window: UIWindow?
   
   let db = try! DB()
   let engine = SyncEngine()
   
   var player: PlayerService!
+  private var layerProvider: PlayerLayerProvider!
   
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     // Player deserialization
@@ -33,22 +66,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     ud.removeObjectForKey("player")
     player.dataSource = self
+    player.delegate = self
+    
     
     let start = NSDate()
     
     // Dependency injection for player service
     let container = Container()
     let playerProxy = PlayerServiceProxy(player: player)
-//    let playerLayer = AVPlayerLayer(player: player.player)
+    layerProvider = PlayerLayerProvider(playerLayer: AVPlayerLayer(player: player.player))
     
     container.registerForStoryboard(StandardPlayerContentViewController.self, name: nil) { r, c in
       c.player = playerProxy
-      c.playerLayer = AVPlayerLayer(player: self.player.player)
+      c.layerProvider = self.layerProvider
     }
     
     container.registerForStoryboard(FullscreenPlayerContentViewController.self, name: nil) { r, c in
       c.player = playerProxy
-      c.playerLayer = AVPlayerLayer(player: self.player.player)
+      c.layerProvider = self.layerProvider
     }
 
     container.registerForStoryboard(MasterPlayerViewController.self, name: nil) { r, c in
@@ -124,9 +159,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       completionHandler(.Failed)
     }
   }
-}
-
-extension AppDelegate: PlayerDataSource {
+  
+  // MARK: PlayerDataSource
   func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata? {
     let db = try! DB()
     if let item = db.itemWithID(item.id) {
@@ -135,7 +169,13 @@ extension AppDelegate: PlayerDataSource {
                                  albumTitle: item.feed!.title,
                                  duration: Double(item.duration))
     }
-    
     return nil
+  }
+  
+  // MARK: PlayerServiceDelegate
+  
+  func backendPlayerDidChange(player: AVPlayer) {
+    print("backendPlayerDidChange")
+    layerProvider.playerLayer = AVPlayerLayer(player: player)
   }
 }

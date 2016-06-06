@@ -17,13 +17,28 @@ class PlayerContentViewModel {
   let db = try! DB()
  
   private var player: PlayerController
-  private var playerLayer: AVPlayerLayer
   private var playerView: PlayerView
   private var timeSlider: UISlider
   private var curTimeLabel: UILabel
   private var remTimeLabel: UILabel
   private var titleLabel: UILabel?
   private var authorLabel: UILabel?
+  
+  var playerLayer: AVPlayerLayer? {
+    didSet {
+      guard let item = player.currentItem where item.hasVideo() else { return }
+      guard let layer = playerLayer else { return }
+      playerView.setPlayer(layer)
+    }
+  }
+  
+  var image: UIImage? {
+    didSet {
+      guard let item = player.currentItem where !item.hasVideo() else { return }
+      guard let image = image else { return }
+      playerView.setImage(image)
+    }
+  }
   
   private var timer: NSTimer?
   
@@ -33,7 +48,6 @@ class PlayerContentViewModel {
   }
   
   init(player: PlayerController,
-       playerLayer: AVPlayerLayer,
        playerView: PlayerView,
        timeSlider: UISlider,
        curTimeLabel: UILabel,
@@ -41,7 +55,6 @@ class PlayerContentViewModel {
        titleLabel: UILabel? = nil,
        authorLabel: UILabel? = nil) {
     self.player = player
-    self.playerLayer = playerLayer
     self.playerView = playerView
     self.timeSlider = timeSlider
     self.curTimeLabel = curTimeLabel
@@ -51,20 +64,16 @@ class PlayerContentViewModel {
     
     update()
     
-    if let item = player.currentItem where item.hasVideo() {
-      playerView.setPlayer(playerLayer)
-    } else {
-      guard let imageURL = currentItem?.feed?.imageUrl,
-        let url = NSURL(string: imageURL) else { return }
-      
-      SDWebImageManager
-        .sharedManager()
-        .downloadImageWithURL(url, options: SDWebImageOptions.HighPriority, progress: nil) { img, _, _, _, _ in
-          if img == nil { return }
-          dispatch_async(dispatch_get_main_queue()) {
-            self.playerView.setImage(img)
-          }
-      }
+    guard let imageURL = currentItem?.feed?.imageUrl,
+      let url = NSURL(string: imageURL) else { return }
+    
+    SDWebImageManager
+      .sharedManager()
+      .downloadImageWithURL(url, options: SDWebImageOptions.HighPriority, progress: nil) { img, _, _, _, _ in
+        if img == nil { return }
+        dispatch_async(dispatch_get_main_queue()) {
+          self.image = img
+        }
     }
   }
   
@@ -112,12 +121,10 @@ class PlayerContentViewModel {
   
   @objc func update() {
     guard let item = currentItem else { return }
-    
-    print("in update", player.currentItem?.avItem.status.rawValue)
-    print(player.currentItem?.avItem.accessLog()?.events)
-    print(player.currentItem?.avItem.errorLog()?.events)
+
+    print(player.currentItem?.avItem.status.rawValue)
     print(player.currentItem?.avItem.error)
-    
+  
     let curTime = player.currentTime
     let duration = Double(item.duration)
     self.timeSlider.value = Float(curTime / duration)
@@ -136,7 +143,7 @@ class PlayerContentViewModel {
 
 class StandardPlayerContentViewController: UIViewController {
   var player: PlayerController!
-  var playerLayer: AVPlayerLayer!
+  var layerProvider: AVPlayerLayerProvider!
   
   private var viewModel: PlayerContentViewModel!
   
@@ -153,14 +160,39 @@ class StandardPlayerContentViewController: UIViewController {
     print("viewDidLoad (standard) \(player)")
     
     viewModel = PlayerContentViewModel(player: player,
-                                       playerLayer: playerLayer,
                                        playerView: playerView,
                                        timeSlider: timeSlider,
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel,
                                        titleLabel: titleLabel,
                                        authorLabel: authorLabel)
+  }
+ 
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
     viewModel.startRefreshTimer()
+  }
+  
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
+  }
+  
+  override func didMoveToParentViewController(parent: UIViewController?) {
+    super.didMoveToParentViewController(parent)
+
+    viewModel.startRefreshTimer()
+    
+    layerProvider.register(String(self.dynamicType)) { layer in
+      self.viewModel.playerLayer = layer
+    }
+  }
+  
+  override func removeFromParentViewController() {
+    super.removeFromParentViewController()
+    
+    viewModel.stopRefreshTimer()
+    layerProvider.unregister(String(self.dynamicType))
   }
   
   // MARK: Actions
@@ -189,7 +221,7 @@ class StandardPlayerContentViewController: UIViewController {
 
 class FullscreenPlayerContentViewController: UIViewController {
   var player: PlayerController!
-  var playerLayer: AVPlayerLayer!
+  var layerProvider: AVPlayerLayerProvider!
   
   private var viewModel: PlayerContentViewModel!
   
@@ -221,12 +253,37 @@ class FullscreenPlayerContentViewController: UIViewController {
     controlsHidden = true
     
     viewModel = PlayerContentViewModel(player: player,
-                                       playerLayer: playerLayer,
                                        playerView: playerView,
                                        timeSlider: timeSlider,
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel)
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
     viewModel.startRefreshTimer()
+  }
+  
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
+  }
+  
+  override func didMoveToParentViewController(parent: UIViewController?) {
+    super.didMoveToParentViewController(parent)
+    
+    viewModel.startRefreshTimer()
+    
+    layerProvider.register(String(self.dynamicType)) { layer in
+      self.viewModel.playerLayer = layer
+    }
+  }
+  
+  override func removeFromParentViewController() {
+    super.removeFromParentViewController()
+    
+    viewModel.stopRefreshTimer()
+    layerProvider.unregister(String(self.dynamicType))
   }
   
   // MARK: Actions
