@@ -76,7 +76,6 @@ class MiniPlayerViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    print("view did load")
     player.registerForEvents(viewModel)
   }
   

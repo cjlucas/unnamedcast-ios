@@ -388,24 +388,7 @@ class MasterPlayerViewController: UIViewController, PlayerEventHandler {
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (master)")
-    hideMiniPlayerView()
-  
     player.registerForEvents(self)
-  }
-  
-  func hideMiniPlayerView() {
-    // hide mini player
-    var vc = self.parentViewController
-    while vc != nil {
-      guard let v = vc as? AppContainerViewController else {
-        vc = vc?.parentViewController
-        continue
-      }
-      
-      print("hithere")
-//      v.setMiniPlayerHidden(true, animated: true)
-      break
-    }
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
