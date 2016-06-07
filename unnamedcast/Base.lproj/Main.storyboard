@@ -233,77 +233,36 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2f7-Yc-Rez">
-                                <rect key="frame" x="0.0" y="530" width="600" height="70"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="FEd-vV-e0S">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QQq-tM-ASH" userLabel="Progress Bar">
-                                        <rect key="frame" x="0.0" y="0.0" width="240" height="2"/>
-                                        <color key="backgroundColor" red="0.91193999999999997" green="0.0" blue="0.046774244620000002" alpha="1" colorSpace="calibratedRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="2" id="U9j-i5-6dd"/>
-                                        </constraints>
-                                    </view>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Mp8-aV-d2s">
-                                        <rect key="frame" x="8" y="11" width="75" height="30"/>
-                                        <state key="normal" title="Play/Pause"/>
+                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iqa-Gf-J9O" userLabel="Content Container VIew">
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
                                         <connections>
-                                            <action selector="togglePlayPause:" destination="9QF-0u-yNM" eventType="touchUpInside" id="La9-yo-AeL"/>
+                                            <segue destination="tfJ-TW-qni" kind="embed" id="tgf-2s-F0M"/>
                                         </connections>
-                                    </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mFK-qC-AHi">
-                                        <rect key="frame" x="99" y="-7" width="36" height="42"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
+                                    </containerView>
+                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LT5-Qh-34e" userLabel="Miniplayer View">
+                                        <rect key="frame" x="0.0" y="530" width="600" height="70"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="70" id="Z0S-ij-tnb"/>
+                                        </constraints>
+                                        <connections>
+                                            <segue destination="bJN-Hl-sBf" kind="embed" id="hcD-0y-Hxr"/>
+                                        </connections>
+                                    </containerView>
                                 </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <accessibility key="accessibilityConfiguration" identifier="MiniPlayerView"/>
-                                <gestureRecognizers/>
-                                <constraints>
-                                    <constraint firstItem="mFK-qC-AHi" firstAttribute="leading" secondItem="Mp8-aV-d2s" secondAttribute="trailing" constant="16" id="2pn-GC-Nre"/>
-                                    <constraint firstItem="Mp8-aV-d2s" firstAttribute="baseline" secondItem="mFK-qC-AHi" secondAttribute="baseline" id="7y1-Pr-ztj"/>
-                                    <constraint firstAttribute="trailing" secondItem="QQq-tM-ASH" secondAttribute="trailing" constant="360" id="9Uz-5D-bZm"/>
-                                    <constraint firstAttribute="height" constant="70" id="Iew-l9-YwD"/>
-                                    <constraint firstItem="QQq-tM-ASH" firstAttribute="top" secondItem="2f7-Yc-Rez" secondAttribute="top" id="O6Y-0h-HpN"/>
-                                    <constraint firstItem="QQq-tM-ASH" firstAttribute="leading" secondItem="2f7-Yc-Rez" secondAttribute="leading" id="TC6-kX-bm9"/>
-                                    <constraint firstItem="mFK-qC-AHi" firstAttribute="top" secondItem="2f7-Yc-Rez" secondAttribute="top" constant="-7" id="fSc-eM-d9h"/>
-                                    <constraint firstAttribute="bottom" secondItem="mFK-qC-AHi" secondAttribute="bottom" constant="35" id="vgD-YB-uQg"/>
-                                    <constraint firstItem="Mp8-aV-d2s" firstAttribute="leading" secondItem="2f7-Yc-Rez" secondAttribute="leadingMargin" id="xkL-Ua-nnm"/>
-                                </constraints>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="7U3-VH-btw" appends="YES" id="oP3-kh-edc"/>
-                                </connections>
-                            </view>
-                            <containerView opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="200" verticalCompressionResistancePriority="200" translatesAutoresizingMaskIntoConstraints="NO" id="od1-Q1-93O">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
-                                <connections>
-                                    <segue destination="tfJ-TW-qni" kind="embed" id="ocb-2a-Lps"/>
-                                </connections>
-                            </containerView>
+                            </stackView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <accessibility key="accessibilityConfiguration" identifier="Container of da Container"/>
                         <constraints>
-                            <constraint firstItem="2f7-Yc-Rez" firstAttribute="top" secondItem="od1-Q1-93O" secondAttribute="bottom" id="GK5-ms-GYS"/>
-                            <constraint firstItem="od1-Q1-93O" firstAttribute="leading" secondItem="eDX-nF-MbL" secondAttribute="leadingMargin" constant="-20" id="UTi-iZ-eOZ"/>
-                            <constraint firstAttribute="trailing" secondItem="2f7-Yc-Rez" secondAttribute="trailing" id="bhD-u4-4Jz"/>
-                            <constraint firstItem="od1-Q1-93O" firstAttribute="centerX" secondItem="2f7-Yc-Rez" secondAttribute="centerX" id="ixO-AN-vmc"/>
-                            <constraint firstItem="2f7-Yc-Rez" firstAttribute="leading" secondItem="eDX-nF-MbL" secondAttribute="leading" id="jjX-2a-Qu5"/>
-                            <constraint firstItem="od1-Q1-93O" firstAttribute="top" secondItem="eDX-nF-MbL" secondAttribute="top" id="xPO-zF-DiQ"/>
-                            <constraint firstItem="2f7-Yc-Rez" firstAttribute="bottom" secondItem="9ET-PQ-4YH" secondAttribute="top" id="y9V-Id-O1n"/>
+                            <constraint firstItem="FEd-vV-e0S" firstAttribute="height" secondItem="eDX-nF-MbL" secondAttribute="height" id="8kL-0o-GE2"/>
+                            <constraint firstItem="FEd-vV-e0S" firstAttribute="width" secondItem="eDX-nF-MbL" secondAttribute="width" id="Ci0-rB-KGa"/>
+                            <constraint firstItem="FEd-vV-e0S" firstAttribute="top" secondItem="eDX-nF-MbL" secondAttribute="top" id="E7D-wc-5kX"/>
+                            <constraint firstItem="FEd-vV-e0S" firstAttribute="leading" secondItem="eDX-nF-MbL" secondAttribute="leading" id="NWD-nh-m1c"/>
                         </constraints>
-                        <variation key="heightClass=regular-widthClass=compact">
-                            <mask key="subviews">
-                                <include reference="od1-Q1-93O"/>
-                            </mask>
-                        </variation>
                     </view>
-                    <connections>
-                        <outlet property="miniPlayerTitleLabel" destination="mFK-qC-AHi" id="eHS-1K-JAO"/>
-                        <outlet property="miniPlayerView" destination="2f7-Yc-Rez" id="nx7-mn-em0"/>
-                        <outlet property="miniPlayerViewPositionConstraint" destination="y9V-Id-O1n" id="fb5-fx-IiK"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Unb-Ah-7qb" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tapGestureRecognizer id="7U3-VH-btw">
@@ -462,7 +421,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="F41-2o-f8q" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-672" y="1211.25"/>
+            <point key="canvasLocation" x="-689" y="-187"/>
         </scene>
         <!--Root View Controller-->
         <scene sceneID="K8c-L9-ZWq">
@@ -790,6 +749,52 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EVk-aI-mbO" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="3500" y="870"/>
+        </scene>
+        <!--Mini Player View Controller-->
+        <scene sceneID="UjD-QO-VEl">
+            <objects>
+                <viewController id="bJN-Hl-sBf" customClass="MiniPlayerViewController" customModule="unnamedcast" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="7NO-lv-naQ"/>
+                        <viewControllerLayoutGuide type="bottom" id="v4V-eW-ON5"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="NBW-WJ-Sd3">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="70"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ojH-mq-LNq">
+                                <rect key="frame" x="6" y="20" width="75" height="30"/>
+                                <state key="normal" title="Play/Pause"/>
+                                <connections>
+                                    <action selector="playPauseTogglePressed:" destination="bJN-Hl-sBf" eventType="touchUpInside" id="z2S-i4-XUi"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1Hr-Aa-MfZ">
+                                <rect key="frame" x="136" y="24" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TJP-VD-NfB" userLabel="Progress View" customClass="ProgressView" customModule="unnamedcast" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="594" height="12"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="foregroundColor">
+                                        <color key="value" red="0.91193999999999997" green="0.0" blue="0.046774244620000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="itemLabel" destination="1Hr-Aa-MfZ" id="NxV-PT-BII"/>
+                        <outlet property="progressView" destination="TJP-VD-NfB" id="zdS-Z1-6BQ"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="HtI-xu-bMr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-689" y="1310"/>
         </scene>
     </scenes>
 </document>

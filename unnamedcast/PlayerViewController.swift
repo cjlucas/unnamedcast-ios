@@ -403,7 +403,7 @@ class MasterPlayerViewController: UIViewController, PlayerEventHandler {
       }
       
       print("hithere")
-      v.hideMiniPlayerView()
+//      v.hideMiniPlayerView()
       break
     }
   }
@@ -422,5 +422,8 @@ class MasterPlayerViewController: UIViewController, PlayerEventHandler {
     if nextItem == nil {
       self.navigationController?.popViewControllerAnimated(true)
     }
+  }
+  
+  func receivedPeriodicTimeUpdate(curTime: Double) {
   }
 }

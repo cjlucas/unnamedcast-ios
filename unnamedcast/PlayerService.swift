@@ -16,6 +16,7 @@ protocol PlayerDataSource {
 }
 
 protocol PlayerEventHandler: class {
+  func receivedPeriodicTimeUpdate(curTime: Double)
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?)
 }
 
@@ -32,18 +33,23 @@ protocol PlayerServiceDelegate {
 }
 
 public class PlayerService: NSObject, NSCoding {
-  private(set) var player = AVPlayer()
+  lazy private(set) var player: AVPlayer = self.createPlayer()
+  
   private(set) var playlist = Playlist()
   
   internal var dataSource: PlayerDataSource? = nil
   
   private let audioSession = AVAudioSession.sharedInstance()
+  
+  // TODO: GET COMMAND CENTER OUTTA HERE
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
   private let eventHandlers = NSHashTable(options: .WeakMemory)
   var delegate: PlayerServiceDelegate?
   
   private var itemDidPlayNotificationToken: AnyObject?
   private var itemTimeJumpedNotificationToken: AnyObject?
+  
+  private var timeObserverToken: AnyObject?
   
   var currentItem: PlayerItem? {
     return playlist.currentItem
@@ -126,6 +132,32 @@ public class PlayerService: NSObject, NSCoding {
     }
   }
   
+  func createPlayer(item: PlayerItem? = nil) -> AVPlayer {
+    if let token = timeObserverToken {
+      self.player.removeTimeObserver(token)
+    }
+    
+    var player: AVPlayer
+    if let item = item?.avItem {
+      player = AVPlayer(playerItem: item)
+    } else {
+      player = AVPlayer()
+    }
+    
+    timeObserverToken = player.addPeriodicTimeObserverForInterval(
+      CMTimeMakeWithSeconds(1.0, 1000),
+      queue: dispatch_get_main_queue()) { [weak self] time in
+        guard let handlers = self?.eventHandlers.allObjects else { return }
+        
+        for h in handlers {
+          let h = h as! PlayerEventHandler
+          h.receivedPeriodicTimeUpdate(time.seconds)
+        }
+    }
+    
+    return player
+  }
+  
   private func setNotificationForCurrentItem() {
     guard let item = currentItem else { fatalError("item list is empty") }
 
@@ -180,7 +212,7 @@ public class PlayerService: NSObject, NSCoding {
     player.pause()
     player.replaceCurrentItemWithPlayerItem(nil)
     
-    player = AVPlayer(playerItem: item.avItem)
+    player = createPlayer(item)
     delegate?.backendPlayerDidChange(player)
     
     let time = item.initialTime
