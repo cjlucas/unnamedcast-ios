@@ -20,9 +20,9 @@ protocol SingleFeedViewModelDelegate {
 }
 
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
-  private var tableView: UITableView
-  private var headerView: UIView // TODO: extract these two views into their own class
-  private var headerImageView: UIImageView
+  private weak var tableView: UITableView?
+  private weak var headerView: UIView? // TODO: extract these two views into their own class
+  private weak var headerImageView: UIImageView?
   
   private let db = try! DB()
   private var feed: Feed!
@@ -79,8 +79,8 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     self.headerView = headerView
     self.headerImageView = headerImageView
 
-    self.tableView.estimatedRowHeight = 140
-    self.tableView.rowHeight = UITableViewAutomaticDimension
+    self.tableView?.estimatedRowHeight = 140
+    self.tableView?.rowHeight = UITableViewAutomaticDimension
     
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
       if let data = resp.data {
