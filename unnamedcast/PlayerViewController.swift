@@ -17,26 +17,28 @@ class PlayerContentViewModel {
   let db = try! DB()
  
   private var player: PlayerController
-  private var playerView: PlayerView
-  private var timeSlider: UISlider
-  private var curTimeLabel: UILabel
-  private var remTimeLabel: UILabel
-  private var titleLabel: UILabel?
-  private var authorLabel: UILabel?
+  private weak var playerView: PlayerView?
+  private weak var timeSlider: UISlider?
+  private weak var curTimeLabel: UILabel?
+  private weak var remTimeLabel: UILabel?
+  private weak var titleLabel: UILabel?
+  private weak var authorLabel: UILabel?
   
   var playerLayer: AVPlayerLayer? {
     didSet {
-      guard let item = player.currentItem where item.hasVideo() else { return }
-      guard let layer = playerLayer else { return }
-      playerView.setPlayer(layer)
+      guard let view = playerView,
+        let layer = playerLayer,
+        item = player.currentItem where item.hasVideo() else { return }
+      view.setPlayer(layer)
     }
   }
   
   var image: UIImage? {
     didSet {
-      guard let item = player.currentItem where !item.hasVideo() else { return }
-      guard let image = image else { return }
-      playerView.setImage(image)
+      guard let view = playerView,
+        let image = image,
+        item = player.currentItem where !item.hasVideo() else { return }
+      view.setImage(image)
     }
   }
   
@@ -96,9 +98,10 @@ class PlayerContentViewModel {
   }
   
   func timeSliderValueDidChange() {
-    guard let item = currentItem else { return }
+    guard let item = currentItem,
+      value = timeSlider?.value else { return }
     
-    let time = Double(timeSlider.value) * Double(item.duration)
+    let time = Double(value) * Double(item.duration)
     player.seekToTime(time)
   }
   
@@ -127,17 +130,12 @@ class PlayerContentViewModel {
   
     let curTime = player.currentTime
     let duration = Double(item.duration)
-    self.timeSlider.value = Float(curTime / duration)
-    self.curTimeLabel.text = timeString(curTime)
-    self.remTimeLabel.text = "-\(timeString(duration - curTime))"
-    
-    if let label = titleLabel {
-      label.text = item.title
-    }
-    
-    if let label = authorLabel {
-      label.text = item.author
-    }
+    timeSlider?.value = Float(curTime / duration)
+    curTimeLabel?.text = timeString(curTime)
+    remTimeLabel?.text = "-\(timeString(duration - curTime))"
+   
+    titleLabel?.text = item.title
+    authorLabel?.text = item.author
   }
 }
 
