@@ -331,30 +331,31 @@ class PlayerContentViewSegue: UIStoryboardSegue {
 }
 
 class PlayerContainerViewController: UIViewController {
-  var standardViewController: StandardPlayerContentViewController!
-  var fullscreenViewController: FullscreenPlayerContentViewController!
-  
-  var currentSegueIdentifier: String! {
-    didSet {
-      performSegueWithIdentifier(currentSegueIdentifier, sender: self)
-    }
+  enum Segue: String {
+    case standardPlayer = "standardPlayer"
+    case fullscreenPlayer = "fullscreenPlayer"
   }
-  
+
   override func viewDidLoad() {
     super.viewDidLoad()
-    currentSegueIdentifier = "standardPlayer"
+    performSegue(.standardPlayer, sender: self)
+  }
+  
+  private func performSegue(segue: Segue, sender: AnyObject?) {
+    performSegueWithIdentifier(segue.rawValue, sender: sender)
   }
   
   override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-    currentSegueIdentifier = currentSegueIdentifier == "standardPlayer"
-      ? "fullscreenPlayer"
-      : "standardPlayer"
+    let segue: Segue = size.height > size.width ? .standardPlayer : .fullscreenPlayer
+    performSegue(segue, sender: self)
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
     guard let id = segue.identifier else {
       fatalError("No identifier for segue")
     }
+    
+    let segueID = Segue(rawValue: id)
     
     print("PREPARE FOR SEGUE \(id) \(self.view.bounds)")
     
@@ -366,37 +367,18 @@ class PlayerContainerViewController: UIViewController {
     view.addSubview(segue.destinationViewController.view)
     segue.destinationViewController.didMoveToParentViewController(self)
     
-    switch id {
-    case "standardPlayer":
-      standardViewController = segue.destinationViewController as! StandardPlayerContentViewController
-    case "fullscreenPlayer":
-      fullscreenViewController = segue.destinationViewController as! FullscreenPlayerContentViewController
-    default:
-      fatalError("Unknown segue: \(id)")
-    }
-
-    self.navigationController?.navigationBarHidden
-      = segue.destinationViewController == fullscreenViewController
+    self.navigationController?.navigationBarHidden = (segueID == Segue.fullscreenPlayer)
   }
 }
 
 class MasterPlayerViewController: UIViewController, PlayerEventHandler {
-  weak var containerViewController: PlayerContainerViewController!
-  
+  // Injected properties
   var player: PlayerController!
   
   override func viewDidLoad() {
     super.viewDidLoad()
     print("viewDidLoad (master)")
     player.registerForEvents(self)
-  }
-  
-  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    guard let id = segue.identifier where id == "PlayerViewEmbedded" else {
-      fatalError("Unexpected segue")
-    }
-  
-    containerViewController = segue.destinationViewController as! PlayerContainerViewController
   }
   
   // MARK: PlayerEventHandler
