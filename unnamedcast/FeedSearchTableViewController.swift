@@ -11,62 +11,82 @@ import Alamofire
 import Freddy
 import RealmSwift
 
-class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate {
-  @IBOutlet weak var searchBar: UISearchBar!
-  
+class FeedSearchViewModel: NSObject, UITableViewDataSource {
+  let db = try! DB()
   var results = [SearchResult]()
-  let realm = try! Realm()
   
+  private var apiClient: APIClient
+  private weak var tableView: UITableView?
   
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    
-    searchBar.delegate = self
-    
-    // Uncomment the following line to preserve selection between presentations
-    // self.clearsSelectionOnViewWillAppear = false
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+  init(apiClient: APIClient, tableView: UITableView) {
+    self.apiClient = apiClient
+    self.tableView = tableView
+  }
+
+  func queryDidChange(query: String) {
+    let ep = SearchFeedsEndpoint(query: query)
+    self.apiClient.request(ep).then { _, _, results -> () in
+      self.results = results
+      self.tableView?.reloadData()
+    }
   }
   
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
+  func feedIDAtIndexPath(indexPath: NSIndexPath) -> String {
+    return results[indexPath.row].id
   }
   
-  // MARK: - Table view data source
+  func addFeedWithID(id: String) {
+    var feedIDs = db.feeds.map { $0.id }
+    feedIDs.append(id)
+   
+    let userID = NSUserDefaults.standardUserDefaults().stringForKey("user_id")
+    let ep = UpdateUserFeedsEndpoint(userID: userID!, feedIDs: feedIDs)
+    self.apiClient.request(ep).then { _ in
+      print("Updated user feeds")
+    }
+  }
+ 
+  // Mark: UITableViewDataSource
   
-  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+  func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return results.count
   }
   
-  override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+  func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
     cell.textLabel?.text = results[indexPath.row].title
     
     return cell
   }
+}
+
+class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate {
+  @IBOutlet weak var searchBar: UISearchBar!
+  
+  lazy var viewModel: FeedSearchViewModel = {
+    return FeedSearchViewModel(apiClient: APIClient(),
+                               tableView: self.tableView)
+  }()
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    searchBar.delegate = self
+    tableView.dataSource = viewModel
+  }
+  
+  // MARK: - UITableViewDelegate
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    let feedId = results[indexPath.row].id
-    var feedIds = realm.objects(Feed).map { $0.id }
-    feedIds.append(feedId)
+    let feedID = viewModel.feedIDAtIndexPath(indexPath)
     
     let alert = UIAlertController(title: "Add Feed", message: "Do you want to add this feed?", preferredStyle: .Alert)
     
     let add = UIAlertAction(title: "Add", style: .Default) { action in
-      let userID = NSUserDefaults.standardUserDefaults().stringForKey("user_id")!
-      
-      let ep = UpdateUserFeedsEndpoint(userID: userID, feedIDs: feedIds)
-      APIClient().request(ep).then {_,_ in
-        print("Your shit got updated yo")
-      }
-      
+      self.viewModel.addFeedWithID(feedID)
     }
-    let cancel = UIAlertAction(title: "Cancel", style: .Default) { action in
-      print("HERE2")
-    }
+    
+    let cancel = UIAlertAction(title: "Cancel", style: .Default, handler: nil)
     
     alert.addAction(add)
     alert.addAction(cancel)
@@ -74,15 +94,6 @@ class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate 
     presentViewController(alert, animated: true, completion: nil)
   }
   
-  /*
-  // MARK: - Navigation
-  
-  // In a storyboard-based application, you will often want to do a little preparation before navigation
-  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-  // Get the new view controller using segue.destinationViewController.
-  // Pass the selected object to the new view controller.
-  }
-  */
   @IBAction func closeButtonPressed(sender: UIBarButtonItem) {
     self.dismissViewControllerAnimated(true, completion: nil)
   }
@@ -90,10 +101,6 @@ class FeedSearchTableViewController: UITableViewController, UISearchBarDelegate 
   // MARK: - UISearchBarDelegate
   
   func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-    let ep = SearchFeedsEndpoint(query: searchText)
-    APIClient().request(ep).then { _, resp, results -> Void in
-      self.results = results
-      self.tableView.reloadData()
-    }
+    viewModel.queryDidChange(searchText)
   }
 }
