@@ -403,7 +403,7 @@ class MasterPlayerViewController: UIViewController, PlayerEventHandler {
       }
       
       print("hithere")
-      v.hideMiniPlayerView()
+//      v.setMiniPlayerHidden(true, animated: true)
       break
     }
   }
@@ -418,9 +418,15 @@ class MasterPlayerViewController: UIViewController, PlayerEventHandler {
   
   // MARK: PlayerEventHandler
   
+  func itemDidBeginPlaying(item: PlayerItem) {
+  }
+  
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
     if nextItem == nil {
       self.navigationController?.popViewControllerAnimated(true)
     }
+  }
+  
+  func receivedPeriodicTimeUpdate(curTime: Double) {
   }
 }

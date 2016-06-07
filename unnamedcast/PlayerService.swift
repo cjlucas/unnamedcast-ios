@@ -10,180 +10,14 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
-protocol PlayerController {
-  // Volume is from 0.0-1.0
-  var volume: Float { get set }
-  
-  // In seconds
-  var currentTime: Double { get }
-  
-  var currentItem: PlayerItem? { get }
-  var queuedItems: [PlayerItem] { get }
-  
-  var isPlaying: Bool { get }
-  var isPaused: Bool { get }
- 
-  // Controls
-  func seekToTime(seconds: Double)
-  func play()
-  func pause()
-  
-  // Playlist management
-  func playItem(item: PlayerItem)
-  func queueItem(item: PlayerItem)
-  
-  func registerForEvents(handler: PlayerEventHandler)
-}
-
-public var sharedPlayerService = PlayerService()
-
-struct PlayerServiceProxy: PlayerController {
-  var player: PlayerService
-  
-  var volume: Float {
-    get {
-      return player.volume
-    }
-    set(val) {
-      player.volume = val
-    }
-  }
-  
-  var currentTime: Double {
-    return player.currentTime().seconds
-  }
-  
-  var currentItem: PlayerItem? {
-    return player.currentItem
-  }
-  
-  var queuedItems: [PlayerItem] {
-    return player.playlist.queuedItems
-  }
-  
-  var isPlaying: Bool {
-    return player.isPlaying()
-  }
-  
-  var isPaused: Bool {
-    return player.isPaused()
-  }
-  
-  func seekToTime(seconds: Double) {
-    player.seekToTime(CMTimeMakeWithSeconds(seconds, 1000))
-  }
-  
-  func play() {
-    player.play()
-  }
-  
-  func pause() {
-    player.pause()
-  }
-  
-  func playItem(item: PlayerItem) {
-    print("playItem (in \(player))")
-    player.playItem(item)
-    print("played item")
-  }
-  
-  func queueItem(item: PlayerItem) {
-    player.queueItem(item)
-  }
-  
-  func registerForEvents(handler: PlayerEventHandler) {
-    player.registerEventHandler(handler)
-  }
-}
-
 protocol PlayerDataSource {
   func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata?
 }
 
-class PlayerItem: NSObject, NSCoding {
-  struct Metadata {
-    let title: String
-    let artist: String
-    let albumTitle: String
-    let duration: Double
-  }
-  
-  var url: NSURL!
-  var id: String!
-  var initialTime: CMTime!
-  // TODO: AVPlayerItemDelegate
-  
-  lazy var avItem: AVPlayerItem = {
-    return AVPlayerItem(asset: self.asset)
-  }()
-  
-  private lazy var asset: AVAsset = {
-    return AVURLAsset(URL: self.url)
-  }()
-
-  init(id: String, url: NSURL, position: Double = 0) {
-    self.id = id
-    self.url = url
-    self.initialTime = CMTimeMakeWithSeconds(position, 1000)
-  }
-  
-  func hasVideo() -> Bool {
-    return asset.tracks
-      .filter { $0.mediaType == AVMediaTypeVideo }
-      .count > 0
-  }
-  
-  // MARK: NSCoding
-  
-  required init?(coder d: NSCoder) {
-    url = d.decodeObjectForKey("url") as! NSURL
-    id = d.decodeObjectForKey("id") as! String
-    initialTime = d.decodeCMTimeForKey("initialTime")
-  }
-  
-  func encodeWithCoder(c: NSCoder) {
-    c.encodeObject(url, forKey: "url")
-    c.encodeObject(id, forKey: "id")
-    c.encodeCMTime(initialTime, forKey: "initialTime")
-  }
-}
-
 protocol PlayerEventHandler: class {
+  func receivedPeriodicTimeUpdate(curTime: Double)
+  func itemDidBeginPlaying(item: PlayerItem)
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?)
-}
-
-struct Playlist {
-  private var items = [PlayerItem]()
-  
-  var isEmpty: Bool {
-    return items.isEmpty
-  }
-  
-  var currentItem: PlayerItem? {
-    return items.first
-  }
-  
-  var queuedItems: [PlayerItem] {
-    guard items.count > 1 else { return [] }
-    return Array(items[1..<items.count])
-  }
-  
-  var count: Int {
-    return items.count
-  }
-  
-  mutating func queueItem(item: PlayerItem) {
-    items.append(item)
-  }
-  
-  mutating func removeAll() {
-    items.removeAll()
-  }
-  
-  mutating func pop() -> PlayerItem? {
-    guard !isEmpty else { return nil }
-    return items.removeFirst()
-  }
 }
 
 // This is a necessary workaround thanks to (probably) bugs in AVPlayer.
@@ -199,18 +33,23 @@ protocol PlayerServiceDelegate {
 }
 
 public class PlayerService: NSObject, NSCoding {
-  private(set) var player = AVPlayer()
+  lazy private(set) var player: AVPlayer = self.createPlayer()
+  
   private(set) var playlist = Playlist()
   
   internal var dataSource: PlayerDataSource? = nil
   
   private let audioSession = AVAudioSession.sharedInstance()
+  
+  // TODO: GET COMMAND CENTER OUTTA HERE
   private let commandCenter = MPRemoteCommandCenter.sharedCommandCenter()
   private let eventHandlers = NSHashTable(options: .WeakMemory)
   var delegate: PlayerServiceDelegate?
   
   private var itemDidPlayNotificationToken: AnyObject?
   private var itemTimeJumpedNotificationToken: AnyObject?
+  
+  private var timeObserverToken: AnyObject?
   
   var currentItem: PlayerItem? {
     return playlist.currentItem
@@ -293,6 +132,32 @@ public class PlayerService: NSObject, NSCoding {
     }
   }
   
+  func createPlayer(item: PlayerItem? = nil) -> AVPlayer {
+    if let token = timeObserverToken {
+      self.player.removeTimeObserver(token)
+    }
+    
+    var player: AVPlayer
+    if let item = item?.avItem {
+      player = AVPlayer(playerItem: item)
+    } else {
+      player = AVPlayer()
+    }
+    
+    timeObserverToken = player.addPeriodicTimeObserverForInterval(
+      CMTimeMakeWithSeconds(1.0, 1000),
+      queue: dispatch_get_main_queue()) { [weak self] time in
+        guard let handlers = self?.eventHandlers.allObjects else { return }
+        
+        for h in handlers {
+          let h = h as! PlayerEventHandler
+          h.receivedPeriodicTimeUpdate(time.seconds)
+        }
+    }
+    
+    return player
+  }
+  
   private func setNotificationForCurrentItem() {
     guard let item = currentItem else { fatalError("item list is empty") }
 
@@ -347,7 +212,7 @@ public class PlayerService: NSObject, NSCoding {
     player.pause()
     player.replaceCurrentItemWithPlayerItem(nil)
     
-    player = AVPlayer(playerItem: item.avItem)
+    player = createPlayer(item)
     delegate?.backendPlayerDidChange(player)
     
     let time = item.initialTime
@@ -363,8 +228,13 @@ public class PlayerService: NSObject, NSCoding {
     }
     print("thread: \(NSThread.isMainThread())")
     replaceCurrentItemWithItem(item)
-//    play()
+    play()
     
+    for h in self.eventHandlers.allObjects {
+      let h = h as! PlayerEventHandler
+      h.itemDidBeginPlaying(item)
+    }
+   
     setNotificationForCurrentItem()
     updateNowPlayingInfo()
   }
