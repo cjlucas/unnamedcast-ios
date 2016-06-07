@@ -15,8 +15,9 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   // the mini player view. Showing it requires setting the constant to 0,
   // hiding it requires the constant to be set to miniPlayerView.frame.height
   @IBOutlet weak var stackViewVerticalSpacingConstraint: NSLayoutConstraint!
+  @IBOutlet weak var miniPlayerContainerView: UIView!
   
-  var origMiniPlayerHeight: CGFloat!
+  var miniPlayerTapGestureRecognizer: UITapGestureRecognizer!
   
   var miniPlayerHidden: Bool {
     get {
@@ -25,10 +26,13 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   }
   
   func setMiniPlayerHidden(hidden: Bool, animated: Bool) {
-    stackViewVerticalSpacingConstraint.constant = hidden ? -origMiniPlayerHeight : 0
+    miniPlayerTapGestureRecognizer.enabled = !hidden
+    stackViewVerticalSpacingConstraint.constant = hidden
+      ? -miniPlayerContainerView.frame.height
+      : 0
     
     if animated {
-      UIView.animateWithDuration(0.2) {
+      UIView.animateWithDuration(0.15) {
         self.view.layoutIfNeeded()
       }
     } else {
@@ -43,29 +47,21 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
   override func viewDidLoad() {
     super.viewDidLoad()
     self.navigationViewController.delegate = self
-    origMiniPlayerHeight = 70
+    
+    miniPlayerTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(miniPlayerWasTapped))
+    miniPlayerContainerView.addGestureRecognizer(miniPlayerTapGestureRecognizer)
   }
   
-  /*
-  // MARK: - Navigation
-  
-  // In a storyboard-based application, you will often want to do a little preparation before navigation
-  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-  // Get the new view controller using segue.destinationViewController.
-  // Pass the selected object to the new view controller.
+  func miniPlayerWasTapped() {
+    guard let sb = storyboard else { fatalError("storyboard was nil") }
+    let vc = sb.instantiateViewControllerWithIdentifier("PlayerViewController")
+    self.navigationViewController.pushViewController(vc, animated: true)
   }
-  */
-  
-  // MARK: MiniPlayer -
   
   // MARK: UINavigationControllerDelegate -
   
   func navigationController(navigationController: UINavigationController, willShowViewController viewController: UIViewController, animated: Bool) {
-    if let _ = viewController as? MasterPlayerViewController {
-      print("MADE IT")
-      setMiniPlayerHidden(true, animated: true)
-    } else if miniPlayerHidden {
-      setMiniPlayerHidden(false, animated: true)
-    }
+    let shouldHide = (viewController as? MasterPlayerViewController) != nil
+    setMiniPlayerHidden(shouldHide, animated: true)
   }
 }

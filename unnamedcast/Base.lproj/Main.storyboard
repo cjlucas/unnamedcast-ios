@@ -252,6 +252,7 @@
                                         </connections>
                                     </containerView>
                                 </subviews>
+                                <gestureRecognizers/>
                             </stackView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -264,15 +265,11 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="miniPlayerContainerView" destination="LT5-Qh-34e" id="XhF-9N-wPf"/>
                         <outlet property="stackViewVerticalSpacingConstraint" destination="D2T-Cw-wkq" id="eTf-OD-uGX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Unb-Ah-7qb" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="7U3-VH-btw">
-                    <connections>
-                        <action selector="miniPlayerViewTapped:" destination="9QF-0u-yNM" id="D6c-BP-Jj9"/>
-                    </connections>
-                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-689" y="523"/>
         </scene>

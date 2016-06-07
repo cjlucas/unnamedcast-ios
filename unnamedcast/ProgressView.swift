@@ -21,7 +21,7 @@ class ProgressView: UIView {
       let height = frame.height
       print("here \(width) \(height)")
       progressBarView.frame = CGRectMake(0, 0, width, height)
-      needsUpdateConstraints()
+      setNeedsLayout()
     }
   }
   
