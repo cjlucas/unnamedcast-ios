@@ -26,7 +26,7 @@
 		83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
 		8349DA071C5DACE900C70153 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8349DA061C5DACE900C70153 /* MediaPlayer.framework */; };
 		835177231CE6B0B500064843 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */; };
-		835177241CE6B0E200064843 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
+		835177241CE6B0E200064843 /* PlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* PlayerService.swift */; };
 		83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83526AD91C5AF19B00C43845 /* Feed.swift */; };
 		835793A71CDFF9A0003F09FA /* DB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835793A61CDFF9A0003F09FA /* DB.swift */; };
 		835793A81CE00E79003F09FA /* DB.swift in Sources */ = {isa = PBXBuildFile; fileRef = 835793A61CDFF9A0003F09FA /* DB.swift */; };
@@ -36,11 +36,24 @@
 		8364FB011CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
 		8364FB021CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
 		8364FB031CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
+		8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940B1D065A9400DCB8EE /* PlayerController.swift */; };
+		8365940E1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
+		8365940F1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
+		836594101D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
+		836594111D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
+		836594141D065B2500DCB8EE /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594131D065B2500DCB8EE /* Playlist.swift */; };
+		836594151D065B2500DCB8EE /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594131D065B2500DCB8EE /* Playlist.swift */; };
+		836594161D065B2500DCB8EE /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594131D065B2500DCB8EE /* Playlist.swift */; };
+		836594171D065B2500DCB8EE /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594131D065B2500DCB8EE /* Playlist.swift */; };
+		836594191D065B5600DCB8EE /* PlayerItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594181D065B5600DCB8EE /* PlayerItem.swift */; };
+		8365941A1D065B5600DCB8EE /* PlayerItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594181D065B5600DCB8EE /* PlayerItem.swift */; };
+		8365941B1D065B5600DCB8EE /* PlayerItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594181D065B5600DCB8EE /* PlayerItem.swift */; };
+		8365941C1D065B5600DCB8EE /* PlayerItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594181D065B5600DCB8EE /* PlayerItem.swift */; };
 		8377B5131CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
 		8377B5141CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
 		8377B5151CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
 		8377B5161CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */; };
-		837857C01C5C52400026959C /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* Player.swift */; };
+		837857C01C5C52400026959C /* PlayerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857BF1C5C52400026959C /* PlayerService.swift */; };
 		837857C21C5C52660026959C /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 837857C11C5C52660026959C /* AVFoundation.framework */; };
 		837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
 		837857D31C5D93600026959C /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857D21C5D93600026959C /* UIImage.swift */; };
@@ -106,8 +119,12 @@
 		835793A61CDFF9A0003F09FA /* DB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DB.swift; sourceTree = "<group>"; };
 		8364FAF81CE1A64B004576F7 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		8364FAFF1CE41B36004576F7 /* Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
+		8365940B1D065A9400DCB8EE /* PlayerController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerController.swift; sourceTree = "<group>"; };
+		8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerServiceProxy.swift; sourceTree = "<group>"; };
+		836594131D065B2500DCB8EE /* Playlist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
+		836594181D065B5600DCB8EE /* PlayerItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerItem.swift; sourceTree = "<group>"; };
 		8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationDelegateReachable.swift; sourceTree = "<group>"; };
-		837857BF1C5C52400026959C /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		837857BF1C5C52400026959C /* PlayerService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerService.swift; sourceTree = "<group>"; };
 		837857C11C5C52660026959C /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		837857C51C5D629B0026959C /* PlayerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
 		837857D21C5D93600026959C /* UIImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImage.swift; sourceTree = "<group>"; };
@@ -227,6 +244,18 @@
 			name = stdlib;
 			sourceTree = "<group>";
 		};
+		8365940A1D065A7400DCB8EE /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				837857BF1C5C52400026959C /* PlayerService.swift */,
+				8365940B1D065A9400DCB8EE /* PlayerController.swift */,
+				8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */,
+				836594131D065B2500DCB8EE /* Playlist.swift */,
+				836594181D065B5600DCB8EE /* PlayerItem.swift */,
+			);
+			name = Player;
+			sourceTree = "<group>";
+		};
 		8377B5111CE64A5C00B32588 /* Foundation */ = {
 			isa = PBXGroup;
 			children = (
@@ -282,6 +311,7 @@
 		83E7256A1C5AEF0D00A0E8D4 /* unnamedcast */ = {
 			isa = PBXGroup;
 			children = (
+				8365940A1D065A7400DCB8EE /* Player */,
 				8364FAFB1CE1B26A004576F7 /* Extensions */,
 				839680B91CA74932007A4D62 /* Views */,
 				83526AD81C5AF08300C43845 /* Models */,
@@ -291,7 +321,6 @@
 				83E725771C5AEF0D00A0E8D4 /* Info.plist */,
 				83E725741C5AEF0D00A0E8D4 /* LaunchScreen.storyboard */,
 				83E7256F1C5AEF0D00A0E8D4 /* Main.storyboard */,
-				837857BF1C5C52400026959C /* Player.swift */,
 				833239B21C78E2DD00494388 /* Endpoint.swift */,
 				83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */,
 				835793A61CDFF9A0003F09FA /* DB.swift */,
@@ -695,14 +724,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				8309D5CE1CFA68BA0062CDD1 /* DBTests.swift in Sources */,
+				836594171D065B2500DCB8EE /* Playlist.swift in Sources */,
 				835177231CE6B0B500064843 /* AppDelegate.swift in Sources */,
 				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
-				835177241CE6B0E200064843 /* Player.swift in Sources */,
+				836594111D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
+				835177241CE6B0E200064843 /* PlayerService.swift in Sources */,
 				835793A81CE00E79003F09FA /* DB.swift in Sources */,
 				83AC3EB11CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				839680C31CACBDBA007A4D62 /* Feed.swift in Sources */,
 				839680C41CACBDBA007A4D62 /* User.swift in Sources */,
 				839680C51CACBDBA007A4D62 /* Endpoint.swift in Sources */,
+				8365941C1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				830130461CE42AC600E583DF /* SearchResult.swift in Sources */,
 				8364FAFA1CE1AF47004576F7 /* Request.swift in Sources */,
 				839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */,
@@ -718,6 +750,7 @@
 			files = (
 				837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */,
 				8364FB001CE41B36004576F7 /* Array.swift in Sources */,
+				836594191D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */,
 				837857D31C5D93600026959C /* UIImage.swift in Sources */,
 				839680BD1CA74A4F007A4D62 /* PlayerView.swift in Sources */,
@@ -727,15 +760,18 @@
 				830130481CE56BCC00E583DF /* APIClient.swift in Sources */,
 				83AC3EAE1CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
-				837857C01C5C52400026959C /* Player.swift in Sources */,
+				836594141D065B2500DCB8EE /* Playlist.swift in Sources */,
+				837857C01C5C52400026959C /* PlayerService.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
 				835793A71CDFF9A0003F09FA /* DB.swift in Sources */,
 				8364FAF91CE1A64B004576F7 /* Request.swift in Sources */,
 				83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */,
 				830130431CE42AC600E583DF /* SearchResult.swift in Sources */,
+				8365940E1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,
 				8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */,
 				83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */,
+				8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */,
 				833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -745,7 +781,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				8377B5141CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
+				8365940F1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
+				8365941A1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E725811C5AEF0D00A0E8D4 /* unnamedcastTests.swift in Sources */,
+				836594151D065B2500DCB8EE /* Playlist.swift in Sources */,
 				830130491CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130441CE42AC600E583DF /* SearchResult.swift in Sources */,
 				83AC3EAF1CEFEC93000F00F4 /* NSDate.swift in Sources */,
@@ -758,7 +797,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				8377B5151CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
+				836594101D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
+				8365941B1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E7258C1C5AEF0D00A0E8D4 /* unnamedcastUITests.swift in Sources */,
+				836594161D065B2500DCB8EE /* Playlist.swift in Sources */,
 				8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130451CE42AC600E583DF /* SearchResult.swift in Sources */,
 				83AC3EB01CEFEC93000F00F4 /* NSDate.swift in Sources */,
