@@ -13,207 +13,102 @@ import SDWebImage
 
 import Alamofire
 
-class PlayerViewController: UIViewController, PlayerEventHandler {
-  let player = Player.sharedPlayer
-  
+class PlayerContentViewModel {
   let db = try! DB()
+ 
+  private var player: PlayerController
+  private weak var playerView: PlayerView?
+  private weak var timeSlider: UISlider?
+  private weak var curTimeLabel: UILabel?
+  private weak var remTimeLabel: UILabel?
+  private weak var titleLabel: UILabel?
+  private weak var authorLabel: UILabel?
   
-  @IBOutlet weak var contentView: PlayerView!
-  @IBOutlet weak var skipBackwardButton: UIButton!
-  @IBOutlet weak var playPauseButton: UIButton!
-  @IBOutlet weak var skipForwardButton: UIButton!
-  @IBOutlet weak var curTimeLabel: UILabel!
-  @IBOutlet weak var durationLabel: UILabel!
-  @IBOutlet weak var positionSlider: UISlider!
-  @IBOutlet weak var titleLabel: UILabel!
-  @IBOutlet weak var authorLabel: UILabel!
-  @IBOutlet weak var volumeView: MPVolumeView!
+  var playerLayer: AVPlayerLayer? {
+    didSet {
+      guard let view = playerView,
+        let layer = playerLayer,
+        item = player.currentItem where item.hasVideo() else { return }
+      view.setPlayer(layer)
+    }
+  }
   
-  // Wide screen video controls
-  @IBOutlet weak var playerControls: UIStackView!
-  @IBOutlet weak var wideScreenPositionSlider: UISlider!
-  @IBOutlet weak var wideScreenCurTimeLabel: UILabel!
-  @IBOutlet weak var wideScreenRemTimeLabel: UILabel!
+  var image: UIImage? {
+    didSet {
+      guard let view = playerView,
+        let image = image,
+        item = player.currentItem where !item.hasVideo() else { return }
+      view.setImage(image)
+    }
+  }
   
-  weak var currentPositionSlider: UISlider?
-  weak var currentCurTimeLabel: UILabel?
-  weak var currentRemTimeLabel: UILabel?
+  private var timer: NSTimer?
   
   var currentItem: Item? {
-    guard let id = player.currentItem?.id else { return nil }
-    return db.itemWithID(id)
+    guard let item = player.currentItem else { return nil }
+    return db.itemWithID(item.id)
   }
   
-  @IBAction func playerViewTapped(sender: AnyObject) {
-    print("tapped", self.playerControls.alpha)
-    UIView.animateWithDuration(0.2) {
-      let alpha: CGFloat = self.playerControls.alpha.isZero ? 1 : 0
-      self.playerControls.alpha = alpha
-      self.wideScreenPositionSlider.alpha = alpha
-      self.wideScreenRemTimeLabel.alpha = alpha
-      self.wideScreenCurTimeLabel.alpha = alpha
-    }
-  }
-  var timer: NSTimer?
-  
-  // MARK: Lifecycle -
-  
-  override func viewDidLoad() {
-    guard let id = player.currentItem?.id,
-      let item = db.itemWithID(id) else {
-      fatalError("no item is playing or item with id does not exist")
-    }
+  init(player: PlayerController,
+       playerView: PlayerView,
+       timeSlider: UISlider,
+       curTimeLabel: UILabel,
+       remTimeLabel: UILabel,
+       titleLabel: UILabel? = nil,
+       authorLabel: UILabel? = nil) {
+    self.player = player
+    self.playerView = playerView
+    self.timeSlider = timeSlider
+    self.curTimeLabel = curTimeLabel
+    self.remTimeLabel = remTimeLabel
+    self.titleLabel = titleLabel
+    self.authorLabel = authorLabel
     
-    player.registerEventHandler(self)
+    update()
     
-    currentPositionSlider = positionSlider
-    currentCurTimeLabel = curTimeLabel
-    currentRemTimeLabel = durationLabel
+    guard let imageURL = currentItem?.feed?.imageUrl,
+      let url = NSURL(string: imageURL) else { return }
     
-    //        player.delegate = self
-    
-    titleLabel.text = item.title
-    authorLabel.text = item.author
-    
-    volumeView.showsRouteButton = true
-    volumeView.showsVolumeSlider = false
-    
-    var vc = self.parentViewController
-    while vc != nil {
-      guard let v = vc as? AppContainerViewController else {
-        vc = vc?.parentViewController
-        continue
-      }
-      
-      print("YAYHERE")
-      v.toggleMiniPlayerView()
-      break
-    }
-    
-    
-    // hack to get airplay route button to adopt tint color
-    for view in volumeView.subviews {
-      if let btn = view as? UIButton {
-        let temp = btn.currentImage?.imageWithRenderingMode(.AlwaysTemplate)
-        volumeView.setRouteButtonImage(temp, forState: .Normal)
-        break
-      }
-    }
-    
-    let sess = AVAudioSession.sharedInstance()
-    for port in sess.currentRoute.outputs {
-      print(port.portName)
-    }
-
-    if let item = player.currentItem {
-      if item.hasVideo() {
-        showVideoView()
-      } else {
-        showArtworkView()
-      }
-    }
-    
-    updateUI(nil)
-  }
-  
-  override func viewDidAppear(animated: Bool) {
-    super.viewDidAppear(animated)
-    startUpdateUITimer()
-  }
-  
-  override func viewDidDisappear(animated: Bool) {
-    timer?.invalidate()
-    
-    print("view did disappear")
-    
-    contentView.removePlayer()
-    
-    super.viewDidDisappear(animated)
-  }
-  
-  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-    super.viewWillTransitionToSize(size, withTransitionCoordinator: coordinator)
-   
-    // view.frame has not been updated yet, so expressions are inversed
-    if view.frame.width < view.frame.height {
-      currentPositionSlider = wideScreenPositionSlider
-      currentCurTimeLabel = wideScreenCurTimeLabel
-      currentRemTimeLabel = wideScreenRemTimeLabel
-    } else {
-      currentPositionSlider = positionSlider
-      currentCurTimeLabel = curTimeLabel
-      currentRemTimeLabel = durationLabel
-    }
-    
-    updateUI(nil)
-    
-    coordinator.animateAlongsideTransition({ _ in
-      let b = UIScreen.mainScreen().bounds
-      self.navigationController?.navigationBarHidden = b.width > b.height
-      self.contentView.layoutIfNeeded()
-    }, completion: nil)
-  }
-  
-  // MARK: UI -
-  
-  private func showArtworkView() {
-    guard let item = currentItem else { return }
-    guard let url = NSURL(string: item.imageURL) else { return }
-   
     SDWebImageManager
       .sharedManager()
       .downloadImageWithURL(url, options: SDWebImageOptions.HighPriority, progress: nil) { img, _, _, _, _ in
         if img == nil { return }
         dispatch_async(dispatch_get_main_queue()) {
-          self.setColors(img.getColors())
-          self.contentView.setImage(img)
+          self.image = img
         }
     }
   }
   
-  private func showVideoView() {
-    contentView.setPlayer(player.player)
-  }
-  
-  private func setColors(colors: UIImageColors) {
-    // Go with the darkest
-    var color = colors.primaryColor
-    for c in [colors.secondaryColor, colors.detailColor] {
-      if c.brightness < color.brightness {
-        color = c
-      }
+  func startRefreshTimer() {
+    if let timer = timer where timer.valid {
+      return
     }
     
-    for b in [skipBackwardButton, playPauseButton, skipForwardButton] {
-      b.tintColor = color
-    }
-    
-    navigationController?.navigationBar.tintColor = color
-    
-    positionSlider.minimumTrackTintColor = color
-    positionSlider.maximumTrackTintColor = color
-    positionSlider.thumbTintColor = color
-    
-    titleLabel.textColor = color
-    authorLabel.textColor = color
-    curTimeLabel.textColor = color
-    durationLabel.textColor = color
-    
-    volumeView.tintColor = color
+    stopRefreshTimer()
+    timer = NSTimer.scheduledTimerWithTimeInterval(1,
+                                                   target: self,
+                                                   selector: #selector(update),
+                                                   userInfo: nil,
+                                                   repeats: true)
+    timer?.fire()
   }
   
-  private func startUpdateUITimer() {
+  func stopRefreshTimer() {
     timer?.invalidate()
-    timer = NSTimer.init(timeInterval: 1,
-                         target: self,
-                         selector: #selector(PlayerViewController.updateUI(_:)),
-                         userInfo: nil,
-                         repeats: true)
-    NSRunLoop.currentRunLoop().addTimer(timer!, forMode: NSDefaultRunLoopMode)
   }
   
-  private func timeString(seconds: Int) -> String {
-    var secs = seconds
+  func timeSliderValueDidChange() {
+    guard let item = currentItem,
+      value = timeSlider?.value else { return }
+    
+    let time = Double(value) * Double(item.duration)
+    player.seekToTime(time)
+  }
+  
+  private func timeString(seconds: Double) -> String {
+    guard seconds.isNormal else { return "00:00" }
+    
+    var secs = Int(seconds)
     let hours = secs / 3600
     secs -= hours * 3600
     
@@ -227,51 +122,245 @@ class PlayerViewController: UIViewController, PlayerEventHandler {
     }
   }
   
-  func updateUI(timer: NSTimer?) {
+  @objc func update() {
     guard let item = currentItem else { return }
+
+    let curTime = player.currentTime
+    let duration = Double(item.duration)
+    timeSlider?.value = Float(curTime / duration)
+    curTimeLabel?.text = timeString(curTime)
+    remTimeLabel?.text = "-\(timeString(duration - curTime))"
+   
+    titleLabel?.text = item.title
+    authorLabel?.text = item.author
+  }
+}
+
+class StandardPlayerContentViewController: UIViewController {
+  var player: PlayerController!
+  var layerProvider: AVPlayerLayerProvider!
+  
+  private var viewModel: PlayerContentViewModel!
+  
+  @IBOutlet weak var playerView: PlayerView!
+  @IBOutlet weak var curTimeLabel: UILabel!
+  @IBOutlet weak var timeSlider: UISlider!
+  @IBOutlet weak var remTimeLabel: UILabel!
+  
+  @IBOutlet weak var titleLabel: UILabel!
+  @IBOutlet weak var authorLabel: UILabel!
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
     
-    currentPositionSlider?.value = Float(player.position)
-    updateCurrentTimeLabel(player.currentTime())
-    currentRemTimeLabel?.text = timeString(item.duration)
+    viewModel = PlayerContentViewModel(player: player,
+                                       playerView: playerView,
+                                       timeSlider: timeSlider,
+                                       curTimeLabel: curTimeLabel,
+                                       remTimeLabel: remTimeLabel,
+                                       titleLabel: titleLabel,
+                                       authorLabel: authorLabel)
+  }
+ 
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    viewModel.startRefreshTimer()
   }
   
-  func updateCurrentTimeLabel(curTime: CMTime) {
-    currentCurTimeLabel?.text = timeString(Int(curTime.seconds))
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
   }
   
-  @IBAction func onPositionSliderValueChange(sender: UISlider) {
-    guard let item = currentItem else { return }
+  override func didMoveToParentViewController(parent: UIViewController?) {
+    super.didMoveToParentViewController(parent)
+
+    viewModel.startRefreshTimer()
     
-    let time = Double(sender.value) * Double(item.duration)
-    updateCurrentTimeLabel(CMTimeMakeWithSeconds(time, 1))
-  }
-  
-  @IBAction func onPositionSliderTouchDown(sender: UISlider) {
-    timer?.invalidate()
-  }
-  
-  @IBAction func onPositionSliderTouchUp(sender: UISlider) {
-    player.seekToPos(Double(sender.value))
-    startUpdateUITimer()
-  }
-  
-  @IBAction func onPlayPauseToggleTouchUp(sender: AnyObject) {
-    player.isPlaying() ? player.pause() : player.play()
-  }
-  
-  @IBAction func onAdvanceButtonTouchUp(sender: AnyObject) {
-    player.seekToTime(CMTimeAdd(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
-  }
-  
-  @IBAction func onRewindButtonTouchUp(sender: AnyObject) {
-    player.seekToTime(CMTimeSubtract(player.currentTime(), CMTime(seconds: 30, preferredTimescale: 1)))
-  }
-  
-  // MARK: PlayerEventHandler
-  
-  func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
-    if nextItem == nil {
-      navigationController?.popViewControllerAnimated(true)
+    layerProvider.register(String(self.dynamicType)) { layer in
+      self.viewModel.playerLayer = layer
     }
   }
+  
+  override func removeFromParentViewController() {
+    super.removeFromParentViewController()
+    
+    viewModel.stopRefreshTimer()
+    layerProvider.unregister(String(self.dynamicType))
+  }
+  
+  // MARK: Actions
+  
+  @IBAction func timeSliderTouchedDown(sender: AnyObject) {
+    viewModel.stopRefreshTimer()
+  }
+  
+  @IBAction func timeSliderTouchedUp(sender: AnyObject) {
+    viewModel.timeSliderValueDidChange()
+    viewModel.startRefreshTimer()
+  }
+  
+  @IBAction func rewindButtonPressed(sender: AnyObject) {
+    player.seekToTime(player.currentTime - 30)
+  }
+  
+  @IBAction func playPauseButtonPressed(sender: AnyObject) {
+    player.isPlaying ? player.pause() : player.play()
+  }
+  
+  @IBAction func forwardButtonPressed(sender: AnyObject) {
+    player.seekToTime(player.currentTime + 30)
+  }
+}
+
+class FullscreenPlayerContentViewController: UIViewController {
+  var player: PlayerController!
+  var layerProvider: AVPlayerLayerProvider!
+  
+  private var viewModel: PlayerContentViewModel!
+  
+  @IBOutlet weak var playerView: PlayerView!
+  
+  @IBOutlet weak var playerControls: UIStackView!
+  @IBOutlet weak var curTimeLabel: UILabel!
+  @IBOutlet weak var timeSlider: UISlider!
+  @IBOutlet weak var remTimeLabel: UILabel!
+  
+  var controlsHidden: Bool {
+    get {
+      return self.playerControls.alpha.isZero
+    }
+    set(hidden) {
+      let alpha: CGFloat = hidden ? 0 : 1
+      for view in [self.playerControls,
+                   self.curTimeLabel,
+                   self.timeSlider,
+                   self.remTimeLabel] {
+        view.alpha = alpha
+      }
+    }
+  }
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    controlsHidden = true
+    
+    viewModel = PlayerContentViewModel(player: player,
+                                       playerView: playerView,
+                                       timeSlider: timeSlider,
+                                       curTimeLabel: curTimeLabel,
+                                       remTimeLabel: remTimeLabel)
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    viewModel.startRefreshTimer()
+  }
+  
+  override func viewDidDisappear(animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.stopRefreshTimer()
+  }
+  
+  override func didMoveToParentViewController(parent: UIViewController?) {
+    super.didMoveToParentViewController(parent)
+    
+    viewModel.startRefreshTimer()
+    
+    layerProvider.register(String(self.dynamicType)) { layer in
+      self.viewModel.playerLayer = layer
+    }
+  }
+  
+  override func removeFromParentViewController() {
+    super.removeFromParentViewController()
+    
+    viewModel.stopRefreshTimer()
+    layerProvider.unregister(String(self.dynamicType))
+  }
+  
+  // MARK: Actions
+  
+  @IBAction func timeSliderTouchedDown(sender: AnyObject) {
+    viewModel.stopRefreshTimer()
+  }
+  
+  @IBAction func timeSliderTouchedUp(sender: AnyObject) {
+    viewModel.timeSliderValueDidChange()
+    viewModel.startRefreshTimer()
+  }
+  
+  @IBAction func rewindButtonPressed(sender: AnyObject) {
+    player.seekToTime(player.currentTime - 30)
+  }
+  
+  @IBAction func playPauseButtonPressed(sender: AnyObject) {
+    player.isPlaying ? player.pause() : player.play()
+  }
+  
+  @IBAction func forwardButtonPressed(sender: AnyObject) {
+    player.seekToTime(player.currentTime + 30)
+  }
+  
+  @IBAction func playerViewTapped(sender: AnyObject) {
+    let wasHidden = controlsHidden
+
+    UIView.animateWithDuration(0.2) {
+      self.controlsHidden = !wasHidden
+    }
+    
+    if wasHidden {
+      viewModel.startRefreshTimer()
+    } else {
+      viewModel.stopRefreshTimer()
+    }
+  }
+}
+
+class PlayerContentViewSegue: UIStoryboardSegue {
+  // Noop. Transition is handled by container view controller
+  override func perform() {
+  }
+}
+
+class PlayerContainerViewController: UIViewController {
+  enum Segue: String {
+    case standardPlayer = "standardPlayer"
+    case fullscreenPlayer = "fullscreenPlayer"
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    performSegue(.standardPlayer, sender: self)
+  }
+  
+  private func performSegue(segue: Segue, sender: AnyObject?) {
+    performSegueWithIdentifier(segue.rawValue, sender: sender)
+  }
+  
+  override func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
+    let segue: Segue = size.height > size.width ? .standardPlayer : .fullscreenPlayer
+    performSegue(segue, sender: self)
+  }
+  
+  override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    guard let id = segue.identifier else {
+      fatalError("No identifier for segue")
+    }
+    
+    let segueID = Segue(rawValue: id)
+    
+    childViewControllers.first?.removeFromParentViewController()
+    
+    segue.destinationViewController.willMoveToParentViewController(self)
+    addChildViewController(segue.destinationViewController)
+    segue.destinationViewController.view.frame = view.bounds
+    view.addSubview(segue.destinationViewController.view)
+    segue.destinationViewController.didMoveToParentViewController(self)
+    
+    self.navigationController?.navigationBarHidden = (segueID == Segue.fullscreenPlayer)
+  }
+}
+
+class MasterPlayerViewController: UIViewController {
 }

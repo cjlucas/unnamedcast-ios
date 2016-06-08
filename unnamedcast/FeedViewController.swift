@@ -12,38 +12,39 @@ import RealmSwift
 import Alamofire
 import SDWebImage
 
-class FeedViewController: UICollectionViewController {
-  var realm = try! Realm()
-  var selectedFeedId: String?
-  var token: NotificationToken?
+class FeedCollectionViewModel: NSObject, UICollectionViewDataSource {
+  let db = try! DB()
+  var feedsUpdatedToken: NotificationToken!
   
-  override func viewDidAppear(animated: Bool) {
-    token = realm.addNotificationBlock { notification, realm in
-      self.collectionView?.reloadData()
+  private var feeds: Results<Feed> {
+    return db.feeds
+  }
+  
+  init(collectionView: UICollectionView) {
+    feedsUpdatedToken = db.feeds.addNotificationBlock { (_: RealmCollectionChange<Results<Feed>>) in
+      collectionView.reloadData()
     }
-    
-    super.viewDidAppear(animated)
   }
   
-  override func viewDidDisappear(animated: Bool) {
-    if let token = self.token {
-      token.stop()
-    }
-    
-    super.viewDidDisappear(animated)
+  deinit {
+    feedsUpdatedToken.stop()
   }
   
-  override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    print("num items", realm.objects(Feed).count)
-    return realm.objects(Feed).count
+  func feedIDAtIndexPath(path: NSIndexPath) -> String {
+    return self.feeds[path.row].id
   }
   
-  override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-    let feed = realm.objects(Feed)[indexPath.row]
+  // MARK: UICollectionViewDataSource
+  
+  func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    return feeds.count
+  }
+  
+  func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    let feed = feeds[indexPath.row]
     
-    let cell = collectionView.dequeueReusableCellWithReuseIdentifier("FeedCollectionViewCell", forIndexPath: indexPath) as! FeedCollectionViewCell
-    //        cell.titleView.text = feed.title
-    //        cell.detailView.text = feed.author
+    let cell = collectionView.dequeueReusableCellWithReuseIdentifier("FeedCollectionViewCell",
+                                                                     forIndexPath: indexPath) as! FeedCollectionViewCell
     
     if let url = NSURL(string: feed.imageUrl) {
       cell.imageView.sd_setImageWithURL(url)
@@ -51,18 +52,33 @@ class FeedViewController: UICollectionViewController {
     
     return cell
   }
+}
+
+class FeedCollectionViewCell: UICollectionViewCell {
+  @IBOutlet weak var imageView: UIImageView!
+  @IBOutlet weak var titleView: UILabel!
+  @IBOutlet weak var detailView: UILabel!
+}
+
+class FeedViewController: UICollectionViewController {
+  var selectedFeedId: String!
+  var viewModel: FeedCollectionViewModel!
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    viewModel = FeedCollectionViewModel(collectionView: collectionView!)
+    collectionView?.dataSource = viewModel
+  }
   
   override func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
-    let feeds = realm.objects(Feed)
-    selectedFeedId = feeds[indexPath.row].id
-    
+    selectedFeedId = viewModel.feedIDAtIndexPath(indexPath)
     performSegueWithIdentifier("TheSegue", sender: self)
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    if let vc = segue.destinationViewController as? SingleFeedViewController,
-      let id = selectedFeedId {
-      vc.feedId = id
+    if let vc = segue.destinationViewController as? SingleFeedViewController {
+      vc.feedID = selectedFeedId
     }
   }
 }

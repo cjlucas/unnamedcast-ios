@@ -12,41 +12,48 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
-class SingleFeedTableViewCell: UITableViewCell {
-  @IBOutlet weak var itemTitleLabel: UILabel!
-  @IBOutlet weak var itemSummaryLabel: UILabel!
-  @IBOutlet weak var itemMetadataLabel: UILabel!
-}
-
-class SingleFeedViewController: UITableViewController {
-  var feedId: String?
-  var realm = try! Realm()
-  var token: NotificationToken?
+class SingleFeedViewModel: NSObject, UITableViewDataSource {
+  private weak var tableView: UITableView?
+  private weak var headerView: UIView? // TODO: extract these two views into their own class
+  private weak var headerImageView: UIImageView?
   
-  @IBOutlet weak var headerView: UIView!
-  @IBOutlet weak var headerImageView: UIImageView!
+  private let db = try! DB()
+  private var feed: Feed!
   
+  var feedUpdateNotificationToken: NotificationToken
   
-  lazy var feed: Feed = {
-    guard let id = self.feedId else { fatalError("Feed not set") }
-    return self.realm.objects(Feed).filter("id == '\(id)'").first!
-  }()
-  
-  override func viewWillAppear(animated: Bool) {
-    super.viewWillAppear(animated)
+  var items: Results<Item> {
+    return self.feed.items.sorted("pubDate", ascending: false)
   }
   
-  override func viewDidLoad() {
-    super.viewDidLoad()
+  private func itemAtIndexPath(path: NSIndexPath) -> Item! {
+    return items[path.row]
+  }
   
-    self.tableView.estimatedRowHeight = 44
-    self.tableView.rowHeight = UITableViewAutomaticDimension
-    
-    self.title = feed.title
-    
-//    token = feed.addNotificationBlock { items in
-//      self.tableView.reloadData()
-//    }
+  var item: Item!
+  
+  required init(feedID: String,
+       tableView: UITableView,
+       headerView: UIView,
+       headerImageView: UIImageView) {
+    guard let feed = self.db.feedWithID(feedID) else {
+      fatalError("Feed was not found")
+    }
+   
+    self.feed = feed
+    self.tableView = tableView
+    self.headerView = headerView
+    self.headerImageView = headerImageView
+
+    self.tableView?.estimatedRowHeight = 140
+    self.tableView?.rowHeight = UITableViewAutomaticDimension
+
+    weak var weakTableView = tableView
+    feedUpdateNotificationToken = self.db.addNotificationBlockForFeedUpdate(feed) {
+      weakTableView?.beginUpdates()
+      weakTableView?.reloadData()
+      weakTableView?.endUpdates()
+    }
     
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
       if let data = resp.data {
@@ -54,20 +61,38 @@ class SingleFeedViewController: UITableViewController {
         
         let bgImageView = UIImageView(image: image)
         bgImageView.contentMode = .Center
-        self.headerView.insertSubview(bgImageView, belowSubview: self.headerImageView)
+        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
         
         let effect = UIBlurEffect(style: .Dark)
         let ev = UIVisualEffectView(effect: effect)
-        ev.frame = self.headerView.bounds
-        self.headerView.insertSubview(ev, belowSubview: self.headerImageView)
+        ev.frame = headerView.bounds
+        headerView.insertSubview(ev, belowSubview: headerImageView)
         
-        self.headerImageView.image = image
+        headerImageView.image = image
       }
     }
   }
   
-  override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
+  deinit {
+    feedUpdateNotificationToken.stop()
+  }
+  
+  func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
+    let item = items[path.row]
+    var position = 0.0
+    if case .InProgress(let pos) = item.state {
+      position = pos * Double(item.duration)
+    }
+    
+    return PlayerItem(id: item.id,
+                      url: NSURL(string: item.audioURL)!,
+                      position: position)
+  }
+  
+  // MARK: UITableViewDataSource
+  
+  @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    let item = itemAtIndexPath(indexPath)
     
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
     cell.itemTitleLabel.text = item.title
@@ -75,15 +100,13 @@ class SingleFeedViewController: UITableViewController {
     
     var metadata = [String]()
     
-    print(item.title, item.state)
-    
     if let date = item.pubDate ?? item.modificationDate {
       let s = NSDateFormatter.localizedStringFromDate(date,
                                                       dateStyle: .MediumStyle,
                                                       timeStyle: .ShortStyle)
       metadata.append(s)
     }
- 
+    
     var duration = item.duration
     if case .InProgress(let pos) = item.state {
       duration -= Int(Double(duration) * pos)
@@ -99,7 +122,7 @@ class SingleFeedViewController: UITableViewController {
     }
     
     durationStrArr.append("\(minutes) minutes")
-
+    
     if case .InProgress(_) = item.state {
       durationStrArr.append("left")
     }
@@ -128,25 +151,43 @@ class SingleFeedViewController: UITableViewController {
     return cell
   }
   
-  override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    let item = feed.items.sorted("pubDate", ascending: false)[indexPath.row]
+  @objc func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    return items.count
+  }
+}
+
+class SingleFeedTableViewCell: UITableViewCell {
+  @IBOutlet weak var itemTitleLabel: UILabel!
+  @IBOutlet weak var itemSummaryLabel: UILabel!
+  @IBOutlet weak var itemMetadataLabel: UILabel!
+}
+
+class SingleFeedViewController: UITableViewController {
+  var feedID: String!
+  
+  @IBOutlet weak var headerView: UIView!
+  @IBOutlet weak var headerImageView: UIImageView!
+  
+  private var viewModel: SingleFeedViewModel!
+  
+  var player: PlayerController!
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    guard let feedID = feedID else { fatalError("feedID was not set") }
     
-    let p = Player.sharedPlayer
+    viewModel = SingleFeedViewModel(feedID: feedID,
+                                    tableView: tableView,
+                                    headerView: headerView,
+                                    headerImageView: headerImageView)
     
-    var position = 0.0
-    if case .InProgress(let pos) = item.state {
-      position = pos * Double(item.duration)
-    }
-    
-    p.playItem(PlayerItem(id: item.id,
-                          url: NSURL(string: item.audioURL)!,
-                          position: position))
-    
-    performSegueWithIdentifier("ThePlayerSegue", sender: self)
+    tableView.dataSource = viewModel
   }
   
+  // MARK: UITableViewDelegate
   
-  override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return feed.items.count
+  override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    player.playItem(viewModel.playerItemAtIndexPath(indexPath))
+    performSegueWithIdentifier("ThePlayerSegue", sender: self)
   }
 }

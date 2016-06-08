@@ -10,6 +10,7 @@ target 'unnamedcast' do
   pod 'PromiseKit/CorePromise'
   pod 'PromiseKit/UIKit'
   pod 'SDWebImage'
+  pod 'Swinject'
 end
 
 target 'unnamedcastTests' do
@@ -19,6 +20,7 @@ target 'unnamedcastTests' do
   pod 'PromiseKit/CorePromise'
   pod 'PromiseKit/UIKit'
   pod 'SDWebImage'
+  pod 'Swinject'
 end
 
 target 'unnamedcastUnitTests' do
@@ -27,9 +29,11 @@ target 'unnamedcastUnitTests' do
   pod 'Alamofire'
   pod 'PromiseKit/UIKit'
   pod 'SDWebImage'
+  pod 'Swinject'
 end
 
 target 'unnamedcastUITests' do
   pod 'SDWebImage'
+  pod 'Swinject'
 end
 
