@@ -17,6 +17,10 @@
 		830130491CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
 		8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
 		8301304B1CE56BCC00E583DF /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 830130471CE56BCC00E583DF /* APIClient.swift */; };
+		8302FB2B1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8302FB2A1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift */; };
+		8302FB2C1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8302FB2A1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift */; };
+		8302FB2D1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8302FB2A1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift */; };
+		8302FB2E1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8302FB2A1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift */; };
 		8309D5CE1CFA68BA0062CDD1 /* DBTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8309D5CD1CFA68BA0062CDD1 /* DBTests.swift */; };
 		8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
 		833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B01C77F47700494388 /* FeedSearchTableViewController.swift */; };
@@ -128,6 +132,7 @@
 		82A9D6D31FAE8675EEDE548C /* Pods-unnamedcastUnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-unnamedcastUnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-unnamedcastUnitTests/Pods-unnamedcastUnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		830130421CE42AC600E583DF /* SearchResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchResult.swift; sourceTree = "<group>"; };
 		830130471CE56BCC00E583DF /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		8302FB2A1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NowPlayingInfoPlayerEventHandler.swift; sourceTree = "<group>"; };
 		8309D5CD1CFA68BA0062CDD1 /* DBTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBTests.swift; sourceTree = "<group>"; };
 		8310483C1C710B9B003FB964 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		833239B01C77F47700494388 /* FeedSearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedSearchTableViewController.swift; sourceTree = "<group>"; };
@@ -219,6 +224,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8302FB2F1D087C090098283F /* Event Handlers */ = {
+			isa = PBXGroup;
+			children = (
+				833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */,
+				8302FB2A1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift */,
+			);
+			name = "Event Handlers";
+			sourceTree = "<group>";
+		};
 		8310483B1C710AE4003FB964 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -272,6 +286,7 @@
 		8365940A1D065A7400DCB8EE /* Player */ = {
 			isa = PBXGroup;
 			children = (
+				8302FB2F1D087C090098283F /* Event Handlers */,
 				837857BF1C5C52400026959C /* PlayerService.swift */,
 				8365940B1D065A9400DCB8EE /* PlayerController.swift */,
 				8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */,
@@ -352,7 +367,6 @@
 				835793A61CDFF9A0003F09FA /* DB.swift */,
 				830130471CE56BCC00E583DF /* APIClient.swift */,
 				8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */,
-				833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -779,6 +793,7 @@
 				836594261D065DD000DCB8EE /* ProgressView.swift in Sources */,
 				8377B5161CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				8365942B1D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
+				8302FB2E1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */,
 				839680C21CACBC9A007A4D62 /* unnamedcastUnitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -807,6 +822,7 @@
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
 				835793A71CDFF9A0003F09FA /* DB.swift in Sources */,
 				8364FAF91CE1A64B004576F7 /* Request.swift in Sources */,
+				8302FB2B1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */,
 				83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */,
 				830130431CE42AC600E583DF /* SearchResult.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,
@@ -829,6 +845,7 @@
 				8365941A1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E725811C5AEF0D00A0E8D4 /* unnamedcastTests.swift in Sources */,
 				836594151D065B2500DCB8EE /* Playlist.swift in Sources */,
+				8302FB2C1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */,
 				830130491CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130441CE42AC600E583DF /* SearchResult.swift in Sources */,
 				836594241D065DD000DCB8EE /* ProgressView.swift in Sources */,
@@ -848,6 +865,7 @@
 				8365941B1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E7258C1C5AEF0D00A0E8D4 /* unnamedcastUITests.swift in Sources */,
 				836594161D065B2500DCB8EE /* Playlist.swift in Sources */,
+				8302FB2D1D087AFE0098283F /* NowPlayingInfoPlayerEventHandler.swift in Sources */,
 				8301304A1CE56BCC00E583DF /* APIClient.swift in Sources */,
 				830130451CE42AC600E583DF /* SearchResult.swift in Sources */,
 				836594251D065DD000DCB8EE /* ProgressView.swift in Sources */,

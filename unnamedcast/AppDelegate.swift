@@ -46,33 +46,36 @@ private class PlayerLayerProvider: AVPlayerLayerProvider {
 }
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, PlayerDataSource, PlayerServiceDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, PlayerServiceDelegate {
   var window: UIWindow?
   
   let db = try! DB()
   let engine = SyncEngine()
+  let userDefaults = NSUserDefaults.standardUserDefaults()
   
-  var player: PlayerService!
-  private var layerProvider: PlayerLayerProvider!
-  
-  var dbPlayerMediator: DBPlayerMediator!
-  
-  func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-    // Player deserialization
-    let ud = NSUserDefaults.standardUserDefaults()
-    if let data = ud.objectForKey("player") as? NSData {
-      player = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! PlayerService
-    } else {
-      player = PlayerService()
+  lazy var player: PlayerService = {
+    if let data = self.userDefaults.objectForKey("player") as? NSData {
+      let player = NSKeyedUnarchiver.unarchiveObjectWithData(data) as! PlayerService
+      self.userDefaults.removeObjectForKey("player")
+      return player
     }
     
-    ud.removeObjectForKey("player")
-    player.dataSource = self
+    return PlayerService()
+  }()
+  
+  private var layerProvider: PlayerLayerProvider!
+ 
+  lazy var dbPlayerMediator: DBPlayerMediator = {
+    return DBPlayerMediator(db: self.db)
+  }()
+  
+  lazy var nowPlayingInfoHandler = NowPlayingInfoPlayerEventHandler()
+  
+  func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     player.delegate = self
     
-    dbPlayerMediator = DBPlayerMediator(db: self.db,
-                                        player: PlayerServiceProxy(player: self.player))
-    
+    player.registerEventHandler(nowPlayingInfoHandler)
+    player.registerEventHandler(dbPlayerMediator)
     
     let start = NSDate()
     
@@ -110,8 +113,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PlayerDataSource, PlayerS
     application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: .Alert, categories: nil))
     
     let sb = SwinjectStoryboard.create(name: "Main", bundle: nil, container: container)
-    
-    if ud.stringForKey("user_id") == nil {
+   
+    if userDefaults.stringForKey("user_id") == nil {
       self.window?.rootViewController = sb.instantiateViewControllerWithIdentifier("login")
       self.window?.makeKeyAndVisible()
     } else {
@@ -145,18 +148,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PlayerDataSource, PlayerS
     }.error { err -> () in
       completionHandler(.Failed)
     }
-  }
-  
-  // MARK: PlayerDataSource
-  func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata? {
-    let db = try! DB()
-    if let item = db.itemWithID(item.id) {
-      return PlayerItem.Metadata(title: item.title,
-                                 artist: item.feed!.author,
-                                 albumTitle: item.feed!.title,
-                                 duration: Double(item.duration))
-    }
-    return nil
   }
   
   // MARK: PlayerServiceDelegate
