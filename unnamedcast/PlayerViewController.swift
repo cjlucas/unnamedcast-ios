@@ -369,27 +369,5 @@ class PlayerContainerViewController: UIViewController {
   }
 }
 
-class MasterPlayerViewController: UIViewController, PlayerEventHandler {
-  // Injected properties
-  var player: PlayerController!
-  
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    print("viewDidLoad (master)")
-    player.registerForEvents(self)
-  }
-  
-  // MARK: PlayerEventHandler
-  
-  func itemDidBeginPlaying(item: PlayerItem) {
-  }
-  
-  func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
-    if nextItem == nil {
-      self.navigationController?.popViewControllerAnimated(true)
-    }
-  }
-  
-  func receivedPeriodicTimeUpdate(curTime: Double) {
-  }
+class MasterPlayerViewController: UIViewController {
 }

@@ -32,8 +32,10 @@ class MiniPlayerViewModel: PlayerEventHandler {
   
   var currentPlayerItem: PlayerItem? {
     didSet {
+      print("HERE100")
       guard let playerItem = currentPlayerItem,
         item = db.itemWithID(playerItem.id) else { return }
+      print("HERE200", self.itemLabel)
       itemLabel?.text = item.title
     }
   }
@@ -42,6 +44,8 @@ class MiniPlayerViewModel: PlayerEventHandler {
     self.player = player
     self.progressView = progressView
     self.itemLabel = itemLabel
+    
+    print("in view model init", player.currentItem, player.currentTime)
    
     self.currentTime = player.currentTime
     self.currentPlayerItem = player.currentItem

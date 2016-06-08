@@ -86,15 +86,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PlayerDataSource, PlayerS
       c.layerProvider = self.layerProvider
     }
 
-    container.registerForStoryboard(MasterPlayerViewController.self, name: nil) { r, c in
-      c.player = playerProxy
-    }
-
     container.registerForStoryboard(SingleFeedViewController.self, name: nil) { r, c in
       c.player = playerProxy
     }
 
     container.registerForStoryboard(MiniPlayerViewController.self, name: nil) { r, c in
+      c.player = playerProxy
+    }
+
+    container.registerForStoryboard(AppContainerViewController.self, name: nil) { r, c in
       c.player = playerProxy
     }
     
