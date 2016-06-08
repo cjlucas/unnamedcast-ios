@@ -125,9 +125,6 @@ class PlayerContentViewModel {
   @objc func update() {
     guard let item = currentItem else { return }
 
-    print(player.currentItem?.avItem.status.rawValue)
-    print(player.currentItem?.avItem.error)
-  
     let curTime = player.currentTime
     let duration = Double(item.duration)
     timeSlider?.value = Float(curTime / duration)
@@ -155,7 +152,6 @@ class StandardPlayerContentViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    print("viewDidLoad (standard) \(player)")
     
     viewModel = PlayerContentViewModel(player: player,
                                        playerView: playerView,
@@ -247,7 +243,6 @@ class FullscreenPlayerContentViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    print("viewDidLoad (fullscreen)")
     controlsHidden = true
     
     viewModel = PlayerContentViewModel(player: player,
@@ -354,8 +349,6 @@ class PlayerContainerViewController: UIViewController {
     }
     
     let segueID = Segue(rawValue: id)
-    
-    print("PREPARE FOR SEGUE \(id) \(self.view.bounds)")
     
     childViewControllers.first?.removeFromParentViewController()
     

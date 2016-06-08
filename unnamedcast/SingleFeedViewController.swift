@@ -92,9 +92,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   // MARK: UITableViewDataSource
   
   @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let start = NSDate()
     let item = itemAtIndexPath(indexPath)
-    print("here1", -start.timeIntervalSinceNow * 1000)
     
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
     cell.itemTitleLabel.text = item.title
@@ -150,7 +148,6 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
       lbl.textColor = textColor
     }
     
-    print("here2", -start.timeIntervalSinceNow * 1000)
     return cell
   }
   
@@ -190,10 +187,7 @@ class SingleFeedViewController: UITableViewController {
   // MARK: UITableViewDelegate
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-    print("did select row")
-    print(viewModel.playerItemAtIndexPath(indexPath))
     player.playItem(viewModel.playerItemAtIndexPath(indexPath))
-    print(player.currentItem, player.queuedItems)
     performSegueWithIdentifier("ThePlayerSegue", sender: self)
   }
 }
