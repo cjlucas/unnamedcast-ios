@@ -15,6 +15,8 @@ class NowPlayingInfoPlayerEventHandler: PlayerEventHandler {
   let infoCenter = MPNowPlayingInfoCenter.defaultCenter()
   let imageManager = SDWebImageManager.sharedManager()
   
+  private var fetchImageOperation: SDWebImageOperation?
+  
   private func itemForPlayerItem(item: PlayerItem) -> Item? {
     return db.itemWithID(item.id)
   }
@@ -44,11 +46,16 @@ class NowPlayingInfoPlayerEventHandler: PlayerEventHandler {
     
     if let imageURL = item.feed?.imageUrl,
       let url = NSURL(string: imageURL) {
-      imageManager.downloadImageWithURL(url, options: .LowPriority, progress: nil) { data in
-        guard let img = data.0 else { return }
-        dispatch_async(dispatch_get_main_queue()) {
-          self.updateInfoCenter([MPMediaItemPropertyArtwork: MPMediaItemArtwork(image: img)])
-        }
+      fetchImageOperation?.cancel()
+      
+      fetchImageOperation = imageManager
+        .downloadImageWithURL(url, options: .LowPriority, progress: nil) { img, _, _, _, _ in
+          guard let img = img else { return }
+          dispatch_async(dispatch_get_main_queue()) {
+            self.updateInfoCenter([
+              MPMediaItemPropertyArtwork: MPMediaItemArtwork(image: img)
+            ])
+          }
       }
     }
   }
