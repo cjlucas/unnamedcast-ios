@@ -16,10 +16,8 @@ class ProgressView: UIView {
   
   var progress: Float = 0 {
     didSet {
-      print("didset progress \(progress)")
       let width = CGFloat(progress) * frame.width
       let height = frame.height
-      print("here \(width) \(height)")
       progressBarView.frame = CGRectMake(0, 0, width, height)
       setNeedsLayout()
     }

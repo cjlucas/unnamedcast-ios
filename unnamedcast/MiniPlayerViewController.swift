@@ -20,48 +20,34 @@ class MiniPlayerViewModel: PlayerEventHandler {
     return db.itemWithID(item.id)
   }
   
-  var currentTime: Double = 0 {
-    didSet {
-      if let duration = currentItem?.duration where currentTime.isFinite {
-        progressView?.progress = Float(currentTime) / Float(duration)
-      } else {
-        progressView?.progress = 0
-      }
-    }
-  }
-  
-  var currentPlayerItem: PlayerItem? {
-    didSet {
-      print("HERE100")
-      guard let playerItem = currentPlayerItem,
-        item = db.itemWithID(playerItem.id) else { return }
-      print("HERE200", self.itemLabel)
-      itemLabel?.text = item.title
-    }
-  }
-  
   init(player: PlayerController, progressView: ProgressView, itemLabel: UILabel) {
     self.player = player
     self.progressView = progressView
     self.itemLabel = itemLabel
     
-    print("in view model init", player.currentItem, player.currentTime)
-   
-    self.currentTime = player.currentTime
-    self.currentPlayerItem = player.currentItem
+    update()
+  }
+  
+  func update() {
+    guard let item = currentItem else { return }
+    
+    itemLabel?.text = item.title
+    
+    if player.currentTime.isFinite {
+      progressView?.progress = Float(player.currentTime) / Float(item.duration)
+    }
   }
   
   func receivedPeriodicTimeUpdate(curTime: Double) {
-    currentTime = curTime
+    update()
   }
   
   func itemDidBeginPlaying(item: PlayerItem) {
-    currentPlayerItem = item
+    update()
   }
   
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
-    currentTime = 0
-    currentPlayerItem = nextItem
+    update()
   }
 }
 
