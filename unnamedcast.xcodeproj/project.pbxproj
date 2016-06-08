@@ -25,6 +25,15 @@
 		833342F91D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */; };
 		833342FA1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */; };
 		833342FB1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */; };
+		833342FC1D07C82500ABEA39 /* PlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940B1D065A9400DCB8EE /* PlayerController.swift */; };
+		833342FD1D07C83900ABEA39 /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857D21C5D93600026959C /* UIImage.swift */; };
+		833342FE1D07C83900ABEA39 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839680BC1CA74A4F007A4D62 /* PlayerView.swift */; };
+		833342FF1D07C83900ABEA39 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
+		833343001D07C83900ABEA39 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
+		833343011D07C83900ABEA39 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
+		833343021D07C83900ABEA39 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
+		833343031D07C83900ABEA39 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
+		833343041D07C83900ABEA39 /* FeedSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B01C77F47700494388 /* FeedSearchTableViewController.swift */; };
 		833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
 		83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
@@ -741,19 +750,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				833342FD1D07C83900ABEA39 /* UIImage.swift in Sources */,
+				833342FE1D07C83900ABEA39 /* PlayerView.swift in Sources */,
+				833342FF1D07C83900ABEA39 /* AppContainerViewController.swift in Sources */,
+				833343001D07C83900ABEA39 /* FeedViewController.swift in Sources */,
+				833343011D07C83900ABEA39 /* PlayerViewController.swift in Sources */,
+				833343021D07C83900ABEA39 /* SingleFeedViewController.swift in Sources */,
+				833343031D07C83900ABEA39 /* LoginViewController.swift in Sources */,
+				833343041D07C83900ABEA39 /* FeedSearchTableViewController.swift in Sources */,
 				8309D5CE1CFA68BA0062CDD1 /* DBTests.swift in Sources */,
-				836594171D065B2500DCB8EE /* Playlist.swift in Sources */,
 				835177231CE6B0B500064843 /* AppDelegate.swift in Sources */,
-				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
-				833342FB1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
-				836594111D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				835177241CE6B0E200064843 /* PlayerService.swift in Sources */,
+				836594171D065B2500DCB8EE /* Playlist.swift in Sources */,
+				836594111D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
+				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
+				8365941C1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
+				833342FC1D07C82500ABEA39 /* PlayerController.swift in Sources */,
+				833342FB1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				835793A81CE00E79003F09FA /* DB.swift in Sources */,
 				83AC3EB11CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				839680C31CACBDBA007A4D62 /* Feed.swift in Sources */,
 				839680C41CACBDBA007A4D62 /* User.swift in Sources */,
 				839680C51CACBDBA007A4D62 /* Endpoint.swift in Sources */,
-				8365941C1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				830130461CE42AC600E583DF /* SearchResult.swift in Sources */,
 				8364FAFA1CE1AF47004576F7 /* Request.swift in Sources */,
 				839680C71CACBDBA007A4D62 /* SyncEngine.swift in Sources */,
@@ -771,7 +789,11 @@
 			files = (
 				837857C61C5D629B0026959C /* PlayerViewController.swift in Sources */,
 				8364FB001CE41B36004576F7 /* Array.swift in Sources */,
+				837857C01C5C52400026959C /* PlayerService.swift in Sources */,
+				8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */,
+				8365940E1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				836594281D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
+				836594141D065B2500DCB8EE /* Playlist.swift in Sources */,
 				836594191D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */,
 				837857D31C5D93600026959C /* UIImage.swift in Sources */,
@@ -782,18 +804,14 @@
 				830130481CE56BCC00E583DF /* APIClient.swift in Sources */,
 				83AC3EAE1CEFEC93000F00F4 /* NSDate.swift in Sources */,
 				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
-				836594141D065B2500DCB8EE /* Playlist.swift in Sources */,
-				837857C01C5C52400026959C /* PlayerService.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
 				835793A71CDFF9A0003F09FA /* DB.swift in Sources */,
 				8364FAF91CE1A64B004576F7 /* Request.swift in Sources */,
 				83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */,
 				830130431CE42AC600E583DF /* SearchResult.swift in Sources */,
-				8365940E1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */,
 				8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */,
 				83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */,
-				8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */,
 				833342F81D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */,
 				836594231D065DD000DCB8EE /* ProgressView.swift in Sources */,
