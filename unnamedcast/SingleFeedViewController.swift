@@ -12,13 +12,6 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
-protocol SingleFeedViewControllerDelegate {
-}
-
-protocol SingleFeedViewModelDelegate {
-  func feedDidUpdate()
-}
-
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private weak var tableView: UITableView?
   private weak var headerView: UIView? // TODO: extract these two views into their own class
@@ -27,39 +20,14 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private let db = try! DB()
   private var feed: Feed!
   
-  private var delegateInfo: (delegate: SingleFeedViewModelDelegate, token: NotificationToken)?
-  
-  private var delegate: SingleFeedViewModelDelegate? {
-    get {
-      guard let info = delegateInfo else { return nil }
-      return info.delegate
-    }
-    
-    set(newValue) {
-      delegateInfo?.token.stop()
-      
-      if let delegate = newValue {
-        let token = self.db.addNotificationBlockForFeedUpdate(feed) {
-          self.delegate?.feedDidUpdate()
-        }
-        delegateInfo = (delegate: delegate, token: token)
-      }
-    }
-  }
+  var feedUpdateNotificationToken: NotificationToken
   
   var items: Results<Item> {
     return self.feed.items.sorted("pubDate", ascending: false)
   }
   
   private func itemAtIndexPath(path: NSIndexPath) -> Item! {
-//    if let item = itemsCache[path.row] {
-//      return item
-//    }
-//    
-    let item = items[path.row]
-//    itemsCache[path.row] = item
-    
-    return item
+    return items[path.row]
   }
   
   var item: Item!
@@ -67,13 +35,11 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   required init(feedID: String,
        tableView: UITableView,
        headerView: UIView,
-       headerImageView: UIImageView,
-       delegate: SingleFeedViewModelDelegate? = nil) {
-    
+       headerImageView: UIImageView) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
-
+   
     self.feed = feed
     self.tableView = tableView
     self.headerView = headerView
@@ -81,6 +47,13 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
 
     self.tableView?.estimatedRowHeight = 140
     self.tableView?.rowHeight = UITableViewAutomaticDimension
+
+    weak var weakTableView = tableView
+    feedUpdateNotificationToken = self.db.addNotificationBlockForFeedUpdate(feed) {
+      weakTableView?.beginUpdates()
+      weakTableView?.reloadData()
+      weakTableView?.endUpdates()
+    }
     
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
       if let data = resp.data {
@@ -101,7 +74,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
   
   deinit {
-    delegate = nil
+    feedUpdateNotificationToken.stop()
   }
   
   func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
@@ -192,7 +165,7 @@ class SingleFeedTableViewCell: UITableViewCell {
   @IBOutlet weak var itemMetadataLabel: UILabel!
 }
 
-class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelegate {
+class SingleFeedViewController: UITableViewController {
   var feedID: String!
   
   @IBOutlet weak var headerView: UIView!
@@ -210,7 +183,6 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
                                     tableView: tableView,
                                     headerView: headerView,
                                     headerImageView: headerImageView)
-    viewModel.delegate = self
     
     tableView.dataSource = viewModel
   }
@@ -223,13 +195,5 @@ class SingleFeedViewController: UITableViewController, SingleFeedViewModelDelega
     player.playItem(viewModel.playerItemAtIndexPath(indexPath))
     print(player.currentItem, player.queuedItems)
     performSegueWithIdentifier("ThePlayerSegue", sender: self)
-  }
-  
-  // MARK: ViewModelDelegate
-  
-  func feedDidUpdate() {
-    tableView.beginUpdates()
-    tableView.reloadData()
-    tableView.endUpdates()
   }
 }
