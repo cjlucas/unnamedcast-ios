@@ -21,6 +21,10 @@
 		8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
 		833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B01C77F47700494388 /* FeedSearchTableViewController.swift */; };
 		833239B31C78E2DD00494388 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B21C78E2DD00494388 /* Endpoint.swift */; };
+		833342F81D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */; };
+		833342F91D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */; };
+		833342FA1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */; };
+		833342FB1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */; };
 		833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
 		83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
@@ -119,6 +123,7 @@
 		8310483C1C710B9B003FB964 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		833239B01C77F47700494388 /* FeedSearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedSearchTableViewController.swift; sourceTree = "<group>"; };
 		833239B21C78E2DD00494388 /* Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
+		833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBPlayerMediator.swift; sourceTree = "<group>"; };
 		833F1B101C5B01AE002CCB77 /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleFeedViewController.swift; sourceTree = "<group>"; };
 		83475B291C62DB5000F48D33 /* AppContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppContainerViewController.swift; sourceTree = "<group>"; };
@@ -338,6 +343,7 @@
 				835793A61CDFF9A0003F09FA /* DB.swift */,
 				830130471CE56BCC00E583DF /* APIClient.swift */,
 				8377B5121CE64C8000B32588 /* ApplicationDelegateReachable.swift */,
+				833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */,
 			);
 			path = unnamedcast;
 			sourceTree = "<group>";
@@ -739,6 +745,7 @@
 				836594171D065B2500DCB8EE /* Playlist.swift in Sources */,
 				835177231CE6B0B500064843 /* AppDelegate.swift in Sources */,
 				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
+				833342FB1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				836594111D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				835177241CE6B0E200064843 /* PlayerService.swift in Sources */,
 				835793A81CE00E79003F09FA /* DB.swift in Sources */,
@@ -787,6 +794,7 @@
 				8310483D1C710B9B003FB964 /* LoginViewController.swift in Sources */,
 				83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */,
 				8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */,
+				833342F81D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				833239B11C77F47700494388 /* FeedSearchTableViewController.swift in Sources */,
 				836594231D065DD000DCB8EE /* ProgressView.swift in Sources */,
 			);
@@ -797,6 +805,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8377B5141CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
+				833342F91D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				836594291D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
 				8365940F1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				8365941A1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
@@ -815,6 +824,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8377B5151CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
+				833342FA1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				8365942A1D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
 				836594101D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				8365941B1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
