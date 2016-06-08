@@ -12,30 +12,34 @@ class ProgressView: UIView {
   @IBInspectable
   var foregroundColor: UIColor!
   
-  private var progressBarView: UIView
+  private var progressBarView: UIView = UIView()
   
   var progress: Float = 0 {
     didSet {
-      let width = CGFloat(progress) * frame.width
-      let height = frame.height
-      progressBarView.frame = CGRectMake(0, 0, width, height)
       setNeedsLayout()
     }
   }
   
   required override init(frame: CGRect) {
-    progressBarView = UIView(frame: CGRectMake(0, 0, 0, 2))
-    progressBarView.backgroundColor = UIColor.redColor()
-
     super.init(frame: frame)
     addSubview(progressBarView)
   }
   
   required init?(coder aDecoder: NSCoder) {
-    progressBarView = UIView(frame: CGRectMake(0, 0, 0, 2))
-    progressBarView.backgroundColor = UIColor.redColor()
-    
     super.init(coder: aDecoder)
     addSubview(progressBarView)
+  }
+  
+  override func awakeFromNib() {
+    super.awakeFromNib()
+    progressBarView.backgroundColor = foregroundColor
+  }
+  
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    
+    let width = CGFloat(progress) * frame.width
+    let height = frame.height
+    progressBarView.frame = CGRectMake(0, 0, width, height)
   }
 }
