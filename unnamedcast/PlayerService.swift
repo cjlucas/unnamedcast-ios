@@ -10,10 +10,6 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
-protocol PlayerDataSource {
-  func metadataForItem(item: PlayerItem) -> PlayerItem.Metadata?
-}
-
 protocol PlayerEventHandler: class {
   func receivedPeriodicTimeUpdate(curTime: Double)
   func itemDidBeginPlaying(item: PlayerItem)
@@ -36,8 +32,6 @@ public class PlayerService: NSObject, NSCoding {
   lazy private(set) var player: AVPlayer = self.createPlayer()
   
   private(set) var playlist = Playlist()
-  
-  internal var dataSource: PlayerDataSource? = nil
   
   private let audioSession = AVAudioSession.sharedInstance()
   
@@ -190,9 +184,11 @@ public class PlayerService: NSObject, NSCoding {
     itemTimeJumpedNotificationToken = nc.addObserverForName(AVPlayerItemTimeJumpedNotification,
                                                             object: item.avItem,
                                                             queue: NSOperationQueue.mainQueue()) { notification in
-      self.updateNowPlayingInfo([
-        MPNowPlayingInfoPropertyElapsedPlaybackTime: self.currentTime().seconds
-      ])
+      let time = self.player.currentTime().seconds
+      for h in self.eventHandlers.allObjects {
+        let h = h as! PlayerEventHandler
+        h.receivedPeriodicTimeUpdate(time)
+      }
     }
   }
   
@@ -226,7 +222,7 @@ public class PlayerService: NSObject, NSCoding {
       print("playNextItem was called with no current item. This is probably a bug.")
       return
     }
-    print("thread: \(NSThread.isMainThread())")
+    
     replaceCurrentItemWithItem(item)
     play()
     
@@ -236,7 +232,6 @@ public class PlayerService: NSObject, NSCoding {
     }
    
     setNotificationForCurrentItem()
-    updateNowPlayingInfo()
   }
   
   func playItem(item: PlayerItem) {
@@ -268,54 +263,9 @@ public class PlayerService: NSObject, NSCoding {
     player.seekToTime(time)
   }
 
-  // pos is a float between 0 and 1
-  func seekToPos(pos: Double) {
-    guard let item = currentItem else { return }
-    
-    var time = pos * item.avItem.duration.seconds
-    if let duration = dataSource?.metadataForItem(item)?.duration {
-      time = pos * Double(duration)
-    }
-
-    seekToTime(CMTimeMakeWithSeconds(time, 1000))
-  }
- 
   // TODO: deprecate in favor of a Double alternative
   func currentTime() -> CMTime {
     return player.currentTime()
-  }
-  
-  private func updateNowPlayingInfo() {
-    guard let item = currentItem else { return }
-    
-    var info: [String: AnyObject] = [
-      MPMediaItemPropertyTitle: item.url
-    ]
-    
-    if let data = dataSource?.metadataForItem(item) {
-      info[MPMediaItemPropertyTitle] = data.title
-      info[MPMediaItemPropertyArtist] = data.artist
-      info[MPMediaItemPropertyAlbumTitle] = data.albumTitle
-      info[MPMediaItemPropertyPlaybackDuration] = data.duration
-    }
-
-    updateNowPlayingInfo(info)
-  }
-  
-  private func updateNowPlayingInfo(info: [String: AnyObject]) {
-    dispatch_async(dispatch_get_main_queue()) {
-      let infoCenter = MPNowPlayingInfoCenter.defaultCenter()
-      
-      if var oldInfo = infoCenter.nowPlayingInfo {
-        for (k,v) in info {
-          oldInfo[k] = v
-        }
-        
-        infoCenter.nowPlayingInfo = oldInfo
-      } else {
-        infoCenter.nowPlayingInfo = info
-      }
-    }
   }
   
   // MARK: NSCoding
@@ -329,8 +279,6 @@ public class PlayerService: NSObject, NSCoding {
       print("Queueing item", item)
       queueItem(item)
     }
-    
-    updateNowPlayingInfo()
   }
   
   public func encodeWithCoder(c: NSCoder) {

@@ -13,6 +13,13 @@ import AVFoundation
 import Alamofire
 
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
+  private typealias CellData = (
+    title: String,
+    description: String,
+    metadata: String,
+    itemState: Item.State
+  )
+  
   private weak var tableView: UITableView?
   private weak var headerView: UIView? // TODO: extract these two views into their own class
   private weak var headerImageView: UIImageView?
@@ -21,6 +28,8 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private var feed: Feed!
   
   var feedUpdateNotificationToken: NotificationToken
+ 
+  private var cache = [NSIndexPath: CellData]()
   
   var items: Results<Item> {
     return self.feed.items.sorted("pubDate", ascending: false)
@@ -89,23 +98,14 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
                       position: position)
   }
   
-  // MARK: UITableViewDataSource
-  
-  @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+  private func cellDataAtIndexPath(indexPath: NSIndexPath) -> CellData {
     let item = itemAtIndexPath(indexPath)
     
-    let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
-    cell.itemTitleLabel.text = item.title
-    cell.itemSummaryLabel.text = item.summary
-    
     var metadata = [String]()
-    
-    if let date = item.pubDate ?? item.modificationDate {
-      let s = NSDateFormatter.localizedStringFromDate(date,
-                                                      dateStyle: .MediumStyle,
-                                                      timeStyle: .ShortStyle)
-      metadata.append(s)
-    }
+    let date = NSDateFormatter.localizedStringFromDate(item.pubDate ?? item.modificationDate ?? NSDate(),
+                                                       dateStyle: .MediumStyle,
+                                                       timeStyle: .ShortStyle)
+    metadata.append(date)
     
     var duration = item.duration
     if case .InProgress(let pos) = item.state {
@@ -132,21 +132,38 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     if item.size > 0 {
       metadata.append("\(item.size / 1024 / 1024) MB")
     }
-    
-    cell.itemMetadataLabel.text = metadata.joinWithSeparator(" \u{2022} ")
+   
+    return (title: item.title,
+            description: item.summary,
+            metadata: metadata.joinWithSeparator(" \u{2022} "),
+            itemState: .Played)
+  }
+  
+  private func configureCell(cell: SingleFeedTableViewCell, data: CellData) {
+    cell.itemTitleLabel.text = data.title
+    cell.itemSummaryLabel.text = data.description
+    cell.itemMetadataLabel.text = data.metadata
     
     var textColor: UIColor
-    switch (item.state) {
-    case .Played:
+    if case .Played = data.itemState {
       textColor = UIColor.grayColor()
-    default:
+    } else {
       textColor = UIColor.blackColor()
     }
-    
     
     for lbl in [cell.itemTitleLabel, cell.itemSummaryLabel, cell.itemMetadataLabel] {
       lbl.textColor = textColor
     }
+  }
+  
+  // MARK: UITableViewDataSource
+  
+  @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
+    let data = cache[indexPath] ?? cellDataAtIndexPath(indexPath)
+    cache[indexPath] = data
+    
+    configureCell(cell, data: data)
     
     return cell
   }
@@ -172,6 +189,8 @@ class SingleFeedViewController: UITableViewController {
   
   var player: PlayerController!
   
+  var cellHeightCache = [NSIndexPath: CGFloat]()
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
@@ -188,6 +207,15 @@ class SingleFeedViewController: UITableViewController {
   
   override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
     player.playItem(viewModel.playerItemAtIndexPath(indexPath))
+    print(player.currentItem, player.queuedItems)
     performSegueWithIdentifier("ThePlayerSegue", sender: self)
+  }
+  
+  override func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+    cellHeightCache[indexPath] = cell.frame.height
+  }
+  
+  override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    return cellHeightCache[indexPath] ?? UITableViewAutomaticDimension
   }
 }
