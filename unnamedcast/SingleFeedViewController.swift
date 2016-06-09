@@ -136,7 +136,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     return (title: item.title,
             description: item.summary,
             metadata: metadata.joinWithSeparator(" \u{2022} "),
-            itemState: .Played)
+            itemState: item.state)
   }
   
   private func configureCell(cell: SingleFeedTableViewCell, data: CellData) {
