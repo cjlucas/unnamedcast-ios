@@ -39,7 +39,7 @@ class NowPlayingInfoPlayerEventHandler: PlayerEventHandler {
     
     updateInfoCenter([
       MPMediaItemPropertyTitle:  item.title,
-      MPMediaItemPropertyArtist:  item.author,
+      MPMediaItemPropertyArtist:  feed.author,
       MPMediaItemPropertyAlbumTitle:  feed.title,
       MPMediaItemPropertyPlaybackDuration:  item.duration,
     ], merge: false)
