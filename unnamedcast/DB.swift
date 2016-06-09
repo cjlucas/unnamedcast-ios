@@ -57,20 +57,3 @@ class DB {
     try write { self.realm.deleteAll() }
   }
 }
-
-struct ResultsCache<T: Object> {
-  var results: Results<T>
-  
-  private var cache = [Int: T]()
-  
-  subscript(index: Int) -> T {
-    mutating get {
-      
-      if let v = cache[index] {
-        return v
-      }
-      
-      return results[index]
-    }
-  }
-}
