@@ -218,10 +218,7 @@ public class PlayerService: NSObject, NSCoding {
   }
   
   private func playNextItem() {
-    guard let item = currentItem else {
-      print("playNextItem was called with no current item. This is probably a bug.")
-      return
-    }
+    guard let item = currentItem else { fatalError("playNextItem was called without current item") }
     
     replaceCurrentItemWithItem(item)
     play()
