@@ -10,6 +10,75 @@ import Foundation
 import AVFoundation
 import MediaPlayer
 
+private class Timer {
+  enum State {
+    case Started(expectedFireDate: NSDate)
+    case Paused(timeRemaining: NSTimeInterval)
+    case Invalidated
+  }
+  
+  private let onTimerFired: () -> ()
+  private var timer: NSTimer?
+  private var state: State {
+    didSet {
+//      print("Sleep timer state did change \(state)")
+    }
+  }
+  
+  init(duration: Int, onFire: () -> ()) {
+    state = .Paused(timeRemaining: NSTimeInterval(duration))
+    onTimerFired = onFire
+  }
+  
+  deinit {
+    invalidate()
+  }
+  
+  func invalidate() {
+    timer?.invalidate()
+    state = .Invalidated
+  }
+  
+  private func initTimer(ti: NSTimeInterval) {
+    timer = NSTimer.scheduledTimerWithTimeInterval(ti,
+                                                   target: self,
+                                                   selector: #selector(timerDidFire),
+                                                   userInfo: nil,
+                                                   repeats: false)
+    
+    state = .Started(expectedFireDate: NSDate().dateByAddingTimeInterval(ti))
+  }
+  
+  @objc func timerDidFire() {
+    invalidate()
+    onTimerFired()
+  }
+  
+  func start() {
+    if case .Paused(let timeRemaining) = state {
+      initTimer(timeRemaining)
+    }
+  }
+  
+  func pause() {
+    if case .Started(let expectedFireDate) = state {
+      timer?.invalidate()
+      state = .Paused(timeRemaining: expectedFireDate.timeIntervalSinceNow)
+    }
+  }
+  
+  func timeRemaining() -> Int {
+    switch state {
+    case .Started(let expectedFireDate):
+      return Int(expectedFireDate.timeIntervalSinceNow)
+    case .Paused(let timeRemaining):
+      return Int(timeRemaining)
+    case .Invalidated:
+      fatalError("timeRemaining called on invalidated timer")
+    }
+  }
+}
+
 protocol PlayerEventHandler: class {
   func receivedPeriodicTimeUpdate(curTime: Double)
   func itemDidBeginPlaying(item: PlayerItem)
@@ -44,6 +113,8 @@ public class PlayerService: NSObject, NSCoding {
   private var itemTimeJumpedNotificationToken: AnyObject?
   
   private var timeObserverToken: AnyObject?
+  
+  private var sleepTimer: Timer?
   
   var currentItem: PlayerItem? {
     return playlist.currentItem
@@ -202,6 +273,7 @@ public class PlayerService: NSObject, NSCoding {
   
   func play() {
     player.play()
+    sleepTimer?.start()
   }
   
   func replaceCurrentItemWithItem(item: PlayerItem) {
@@ -253,6 +325,7 @@ public class PlayerService: NSObject, NSCoding {
   
   func pause() {
     player.pause()
+    sleepTimer?.pause()
   }
 
   // TODO: deprecate in favor of a Double alternative
@@ -287,5 +360,23 @@ public class PlayerService: NSObject, NSCoding {
   
   func registerEventHandler(handler: PlayerEventHandler) {
     eventHandlers.addObject(handler)
+  }
+  
+  // MARK: Sleep Timer
+  
+  func setTimer(duration: Int) {
+    sleepTimer?.invalidate()
+    sleepTimer = Timer(duration: duration) { [weak self] in
+      self?.pause()
+    }
+    sleepTimer?.start()
+  }
+  
+  func timeRemaining() -> Int {
+    return sleepTimer?.timeRemaining() ?? 0
+  }
+  
+  func timerDidFire() {
+    pause()
   }
 }

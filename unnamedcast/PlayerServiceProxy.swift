@@ -63,4 +63,13 @@ struct PlayerServiceProxy: PlayerController {
   func registerForEvents(handler: PlayerEventHandler) {
     player.registerEventHandler(handler)
   }
+  
+  func setTimer(duration: Int) {
+    player.setTimer(duration)
+  }
+  
+  func timeRemaining() -> Int {
+    return player.timeRemaining()
+  }
+
 }
