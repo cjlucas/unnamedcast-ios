@@ -19,7 +19,7 @@ private class Timer {
   
   private let onTimerFired: () -> ()
   private var timer: NSTimer?
-  var state: State
+  private(set) var state: State
   
   var isValid: Bool {
     if case .Invalidated = state {

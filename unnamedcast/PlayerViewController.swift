@@ -134,7 +134,10 @@ class PlayerContentViewModel {
     if time > 0 {
       self.player.timerDuration = 0
     }
-    
+   
+    // iterate through available durations, if the current timer
+    // is strictly less than the proposed duration, update the timer to that,
+    // otherwise stop the timer.
     for d in durations {
       if time < d {
         self.player.timerDuration = d
