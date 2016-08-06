@@ -23,6 +23,7 @@ class PlayerContentViewModel {
   private weak var remTimeLabel: UILabel?
   private weak var titleLabel: UILabel?
   private weak var authorLabel: UILabel?
+  private weak var sleepTimerButton: UIButton?
   
   var playerLayer: AVPlayerLayer? {
     didSet {
@@ -55,7 +56,8 @@ class PlayerContentViewModel {
        curTimeLabel: UILabel,
        remTimeLabel: UILabel,
        titleLabel: UILabel? = nil,
-       authorLabel: UILabel? = nil) {
+       authorLabel: UILabel? = nil,
+       sleepTimerButton: UIButton? = nil) {
     self.player = player
     self.playerView = playerView
     self.timeSlider = timeSlider
@@ -63,6 +65,7 @@ class PlayerContentViewModel {
     self.remTimeLabel = remTimeLabel
     self.titleLabel = titleLabel
     self.authorLabel = authorLabel
+    self.sleepTimerButton = sleepTimerButton
     
     update()
     
@@ -122,6 +125,29 @@ class PlayerContentViewModel {
     }
   }
   
+  func toggleSleepTimer() {
+    let durations = [5 * 60, 15 * 60, 30 * 60, 60 * 60]
+    let time = self.player.timerDuration
+    
+    defer { update() }
+
+    if time > 0 {
+      self.player.timerDuration = 0
+    }
+   
+    // iterate through available durations, if the current timer
+    // is strictly less than the proposed duration, update the timer to that,
+    // otherwise stop the timer.
+    for d in durations {
+      if time < d {
+        self.player.timerDuration = d
+        return
+      }
+    }
+    
+    self.player.timerDuration = 0
+  }
+  
   @objc func update() {
     guard let item = currentItem else { return }
 
@@ -133,6 +159,15 @@ class PlayerContentViewModel {
    
     titleLabel?.text = item.title
     authorLabel?.text = item.author
+  
+    if let btn = self.sleepTimerButton {
+      let time = self.player.timerDuration
+      let title = time == 0
+        ? "Sleep"
+        : "Sleep \(timeString(Double(time)))"
+      
+      btn.setTitle(title, forState: .Normal)
+    }
   }
 }
 
@@ -150,6 +185,7 @@ class StandardPlayerContentViewController: UIViewController {
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var authorLabel: UILabel!
   
+  @IBOutlet weak var sleepTimerButton: UIButton!
   override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -159,7 +195,8 @@ class StandardPlayerContentViewController: UIViewController {
                                        curTimeLabel: curTimeLabel,
                                        remTimeLabel: remTimeLabel,
                                        titleLabel: titleLabel,
-                                       authorLabel: authorLabel)
+                                       authorLabel: authorLabel,
+                                       sleepTimerButton: sleepTimerButton)
   }
  
   override func viewDidAppear(animated: Bool) {
@@ -210,6 +247,10 @@ class StandardPlayerContentViewController: UIViewController {
   
   @IBAction func forwardButtonPressed(sender: AnyObject) {
     player.seekToTime(player.currentTime + 30)
+  }
+  
+  @IBAction func sleepButtonPressed(sender: AnyObject) {
+    viewModel.toggleSleepTimer()
   }
 }
 

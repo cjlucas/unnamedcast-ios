@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="9QF-0u-yNM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="9QF-0u-yNM">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -13,7 +13,7 @@
             <objects>
                 <collectionViewController id="P8P-Vh-xPE" customClass="FeedViewController" customModule="unnamedcast" customModuleProvider="target" sceneMemberID="viewController">
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="FC5-xC-4or">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="lgY-i9-KwV">
@@ -104,7 +104,7 @@
             <objects>
                 <tableViewController id="ucd-62-pVB" customClass="SingleFeedViewController" customModule="unnamedcast" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="204" sectionHeaderHeight="28" sectionFooterHeight="28" id="Fgs-Hu-ZyK">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <view key="tableHeaderView" clipsSubviews="YES" contentMode="scaleToFill" id="2Vj-RL-9P6">
@@ -145,13 +145,13 @@
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="249" misplaced="YES" text="Item Summary" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rQU-5X-6ok">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="249" text="Item Summary" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rQU-5X-6ok">
                                                     <rect key="frame" x="0.0" y="22" width="576" height="139"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Item Metadata" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iAK-qz-GDQ">
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Item Metadata" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iAK-qz-GDQ">
                                                     <rect key="frame" x="0.0" y="167" width="576" height="12"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -198,11 +198,11 @@
                         <viewControllerLayoutGuide type="bottom" id="n9d-Hu-O4Y"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="ret-Jw-c6e">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TQk-F5-OGZ">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
                                 <connections>
                                     <segue destination="GPb-43-CUe" kind="embed" identifier="PlayerViewEmbedded" id="0zk-Oy-yOS"/>
                                 </connections>
@@ -233,17 +233,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="FEd-vV-e0S">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" misplaced="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="FEd-vV-e0S">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="580"/>
                                 <subviews>
-                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iqa-Gf-J9O" userLabel="Content Container VIew">
-                                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
+                                    <containerView opaque="NO" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Iqa-Gf-J9O" userLabel="Content Container VIew">
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
                                         <connections>
                                             <segue destination="tfJ-TW-qni" kind="embed" id="tgf-2s-F0M"/>
                                         </connections>
                                     </containerView>
-                                    <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LT5-Qh-34e" userLabel="Miniplayer View">
-                                        <rect key="frame" x="0.0" y="530" width="600" height="70"/>
+                                    <containerView opaque="NO" contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LT5-Qh-34e" userLabel="Miniplayer View">
+                                        <rect key="frame" x="0.0" y="510" width="600" height="70"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="Z0S-ij-tnb"/>
                                         </constraints>
@@ -517,7 +517,7 @@
                         <viewControllerLayoutGuide type="bottom" id="IQK-Fe-20e"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="Sw8-6m-ib7">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -554,19 +554,19 @@
                                 <rect key="frame" x="133" y="35" width="400" height="30"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WFQ-d5-Ikd">
-                                        <rect key="frame" x="0.0" y="0.0" width="18" height="30"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="14" height="30"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="xU2-jT-hGP">
-                                        <rect key="frame" x="32" y="0.0" width="314" height="31"/>
+                                        <rect key="frame" x="28" y="0.0" width="318" height="31"/>
                                         <connections>
                                             <action selector="timeSliderTouchedDown:" destination="bN7-U0-OZ1" eventType="touchDown" id="qfN-b0-4VA"/>
                                             <action selector="timeSliderTouchedUp:" destination="bN7-U0-OZ1" eventType="touchUpInside" id="xKe-BR-IFP"/>
                                         </connections>
                                     </slider>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="-00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1zI-gr-voW">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1zI-gr-voW">
                                         <rect key="frame" x="360" y="0.0" width="40" height="30"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
@@ -647,8 +647,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" spacing="32" translatesAutoresizingMaskIntoConstraints="NO" id="tJY-Iu-U48" userLabel="Player Controls">
-                                <rect key="frame" x="65" y="617" width="246" height="30"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacing="22" translatesAutoresizingMaskIntoConstraints="NO" id="tJY-Iu-U48" userLabel="Player Controls">
+                                <rect key="frame" x="17" y="617" width="342" height="30"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nHr-cM-vtT">
                                         <rect key="frame" x="0.0" y="0.0" width="51" height="30"/>
@@ -658,23 +658,30 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="M2E-Y0-0fZ">
-                                        <rect key="frame" x="83" y="0.0" width="75" height="30"/>
+                                        <rect key="frame" x="73" y="0.0" width="75" height="30"/>
                                         <state key="normal" title="Play/Pause"/>
                                         <connections>
                                             <action selector="playPauseButtonPressed:" destination="bNZ-0C-S16" eventType="touchUpInside" id="7Fl-sn-2OO"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="goX-Bz-dnl">
-                                        <rect key="frame" x="190" y="0.0" width="56" height="30"/>
+                                        <rect key="frame" x="170" y="0.0" width="56" height="30"/>
                                         <state key="normal" title="Forward"/>
                                         <connections>
                                             <action selector="forwardButtonPressed:" destination="bNZ-0C-S16" eventType="touchUpInside" id="I5k-11-KD4"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kr9-in-GNd">
+                                        <rect key="frame" x="248" y="0.0" width="94" height="30"/>
+                                        <state key="normal" title="Sleep (00:00)"/>
+                                        <connections>
+                                            <action selector="sleepButtonPressed:" destination="bNZ-0C-S16" eventType="touchUpInside" id="iDP-Cc-L9f"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cQM-bT-Svt" customClass="PlayerView" customModule="unnamedcast" customModuleProvider="target">
-                                <rect key="frame" x="-4" y="0.0" width="384" height="384"/>
+                                <rect key="frame" x="-4" y="0.0" width="383" height="383"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="cQM-bT-Svt" secondAttribute="height" multiplier="1:1" id="xnF-Hx-A0u"/>
@@ -683,20 +690,20 @@
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="FRN-iw-ell" userLabel="Time Components">
                                 <rect key="frame" x="21" y="547" width="336" height="30"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dHe-YZ-pfb">
-                                        <rect key="frame" x="0.0" y="0.0" width="18" height="30"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dHe-YZ-pfb">
+                                        <rect key="frame" x="0.0" y="0.0" width="30" height="30"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="iHe-XD-X9p">
-                                        <rect key="frame" x="32" y="0.0" width="250" height="31"/>
+                                    <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" translatesAutoresizingMaskIntoConstraints="NO" id="iHe-XD-X9p">
+                                        <rect key="frame" x="44" y="0.0" width="238" height="31"/>
                                         <connections>
                                             <action selector="timeSliderTouchedDown:" destination="bNZ-0C-S16" eventType="touchDown" id="qF4-5n-OtI"/>
                                             <action selector="timeSliderTouchedUp:" destination="bNZ-0C-S16" eventType="touchUpInside" id="bHe-et-ecS"/>
                                         </connections>
                                     </slider>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="-00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7zs-Jp-205">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-00:00" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7zs-Jp-205">
                                         <rect key="frame" x="296" y="0.0" width="40" height="30"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -705,7 +712,7 @@
                                 </subviews>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="8nc-Gg-2IH" userLabel="Episode Info">
-                                <rect key="frame" x="113" y="392" width="150" height="39"/>
+                                <rect key="frame" x="113" y="391" width="150" height="39"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="The title of the episode" textAlignment="center" lineBreakMode="characterWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YC0-0i-g2f">
                                         <rect key="frame" x="0.0" y="0.0" width="150" height="17"/>
@@ -742,6 +749,7 @@
                         <outlet property="curTimeLabel" destination="dHe-YZ-pfb" id="8bQ-ZV-f8u"/>
                         <outlet property="playerView" destination="cQM-bT-Svt" id="76p-hY-fVS"/>
                         <outlet property="remTimeLabel" destination="7zs-Jp-205" id="7UU-Mb-FNF"/>
+                        <outlet property="sleepTimerButton" destination="kr9-in-GNd" id="pte-G8-01g"/>
                         <outlet property="timeSlider" destination="iHe-XD-X9p" id="vnk-eI-aDH"/>
                         <outlet property="titleLabel" destination="YC0-0i-g2f" id="bfq-ic-nX1"/>
                     </connections>

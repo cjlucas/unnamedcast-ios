@@ -28,5 +28,8 @@ protocol PlayerController {
   func playItem(item: PlayerItem)
   func queueItem(item: PlayerItem)
   
+  // Sleep timer
+  var timerDuration: Int { get set }
+  
   func registerForEvents(handler: PlayerEventHandler)
 }

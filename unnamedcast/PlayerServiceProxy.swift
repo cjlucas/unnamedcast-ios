@@ -20,6 +20,15 @@ struct PlayerServiceProxy: PlayerController {
     }
   }
   
+  var timerDuration: Int {
+    get {
+      return player.timerDuration
+    }
+    set(duration) {
+      player.timerDuration = duration
+    }
+  }
+  
   var currentTime: Double {
     return player.currentTime().seconds
   }
