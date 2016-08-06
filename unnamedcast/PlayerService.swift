@@ -19,10 +19,13 @@ private class Timer {
   
   private let onTimerFired: () -> ()
   private var timer: NSTimer?
-  private var state: State {
-    didSet {
-//      print("Sleep timer state did change \(state)")
+  var state: State
+  
+  var isValid: Bool {
+    if case .Invalidated = state {
+      return false
     }
+    return true
   }
   
   init(duration: Int, onFire: () -> ()) {
@@ -66,17 +69,6 @@ private class Timer {
       state = .Paused(timeRemaining: expectedFireDate.timeIntervalSinceNow)
     }
   }
-  
-  func timeRemaining() -> Int {
-    switch state {
-    case .Started(let expectedFireDate):
-      return Int(expectedFireDate.timeIntervalSinceNow)
-    case .Paused(let timeRemaining):
-      return Int(timeRemaining)
-    case .Invalidated:
-      fatalError("timeRemaining called on invalidated timer")
-    }
-  }
 }
 
 protocol PlayerEventHandler: class {
@@ -115,6 +107,34 @@ public class PlayerService: NSObject, NSCoding {
   private var timeObserverToken: AnyObject?
   
   private var sleepTimer: Timer?
+  
+  var timerDuration: Int {
+    get {
+      guard let state = sleepTimer?.state else { return 0 }
+      switch state {
+      case .Started(let expectedFireDate):
+        return Int(expectedFireDate.timeIntervalSinceNow)
+      case .Paused(let timeRemaining):
+        return Int(timeRemaining)
+      case .Invalidated:
+        return 0
+      }
+    }
+    set(duration) {
+      sleepTimer?.invalidate()
+      if duration == 0 {
+        return
+      }
+      
+      sleepTimer = Timer(duration: duration) { [weak self] in
+        self?.pause()
+      }
+      
+      if isPlaying() {
+        sleepTimer?.start()
+      }
+    }
+  }
   
   var currentItem: PlayerItem? {
     return playlist.currentItem
@@ -360,23 +380,5 @@ public class PlayerService: NSObject, NSCoding {
   
   func registerEventHandler(handler: PlayerEventHandler) {
     eventHandlers.addObject(handler)
-  }
-  
-  // MARK: Sleep Timer
-  
-  func setTimer(duration: Int) {
-    sleepTimer?.invalidate()
-    sleepTimer = Timer(duration: duration) { [weak self] in
-      self?.pause()
-    }
-    sleepTimer?.start()
-  }
-  
-  func timeRemaining() -> Int {
-    return sleepTimer?.timeRemaining() ?? 0
-  }
-  
-  func timerDidFire() {
-    pause()
   }
 }

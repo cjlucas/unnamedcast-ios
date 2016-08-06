@@ -20,6 +20,15 @@ struct PlayerServiceProxy: PlayerController {
     }
   }
   
+  var timerDuration: Int {
+    get {
+      return player.timerDuration
+    }
+    set(duration) {
+      player.timerDuration = duration
+    }
+  }
+  
   var currentTime: Double {
     return player.currentTime().seconds
   }
@@ -63,13 +72,4 @@ struct PlayerServiceProxy: PlayerController {
   func registerForEvents(handler: PlayerEventHandler) {
     player.registerEventHandler(handler)
   }
-  
-  func setTimer(duration: Int) {
-    player.setTimer(duration)
-  }
-  
-  func timeRemaining() -> Int {
-    return player.timeRemaining()
-  }
-
 }
