@@ -56,10 +56,6 @@
 		8364FB021CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
 		8364FB031CE41B36004576F7 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8364FAFF1CE41B36004576F7 /* Array.swift */; };
 		8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940B1D065A9400DCB8EE /* PlayerController.swift */; };
-		8365940E1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
-		8365940F1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
-		836594101D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
-		836594111D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */; };
 		836594141D065B2500DCB8EE /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594131D065B2500DCB8EE /* Playlist.swift */; };
 		836594151D065B2500DCB8EE /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594131D065B2500DCB8EE /* Playlist.swift */; };
 		836594161D065B2500DCB8EE /* Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836594131D065B2500DCB8EE /* Playlist.swift */; };
@@ -147,7 +143,6 @@
 		8364FAF81CE1A64B004576F7 /* Request.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		8364FAFF1CE41B36004576F7 /* Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
 		8365940B1D065A9400DCB8EE /* PlayerController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerController.swift; sourceTree = "<group>"; };
-		8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerServiceProxy.swift; sourceTree = "<group>"; };
 		836594131D065B2500DCB8EE /* Playlist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
 		836594181D065B5600DCB8EE /* PlayerItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerItem.swift; sourceTree = "<group>"; };
 		836594221D065DD000DCB8EE /* ProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressView.swift; sourceTree = "<group>"; };
@@ -302,7 +297,6 @@
 				8302FB2F1D087C090098283F /* Event Handlers */,
 				837857BF1C5C52400026959C /* PlayerService.swift */,
 				8365940B1D065A9400DCB8EE /* PlayerController.swift */,
-				8365940D1D065AD100DCB8EE /* PlayerServiceProxy.swift */,
 				836594131D065B2500DCB8EE /* Playlist.swift */,
 				836594181D065B5600DCB8EE /* PlayerItem.swift */,
 			);
@@ -774,7 +768,6 @@
 				835177231CE6B0B500064843 /* AppDelegate.swift in Sources */,
 				835177241CE6B0E200064843 /* PlayerService.swift in Sources */,
 				836594171D065B2500DCB8EE /* Playlist.swift in Sources */,
-				836594111D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				8364FB031CE41B36004576F7 /* Array.swift in Sources */,
 				8365941C1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				833342FC1D07C82500ABEA39 /* PlayerController.swift in Sources */,
@@ -804,7 +797,6 @@
 				8364FB001CE41B36004576F7 /* Array.swift in Sources */,
 				837857C01C5C52400026959C /* PlayerService.swift in Sources */,
 				8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */,
-				8365940E1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				836594281D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
 				836594141D065B2500DCB8EE /* Playlist.swift in Sources */,
 				836594191D065B5600DCB8EE /* PlayerItem.swift in Sources */,
@@ -839,7 +831,6 @@
 				8377B5141CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				833342F91D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				836594291D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
-				8365940F1D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				8365941A1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E725811C5AEF0D00A0E8D4 /* unnamedcastTests.swift in Sources */,
 				836594151D065B2500DCB8EE /* Playlist.swift in Sources */,
@@ -859,7 +850,6 @@
 				8377B5151CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				833342FA1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
 				8365942A1D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
-				836594101D065AD100DCB8EE /* PlayerServiceProxy.swift in Sources */,
 				8365941B1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E7258C1C5AEF0D00A0E8D4 /* unnamedcastUITests.swift in Sources */,
 				836594161D065B2500DCB8EE /* Playlist.swift in Sources */,

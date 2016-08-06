@@ -17,9 +17,9 @@ class PlayerItem: NSObject, NSCoding {
     let duration: Double
   }
   
-  var url: NSURL!
-  var id: String!
-  var initialTime: CMTime!
+  var url: NSURL
+  var id: String
+  var position: Double
   // TODO: AVPlayerItemDelegate
   
   lazy var avItem: AVPlayerItem = {
@@ -29,7 +29,7 @@ class PlayerItem: NSObject, NSCoding {
   init(id: String, url: NSURL, position: Double = 0) {
     self.id = id
     self.url = url
-    self.initialTime = CMTimeMakeWithSeconds(position, 1000)
+    self.position = position
   }
   
   func hasVideo() -> Bool {
@@ -43,12 +43,12 @@ class PlayerItem: NSObject, NSCoding {
   required init?(coder d: NSCoder) {
     url = d.decodeObjectForKey("url") as! NSURL
     id = d.decodeObjectForKey("id") as! String
-    initialTime = d.decodeCMTimeForKey("initialTime")
+    position = d.decodeDoubleForKey("position")
   }
   
   func encodeWithCoder(c: NSCoder) {
     c.encodeObject(url, forKey: "url")
     c.encodeObject(id, forKey: "id")
-    c.encodeCMTime(initialTime, forKey: "initialTime")
+    c.encodeDouble(position, forKey: "position")
   }
 }
