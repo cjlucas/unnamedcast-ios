@@ -74,36 +74,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PlayerServiceDelegate {
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
     player.delegate = self
     
-    player.registerEventHandler(nowPlayingInfoHandler)
-    player.registerEventHandler(dbPlayerMediator)
+    player.registerForEvents(nowPlayingInfoHandler)
+    player.registerForEvents(dbPlayerMediator)
     
     let start = NSDate()
     
     // Dependency injection for player service
     let container = Container()
-    let playerProxy = PlayerServiceProxy(player: player)
     layerProvider = PlayerLayerProvider(playerLayer: AVPlayerLayer(player: player.player))
     
     container.registerForStoryboard(StandardPlayerContentViewController.self, name: nil) { r, c in
-      c.player = playerProxy
+      c.player = self.player
       c.layerProvider = self.layerProvider
     }
     
     container.registerForStoryboard(FullscreenPlayerContentViewController.self, name: nil) { r, c in
-      c.player = playerProxy
+      c.player = self.player
       c.layerProvider = self.layerProvider
     }
 
     container.registerForStoryboard(SingleFeedViewController.self, name: nil) { r, c in
-      c.player = playerProxy
+      c.player = self.player
     }
 
     container.registerForStoryboard(MiniPlayerViewController.self, name: nil) { r, c in
-      c.player = playerProxy
+      c.player = self.player
     }
 
     container.registerForStoryboard(AppContainerViewController.self, name: nil) { r, c in
-      c.player = playerProxy
+      c.player = self.player
     }
     
     print(-start.timeIntervalSinceNow * 1000)

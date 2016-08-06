@@ -89,7 +89,7 @@ protocol PlayerServiceDelegate {
   func backendPlayerDidChange(player: AVPlayer)
 }
 
-public class PlayerService: NSObject, NSCoding {
+public class PlayerService: NSObject, PlayerController, NSCoding {
   lazy private(set) var player: AVPlayer = self.createPlayer()
   
   private(set) var playlist = Playlist()
@@ -130,7 +130,7 @@ public class PlayerService: NSObject, NSCoding {
         self?.pause()
       }
       
-      if isPlaying() {
+      if isPlaying {
         sleepTimer?.start()
       }
     }
@@ -138,6 +138,10 @@ public class PlayerService: NSObject, NSCoding {
   
   var currentItem: PlayerItem? {
     return playlist.currentItem
+  }
+
+  var queuedItems: [PlayerItem] {
+    return playlist.queuedItems
   }
   
   var forwardSkipInterval: Int = 30 {
@@ -177,11 +181,23 @@ public class PlayerService: NSObject, NSCoding {
       player.rate = rate
     }
   }
- 
+
+  var isPlaying: Bool {
+    return player.rate > 0 && playlist.count > 0 && player.error == nil
+  }
+  
+  var isPaused: Bool {
+    return player.rate == 0 && playlist.count > 0 && player.error == nil
+  }
+
+  var currentTime: Double {
+    return player.currentTime().seconds
+  }
+  
   var position: Double {
     get {
       guard let item = player.currentItem else { return 0 }
-      return currentTime().seconds / item.duration.seconds
+      return currentTime / item.duration.seconds
     }
   }
   
@@ -203,16 +219,14 @@ public class PlayerService: NSObject, NSCoding {
     var cmd = commandCenter.skipForwardCommand
     cmd.preferredIntervals = [forwardSkipInterval]
     cmd.addTargetWithHandler { handler in
-      let newTime = CMTimeAdd(self.currentTime(), CMTimeMake(Int64(self.forwardSkipInterval), 1))
-      self.seekToTime(newTime)
+      self.seekToTime(self.currentTime + Double(self.forwardSkipInterval))
       return .Success
     }
     
     cmd = commandCenter.skipBackwardCommand
     cmd.preferredIntervals = [backwardSkipInterval]
     cmd.addTargetWithHandler { handler in
-      let newTime = CMTimeSubtract(self.currentTime(), CMTimeMake(Int64(self.backwardSkipInterval), 1))
-      self.seekToTime(newTime)
+      self.seekToTime(self.currentTime - Double(self.forwardSkipInterval))
       return .Success
     }
   }
@@ -283,14 +297,6 @@ public class PlayerService: NSObject, NSCoding {
     }
   }
   
-  func isPlaying() -> Bool {
-    return player.rate > 0 && playlist.count > 0 && player.error == nil
-  }
-  
-  func isPaused() -> Bool {
-    return player.rate == 0 && playlist.count > 0 && player.error == nil
-  }
-  
   func play() {
     player.play()
     sleepTimer?.start()
@@ -303,9 +309,8 @@ public class PlayerService: NSObject, NSCoding {
     player = createPlayer(item)
     delegate?.backendPlayerDidChange(player)
     
-    let time = item.initialTime
-    if time.isValid && !time.seconds.isZero {
-      seekToTime(item.initialTime)
+    if !item.position.isZero {
+      seekToTime(item.position)
     }
   }
   
@@ -348,14 +353,12 @@ public class PlayerService: NSObject, NSCoding {
     sleepTimer?.pause()
   }
 
-  // TODO: deprecate in favor of a Double alternative
-  func seekToTime(time: CMTime) {
-    player.seekToTime(time)
+  func seekToTime(seconds: Double) {
+    player.seekToTime(CMTimeMake(Int64(seconds), 1))
   }
 
-  // TODO: deprecate in favor of a Double alternative
-  func currentTime() -> CMTime {
-    return player.currentTime()
+  func registerForEvents(handler: PlayerEventHandler) {
+    eventHandlers.addObject(handler)
   }
   
   // MARK: NSCoding
@@ -372,13 +375,7 @@ public class PlayerService: NSObject, NSCoding {
   }
   
   public func encodeWithCoder(c: NSCoder) {
-    playlist.currentItem?.initialTime = currentTime()
+    playlist.currentItem?.position = currentTime
     c.encodeObject(playlist.items, forKey: "items")
-  }
-  
-  // MARK: Event Handlers
-  
-  func registerEventHandler(handler: PlayerEventHandler) {
-    eventHandlers.addObject(handler)
   }
 }
