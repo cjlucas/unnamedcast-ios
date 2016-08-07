@@ -96,7 +96,6 @@ class Item: Object, JSONDecodable {
   var state: State {
     get {
       if playing {
-        print(title, position.value)
         // HACK: this fixes the "0 minutes left" bug.
         // The real solution would be to fix it at the setter
         // (it is unknown if the source is the sync engine or the position updater)
