@@ -20,6 +20,18 @@ class DB {
   lazy var feeds: Results<Feed> = self.realm.objects(Feed)
   lazy var items: Results<Item> = self.realm.objects(Item)
   
+  func unplayedItemsForFeed(feed: Feed) -> Results<Item> {
+    return feed.items.filter("playing == true AND position == nil")
+  }
+
+  func playedItemsForFeed(feed: Feed) -> Results<Item> {
+    return feed.items.filter("playing == false")
+  }
+  
+  func inProgressItemsForFeed(feed: Feed) -> Results<Item> {
+    return feed.items.filter("playing == true && position > 0")
+  }
+  
   func feedWithID(id: String) -> Feed? {
     return realm.objectForPrimaryKey(Feed.self, key: id)
   }
