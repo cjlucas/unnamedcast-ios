@@ -50,6 +50,16 @@ class PlayerContentViewModel {
     return db.itemWithID(item.id)
   }
   
+  var sleepTimerDuration: Int {
+    get {
+      return player.timerDuration
+    }
+    set(duration) {
+      player.timerDuration = duration
+      update()
+    }
+  }
+  
   init(player: PlayerController,
        playerView: PlayerView,
        timeSlider: UISlider,
@@ -123,29 +133,6 @@ class PlayerContentViewModel {
     } else {
       return String(format: "%d:%02d", minutes, secs)
     }
-  }
-  
-  func toggleSleepTimer() {
-    let durations = [5 * 60, 15 * 60, 30 * 60, 60 * 60]
-    let time = self.player.timerDuration
-    
-    defer { update() }
-
-    if time > 0 {
-      self.player.timerDuration = 0
-    }
-   
-    // iterate through available durations, if the current timer
-    // is strictly less than the proposed duration, update the timer to that,
-    // otherwise stop the timer.
-    for d in durations {
-      if time < d {
-        self.player.timerDuration = d
-        return
-      }
-    }
-    
-    self.player.timerDuration = 0
   }
   
   @objc func update() {
@@ -250,7 +237,22 @@ class StandardPlayerContentViewController: UIViewController {
   }
   
   @IBAction func sleepButtonPressed(sender: AnyObject) {
-    viewModel.toggleSleepTimer()
+    let durations = [5 * 60, 15 * 60, 30 * 60, 60 * 60]
+    let time = viewModel.sleepTimerDuration
+    
+    // iterate through available durations, if the current timer
+    // is strictly less than the proposed duration, update the timer to that,
+    // otherwise stop the timer.
+    // timeout to allow rapid clicks.
+    let toggleTimeout = 2
+    for d in durations {
+      if time + toggleTimeout < d {
+        viewModel.sleepTimerDuration = d
+        return
+      }
+    }
+   
+    viewModel.sleepTimerDuration = 0
   }
 }
 
