@@ -626,7 +626,7 @@ class testItemStateSync: XCTestCase {
                                 [
                                   "item_id": "56d65493c8747268f348438f",
                                   "state": 1,
-                                  "position": 5.5,
+                                  "position": 0.50,
                                   "modification_time": "2016-04-03T19:38:03.33Z",
                                 ]
                                ]))
@@ -645,7 +645,7 @@ class testItemStateSync: XCTestCase {
     
     waitForExpectationsWithTimeout(5) { _ in
       let feed = self.db.feedWithID(self.feedID)
-      XCTAssert(feed!.items.first!.state == .InProgress(position: 5.5))
+      XCTAssert(feed!.items.first!.state == .InProgress(position: 0.50))
     }
   }
 
