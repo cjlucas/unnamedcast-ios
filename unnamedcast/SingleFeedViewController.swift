@@ -13,6 +13,11 @@ import AVFoundation
 import Alamofire
 
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
+  private struct TableSection {
+    let name: String
+    let results: Results<Item>
+  }
+  
   private typealias CellData = (
     title: String,
     description: String,
@@ -30,16 +35,22 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   var feedUpdateNotificationToken: NotificationToken
  
   private var cache = [NSIndexPath: CellData]()
+
+  private lazy var sections: [TableSection] = {
+    return [
+      TableSection(name: "In Progress", results: self.db.inProgressItemsForFeed(self.feed)),
+      TableSection(name: "Unplayed", results: self.db.unplayedItemsForFeed(self.feed)),
+      TableSection(name: "Played", results: self.db.playedItemsForFeed(self.feed)),
+    ]
+  }()
+  
+  private var activeSections: [TableSection] {
+    return sections.filter { section in section.results.count > 0 }
+  }
   
   var items: Results<Item> {
     return self.feed.items.sorted("pubDate", ascending: false)
   }
-  
-  private func itemAtIndexPath(path: NSIndexPath) -> Item! {
-    return items[path.row]
-  }
-  
-  var item: Item!
   
   required init(feedID: String,
        tableView: UITableView,
@@ -84,6 +95,10 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   deinit {
     feedUpdateNotificationToken.stop()
+  }
+
+  private func itemAtIndexPath(path: NSIndexPath) -> Item! {
+    return activeSections[path.section].results[path.row]
   }
   
   func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
@@ -169,7 +184,15 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
   
   @objc func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return items.count
+    return activeSections[section].results.count
+  }
+  
+  @objc func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    return activeSections.count
+  }
+  
+  func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    return activeSections[section].name
   }
 }
 
