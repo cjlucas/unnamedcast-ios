@@ -79,11 +79,11 @@ class Item: Object, JSONDecodable {
   dynamic var pubDate: NSDate?
   dynamic var audioURL: String = ""
   dynamic var imageURL: String = ""
-  dynamic var playing: Bool = false
   dynamic var feed: Feed?
+  dynamic var playing: Bool = false
+  dynamic var position: Double = 0
   dynamic var modificationDate: NSDate?
   dynamic var stateModificationTime: NSDate?
-  let position = RealmOptional<Double>()
   
   override static func primaryKey() -> String? {
     return "id"
@@ -96,28 +96,26 @@ class Item: Object, JSONDecodable {
   var state: State {
     get {
       if playing {
-        // HACK: this fixes the "0 minutes left" bug.
-        // The real solution would be to fix it at the setter
-        // (it is unknown if the source is the sync engine or the position updater)
-        return position.value != nil && position.value! < 0.99
-          ? State.InProgress(position: position.value!)
-          : State.Unplayed
+        return position.isZero
+          ? State.Unplayed
+          : State.InProgress(position: position)
       }
       
       return .Played
     }
     set(newValue) {
+      print(newValue)
       switch(newValue) {
       case .Unplayed:
         playing = true
-        position.value = nil
+        position = 0
       case .Played:
         playing = false
-        position.value = 0
-      case .InProgress(let position) where position.isFinite:
+        position = 0
+      case .InProgress(let pos) where pos.isFinite:
         // Only store the position if the value is finite and non NaN
         playing = true
-        self.position.value = position
+        position = pos
       default:
         return
       }

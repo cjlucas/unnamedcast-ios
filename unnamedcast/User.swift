@@ -31,22 +31,18 @@ class User: JSONDecodable {
   }
 }
 
-class ItemState: JSONDecodable, JSONEncodable {
-  var itemID: String!
-  var state: Item.State = .Unplayed
-  var modificationTime: NSDate!
-
-  convenience init(itemID: String, state: Item.State, modificationTime: NSDate) {
-    self.init()
-    
+struct ItemState: JSONDecodable, JSONEncodable {
+  var itemID: String
+  var state: Item.State
+  var modificationTime: NSDate
+  
+  init(itemID: String, state: Item.State, modificationTime: NSDate) {
     self.itemID = itemID
     self.state = state
     self.modificationTime = modificationTime
   }
-  
-  convenience required init(json: JSON) throws {
-    self.init()
-    
+
+  init(json: JSON) throws {
     itemID = try json.string("item_id")
     let itemPos = try json.double("position")
    

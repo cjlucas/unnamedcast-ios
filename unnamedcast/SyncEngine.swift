@@ -104,7 +104,7 @@ class SyncEngine {
           guard let stateModTime = item.stateModificationTime else {
             fatalError("stateModificationTime is nil")
           }
-          
+         
           let state = ItemState(itemID: item.id, state: item.state, modificationTime: stateModTime)
           return self.requester.request(UpdateUserItemStateEndpoint(userID: self.userID, state: state))
       }
