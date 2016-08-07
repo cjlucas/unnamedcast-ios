@@ -34,8 +34,6 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   var feedUpdateNotificationToken: NotificationToken
  
-  private var cache = [NSIndexPath: CellData]()
-
   private lazy var sections: [TableSection] = {
     return [
       TableSection(name: "In Progress", results: self.db.inProgressItemsForFeed(self.feed)),
@@ -176,8 +174,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
-    let data = cache[indexPath] ?? cellDataAtIndexPath(indexPath)
-    cache[indexPath] = data
+    let data = cellDataAtIndexPath(indexPath)
     
     configureCell(cell, data: data)
     
@@ -225,6 +222,11 @@ class SingleFeedViewController: UITableViewController {
                                     headerImageView: headerImageView)
     
     tableView.dataSource = viewModel
+  }
+  
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    tableView.reloadData()
   }
   
   // MARK: UITableViewDelegate
