@@ -98,11 +98,12 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
 
   private func itemAtIndexPath(path: NSIndexPath) -> Item! {
-    return activeSections[path.section].results[path.row]
+    return activeSections[path.section].results
+      .sorted("pubDate", ascending: false)[path.row]
   }
   
   func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
-    let item = items[path.row]
+    let item = itemAtIndexPath(path)
     var position = 0.0
     if case .InProgress(let pos) = item.state {
       position = pos * Double(item.duration)
