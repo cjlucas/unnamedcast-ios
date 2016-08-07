@@ -96,7 +96,11 @@ class Item: Object, JSONDecodable {
   var state: State {
     get {
       if playing {
-        return position.value != nil
+        print(title, position.value)
+        // HACK: this fixes the "0 minutes left" bug.
+        // The real solution would be to fix it at the setter
+        // (it is unknown if the source is the sync engine or the position updater)
+        return position.value != nil && position.value! < 0.99
           ? State.InProgress(position: position.value!)
           : State.Unplayed
       }
