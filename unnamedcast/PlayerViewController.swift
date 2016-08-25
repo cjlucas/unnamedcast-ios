@@ -377,6 +377,11 @@ class PlayerContainerViewController: UIViewController {
     performSegue(.standardPlayer, sender: self)
   }
   
+  override func viewWillDisappear(animated: Bool) {
+    self.navigationController?.navigationBarHidden = false
+    super.viewWillDisappear(animated)
+  }
+  
   private func performSegue(segue: Segue, sender: AnyObject?) {
     performSegueWithIdentifier(segue.rawValue, sender: sender)
   }
