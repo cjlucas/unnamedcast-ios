@@ -12,6 +12,59 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
+private typealias RGBA = (
+  red: CGFloat,
+  green: CGFloat,
+  blue: CGFloat,
+  alpha: CGFloat
+)
+
+private func getRGB(color: UIColor) -> RGBA {
+  var r: CGFloat = 0
+  var g: CGFloat = 0
+  var b: CGFloat = 0
+  var a: CGFloat = 0
+  color.getRed(&r, green: &g, blue: &b, alpha: &a)
+  return (red: r, green: g, blue: b, alpha: a)
+}
+
+private func getGradientForImage(colors: [UIColor]) -> [CGColor] {
+  guard colors.count > 0 else { return [UIColor.blackColor().CGColor, UIColor.blackColor().CGColor] }
+ 
+  // fall back to first color
+  var color = colors.first!
+  for c in colors {
+    // Nothing too bright or too dark
+    if CGFloat(c.brightness) > 1.0 - 0.2 || CGFloat(c.brightness) < 0.2 {
+      continue
+    }
+    
+    // Ghetto brightness test
+    let (r, g, b, _) = getRGB(c)
+    
+    // reject neutral colors
+    let rgb = [r,g,b].sort()
+    let diff2 = rgb[2] - rgb[0]
+    if diff2 < 0.1 {
+      continue
+    }
+    
+    color = c
+    break
+  }
+  
+  print("Picked \(color) \(color.brightness) \(color.isDarkColor)")
+
+  let multiplier: CGFloat = 0.05 // number of times lighter
+  
+  let (r, g, b, _) = getRGB(color)
+  let start = UIColor(red: r + multiplier, green: g + multiplier, blue: b + multiplier, alpha: 1)
+  let end = UIColor(red: r - multiplier, green: g - multiplier, blue: b - multiplier, alpha: 1)
+  
+  return [start, end].map { $0.CGColor }
+}
+
+
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private struct TableSection {
     let name: String
@@ -26,8 +79,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   )
   
   private weak var tableView: UITableView?
-  private weak var headerView: UIView? // TODO: extract these two views into their own class
-  private weak var headerImageView: UIImageView?
+  private weak var headerView: SingleFeedTableHeaderView? // TODO: extract these two views into their own class
   
   private let db = try! DB()
   private var feed: Feed!
@@ -52,8 +104,9 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   required init(feedID: String,
        tableView: UITableView,
-       headerView: UIView,
-       headerImageView: UIImageView) {
+       headerView: SingleFeedTableHeaderView,
+       onColorChange: (UIColor) -> ()
+    ) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
@@ -61,10 +114,11 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     self.feed = feed
     self.tableView = tableView
     self.headerView = headerView
-    self.headerImageView = headerImageView
 
     self.tableView?.estimatedRowHeight = 140
     self.tableView?.rowHeight = UITableViewAutomaticDimension
+    
+    headerView.titleLabel.text = feed.title
 
     weak var weakTableView = tableView
     feedUpdateNotificationToken = self.db.addNotificationBlockForFeedUpdate(feed) {
@@ -74,19 +128,35 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     }
     
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
+      
       if let data = resp.data {
         let image = UIImage(data: data)!
+
+        let layer = CAGradientLayer()
+        layer.frame = headerView.bounds
+        let colors = getGradientForImage(feed.colors.map {
+          return UIColor(
+            red: CGFloat($0.red) / 255.0,
+            green: CGFloat($0.green) / 255.0,
+            blue: CGFloat($0.blue) / 255.0,
+            alpha: 1
+          )
+        })
+        layer.colors = colors
+        onColorChange(colors.map(UIColor.init).first!)
+        headerView.layer.insertSublayer(layer, atIndex: 0)
         
-        let bgImageView = UIImageView(image: image)
-        bgImageView.contentMode = .Center
-        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
+//        let bgImageView = UIImageView(image: image)
+//        bgImageView.contentMode = .Center
+//        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
         
-        let effect = UIBlurEffect(style: .Dark)
-        let ev = UIVisualEffectView(effect: effect)
-        ev.frame = headerView.bounds
-        headerView.insertSubview(ev, belowSubview: headerImageView)
+//        let effect = UIBlurEffect(style: .Dark)
+//        let ev = UIVisualEffectView(effect: effect)
+//        ev.frame = headerView.bounds
+//        headerView.insertSubview(ev, belowSubview: headerImageView)
         
-        headerImageView.image = image
+        
+        headerView.imageView.image = image
       }
     }
   }
@@ -200,11 +270,15 @@ class SingleFeedTableViewCell: UITableViewCell {
   @IBOutlet weak var itemMetadataLabel: UILabel!
 }
 
+class SingleFeedTableHeaderView: UIView {
+  @IBOutlet weak var imageView: UIImageView!
+  @IBOutlet weak var titleLabel: UILabel!
+}
+
 class SingleFeedViewController: UITableViewController {
   var feedID: String!
   
-  @IBOutlet weak var headerView: UIView!
-  @IBOutlet weak var headerImageView: UIImageView!
+  @IBOutlet weak var headerView: SingleFeedTableHeaderView!
   
   private var viewModel: SingleFeedViewModel!
   
@@ -216,10 +290,16 @@ class SingleFeedViewController: UITableViewController {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
     
+    let layer = headerView.imageView.layer
+    layer.shadowOffset = CGSize(width: 0, height: 1) // orig height was 2
+    layer.shadowRadius = 3; // orig value was 5 (intended for player view)
+    layer.shadowOpacity = 0.5;
+    
+    print(navigationController?.navigationBar.frame)
+   
     viewModel = SingleFeedViewModel(feedID: feedID,
                                     tableView: tableView,
-                                    headerView: headerView,
-                                    headerImageView: headerImageView)
+                                    headerView: headerView) { color in self.view.backgroundColor = color }
     
     tableView.dataSource = viewModel
   }

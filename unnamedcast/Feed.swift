@@ -9,6 +9,19 @@
 import RealmSwift
 import Freddy
 
+class RGB: Object {
+  dynamic var red: Int = 0
+  dynamic var green: Int = 0
+  dynamic var blue: Int = 0
+  
+  convenience init(red: Int, green: Int, blue: Int) {
+    self.init()
+    self.red = red
+    self.green = green
+    self.blue = blue
+  }
+}
+
 class Feed: Object, JSONDecodable {
   dynamic var id: String = ""
   dynamic var title: String = ""
@@ -16,6 +29,8 @@ class Feed: Object, JSONDecodable {
   dynamic var imageUrl: String = ""
   var modificationDate: NSDate!
   var itemIds = [String]()
+  
+  let colors = List<RGB>()
   
   let items = LinkingObjects(fromType: Item.self, property: "feed")
   
@@ -56,6 +71,16 @@ class Feed: Object, JSONDecodable {
    
     if let ids = try? json.array("items").map(String.init) {
       itemIds.appendContentsOf(ids)
+    }
+   
+    let colors = try? json.array("image_colors").map { color in
+      return try! RGB(red: color.int("red"), green: color.int("green"), blue: color.int("blue"))
+    }
+    
+    if let colors = colors {
+      self.colors.appendContentsOf(colors)
+      print("OMGCOLORS")
+      print(colors)
     }
   }
 }
