@@ -299,7 +299,9 @@ class SingleFeedViewController: UITableViewController {
    
     viewModel = SingleFeedViewModel(feedID: feedID,
                                     tableView: tableView,
-                                    headerView: headerView) { color in self.view.backgroundColor = color }
+                                    headerView: headerView) {
+                                      self.view.backgroundColor = $0
+                                      self.navigationController?.navigationBar.barTintColor = $0 }
     
     tableView.dataSource = viewModel
   }

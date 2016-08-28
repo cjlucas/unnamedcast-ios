@@ -72,6 +72,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, PlayerServiceDelegate {
   lazy var nowPlayingInfoHandler = NowPlayingInfoPlayerEventHandler()
   
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    
+    // Override point for customization after application launch.
+    // Sets background to a blank/empty image
+    // Removes the line from the navbar
+    UINavigationBar.appearance().setBackgroundImage(UIImage(), forBarMetrics: .Default)
+    // Sets shadow (line below the bar) to a blank image
+    UINavigationBar.appearance().shadowImage = UIImage()
+//    // Sets the translucent background color
+//    UINavigationBar.appearance().backgroundColor = UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+    // Set translucent. (Default value is already true, so this can be removed if desired.)
+    UINavigationBar.appearance().translucent = false
+    
+    
     player.delegate = self
     
     player.registerForEvents(nowPlayingInfoHandler)
