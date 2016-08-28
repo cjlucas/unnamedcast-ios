@@ -13,7 +13,7 @@
             <objects>
                 <collectionViewController id="P8P-Vh-xPE" customClass="FeedViewController" customModule="unnamedcast" customModuleProvider="target" sceneMemberID="viewController">
                     <collectionView key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" id="FC5-xC-4or">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="0.0" minimumInteritemSpacing="0.0" id="lgY-i9-KwV">
@@ -253,16 +253,16 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" misplaced="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="FEd-vV-e0S">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="580"/>
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                                 <subviews>
                                     <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Iqa-Gf-J9O" userLabel="Content Container VIew">
-                                        <rect key="frame" x="0.0" y="0.0" width="600" height="510"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="530"/>
                                         <connections>
                                             <segue destination="tfJ-TW-qni" kind="embed" id="tgf-2s-F0M"/>
                                         </connections>
                                     </containerView>
                                     <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LT5-Qh-34e" userLabel="Miniplayer View">
-                                        <rect key="frame" x="0.0" y="510" width="600" height="70"/>
+                                        <rect key="frame" x="0.0" y="530" width="600" height="70"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="70" id="Z0S-ij-tnb"/>
                                         </constraints>
@@ -277,7 +277,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <accessibility key="accessibilityConfiguration" identifier="Container of da Container"/>
                         <constraints>
-                            <constraint firstItem="FEd-vV-e0S" firstAttribute="top" secondItem="ypO-1r-Rde" secondAttribute="bottom" id="6Qs-4E-hYO"/>
+                            <constraint firstItem="FEd-vV-e0S" firstAttribute="top" secondItem="ypO-1r-Rde" secondAttribute="bottom" constant="-20" id="6Qs-4E-hYO"/>
                             <constraint firstItem="FEd-vV-e0S" firstAttribute="width" secondItem="eDX-nF-MbL" secondAttribute="width" id="Ci0-rB-KGa"/>
                             <constraint firstItem="9ET-PQ-4YH" firstAttribute="top" secondItem="FEd-vV-e0S" secondAttribute="bottom" id="D2T-Cw-wkq"/>
                             <constraint firstItem="FEd-vV-e0S" firstAttribute="leading" secondItem="eDX-nF-MbL" secondAttribute="leading" id="NWD-nh-m1c"/>
