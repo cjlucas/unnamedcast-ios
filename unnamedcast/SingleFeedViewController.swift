@@ -105,7 +105,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   required init(feedID: String,
        tableView: UITableView,
        headerView: SingleFeedTableHeaderView,
-       onColorChange: (UIColor) -> ()
+       onColorChange: (UIColor, UIColor) -> ()
     ) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
@@ -143,7 +143,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
           )
         })
         layer.colors = colors
-        onColorChange(colors.map(UIColor.init).first!)
+        onColorChange(colors.map(UIColor.init)[0], colors.map(UIColor.init)[1])
         headerView.layer.insertSublayer(layer, atIndex: 0)
         
 //        let bgImageView = UIImageView(image: image)
@@ -286,6 +286,9 @@ class SingleFeedViewController: UITableViewController {
   
   var cellHeightCache = [NSIndexPath: CGFloat]()
   
+  var startColor: UIColor?
+  var endColor: UIColor?
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
@@ -299,9 +302,11 @@ class SingleFeedViewController: UITableViewController {
    
     viewModel = SingleFeedViewModel(feedID: feedID,
                                     tableView: tableView,
-                                    headerView: headerView) {
-                                      self.view.backgroundColor = $0
-                                      self.navigationController?.navigationBar.barTintColor = $0 }
+                                    headerView: headerView) { start, end in
+                                      self.startColor = start
+                                      self.endColor = end
+                                      self.view.backgroundColor = start
+                                      self.navigationController?.navigationBar.barTintColor = end }
     
     tableView.dataSource = viewModel
   }
@@ -325,5 +330,36 @@ class SingleFeedViewController: UITableViewController {
   
   override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
     return cellHeightCache[indexPath] ?? UITableViewAutomaticDimension
+  }
+  
+  override func scrollViewDidScroll(scrollView: UIScrollView) {
+    guard let startColor = startColor, endColor = endColor else { return }
+    
+    let point = scrollView.contentOffset
+    
+    if point.y <= 0 {
+      self.navigationController?.navigationBar.barTintColor = startColor
+    } else if point.y >= headerView.frame.height {
+      self.navigationController?.navigationBar.barTintColor = endColor
+    } else {
+      var pixel:[CUnsignedChar] = [0,0,0,0]
+      
+      let colorSpace = CGColorSpaceCreateDeviceRGB()
+      let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedLast.rawValue)
+      
+      let context = CGBitmapContextCreate(&pixel, 1, 1, 8, 4, colorSpace, bitmapInfo.rawValue)
+      
+      CGContextTranslateCTM(context, -point.x, -point.y)
+      
+      headerView.layer.renderInContext(context!)
+      
+      let red:CGFloat = CGFloat(pixel[0])/255.0
+      let green:CGFloat = CGFloat(pixel[1])/255.0
+      let blue:CGFloat = CGFloat(pixel[2])/255.0
+      let alpha:CGFloat = CGFloat(pixel[3])/255.0
+      
+      let color = UIColor(red:red, green: green, blue:blue, alpha:alpha)
+      self.navigationController?.navigationBar.barTintColor = color
+    }
   }
 }
