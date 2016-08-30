@@ -12,6 +12,59 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
+private typealias RGBA = (
+  red: CGFloat,
+  green: CGFloat,
+  blue: CGFloat,
+  alpha: CGFloat
+)
+
+private func getRGB(color: UIColor) -> RGBA {
+  var r: CGFloat = 0
+  var g: CGFloat = 0
+  var b: CGFloat = 0
+  var a: CGFloat = 0
+  color.getRed(&r, green: &g, blue: &b, alpha: &a)
+  return (red: r, green: g, blue: b, alpha: a)
+}
+
+private func getGradientForImage(colors: [UIColor]) -> [CGColor] {
+  guard colors.count > 0 else { return [UIColor.blackColor().CGColor, UIColor.blackColor().CGColor] }
+ 
+  // fall back to first color
+  var color = colors.first!
+  for c in colors {
+    // Nothing too bright or too dark
+    if CGFloat(c.brightness) > 1.0 - 0.2 || CGFloat(c.brightness) < 0.2 {
+      continue
+    }
+    
+    // Ghetto brightness test
+    let (r, g, b, _) = getRGB(c)
+    
+    // reject neutral colors
+    let rgb = [r,g,b].sort()
+    let diff2 = rgb[2] - rgb[0]
+    if diff2 < 0.1 {
+      continue
+    }
+    
+    color = c
+    break
+  }
+  
+  print("Picked \(color) \(color.brightness) \(color.isDarkColor)")
+
+  let multiplier: CGFloat = 0.05 // number of times lighter
+  
+  let (r, g, b, _) = getRGB(color)
+  let start = UIColor(red: r + multiplier, green: g + multiplier, blue: b + multiplier, alpha: 1)
+  let end = UIColor(red: r - multiplier, green: g - multiplier, blue: b - multiplier, alpha: 1)
+  
+  return [start, end].map { $0.CGColor }
+}
+
+
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private struct TableSection {
     let name: String
@@ -26,16 +79,13 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   )
   
   private weak var tableView: UITableView?
-  private weak var headerView: UIView? // TODO: extract these two views into their own class
-  private weak var headerImageView: UIImageView?
+  private weak var headerView: SingleFeedTableHeaderView? // TODO: extract these two views into their own class
   
   private let db = try! DB()
   private var feed: Feed!
   
   var feedUpdateNotificationToken: NotificationToken
  
-  private var cache = [NSIndexPath: CellData]()
-
   private lazy var sections: [TableSection] = {
     return [
       TableSection(name: "In Progress", results: self.db.inProgressItemsForFeed(self.feed)),
@@ -54,8 +104,9 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   required init(feedID: String,
        tableView: UITableView,
-       headerView: UIView,
-       headerImageView: UIImageView) {
+       headerView: SingleFeedTableHeaderView,
+       onColorChange: (UIColor, UIColor) -> ()
+    ) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
@@ -63,10 +114,11 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     self.feed = feed
     self.tableView = tableView
     self.headerView = headerView
-    self.headerImageView = headerImageView
 
     self.tableView?.estimatedRowHeight = 140
     self.tableView?.rowHeight = UITableViewAutomaticDimension
+    
+    headerView.titleLabel.text = feed.title
 
     weak var weakTableView = tableView
     feedUpdateNotificationToken = self.db.addNotificationBlockForFeedUpdate(feed) {
@@ -76,19 +128,35 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     }
     
     Alamofire.request(.GET, feed.imageUrl).responseData { resp in
+      
       if let data = resp.data {
         let image = UIImage(data: data)!
+
+        let layer = CAGradientLayer()
+        layer.frame = headerView.bounds
+        let colors = getGradientForImage(feed.colors.map {
+          return UIColor(
+            red: CGFloat($0.red) / 255.0,
+            green: CGFloat($0.green) / 255.0,
+            blue: CGFloat($0.blue) / 255.0,
+            alpha: 1
+          )
+        })
+        layer.colors = colors
+        onColorChange(colors.map(UIColor.init)[0], colors.map(UIColor.init)[1])
+        headerView.layer.insertSublayer(layer, atIndex: 0)
         
-        let bgImageView = UIImageView(image: image)
-        bgImageView.contentMode = .Center
-        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
+//        let bgImageView = UIImageView(image: image)
+//        bgImageView.contentMode = .Center
+//        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
         
-        let effect = UIBlurEffect(style: .Dark)
-        let ev = UIVisualEffectView(effect: effect)
-        ev.frame = headerView.bounds
-        headerView.insertSubview(ev, belowSubview: headerImageView)
+//        let effect = UIBlurEffect(style: .Dark)
+//        let ev = UIVisualEffectView(effect: effect)
+//        ev.frame = headerView.bounds
+//        headerView.insertSubview(ev, belowSubview: headerImageView)
         
-        headerImageView.image = image
+        
+        headerView.imageView.image = image
       }
     }
   }
@@ -98,11 +166,12 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
 
   private func itemAtIndexPath(path: NSIndexPath) -> Item! {
-    return activeSections[path.section].results[path.row]
+    return activeSections[path.section].results
+      .sorted("pubDate", ascending: false)[path.row]
   }
   
   func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
-    let item = items[path.row]
+    let item = itemAtIndexPath(path)
     var position = 0.0
     if case .InProgress(let pos) = item.state {
       position = pos * Double(item.duration)
@@ -175,8 +244,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   @objc func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCellWithIdentifier("Cell")! as! SingleFeedTableViewCell
-    let data = cache[indexPath] ?? cellDataAtIndexPath(indexPath)
-    cache[indexPath] = data
+    let data = cellDataAtIndexPath(indexPath)
     
     configureCell(cell, data: data)
     
@@ -202,11 +270,15 @@ class SingleFeedTableViewCell: UITableViewCell {
   @IBOutlet weak var itemMetadataLabel: UILabel!
 }
 
+class SingleFeedTableHeaderView: UIView {
+  @IBOutlet weak var imageView: UIImageView!
+  @IBOutlet weak var titleLabel: UILabel!
+}
+
 class SingleFeedViewController: UITableViewController {
   var feedID: String!
   
-  @IBOutlet weak var headerView: UIView!
-  @IBOutlet weak var headerImageView: UIImageView!
+  @IBOutlet weak var headerView: SingleFeedTableHeaderView!
   
   private var viewModel: SingleFeedViewModel!
   
@@ -214,16 +286,34 @@ class SingleFeedViewController: UITableViewController {
   
   var cellHeightCache = [NSIndexPath: CGFloat]()
   
+  var startColor: UIColor?
+  var endColor: UIColor?
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
     
+    let layer = headerView.imageView.layer
+    layer.shadowOffset = CGSize(width: 0, height: 1) // orig height was 2
+    layer.shadowRadius = 3; // orig value was 5 (intended for player view)
+    layer.shadowOpacity = 0.5;
+    
+    print(navigationController?.navigationBar.frame)
+   
     viewModel = SingleFeedViewModel(feedID: feedID,
                                     tableView: tableView,
-                                    headerView: headerView,
-                                    headerImageView: headerImageView)
+                                    headerView: headerView) { start, end in
+                                      self.startColor = start
+                                      self.endColor = end
+                                      self.view.backgroundColor = start
+                                      self.navigationController?.navigationBar.barTintColor = start }
     
     tableView.dataSource = viewModel
+  }
+  
+  override func viewWillAppear(animated: Bool) {
+    super.viewWillAppear(animated)
+    tableView.reloadData()
   }
   
   // MARK: UITableViewDelegate
@@ -240,5 +330,36 @@ class SingleFeedViewController: UITableViewController {
   
   override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
     return cellHeightCache[indexPath] ?? UITableViewAutomaticDimension
+  }
+  
+  override func scrollViewDidScroll(scrollView: UIScrollView) {
+    guard let startColor = startColor, endColor = endColor else { return }
+    
+    let point = scrollView.contentOffset
+    
+    if point.y <= 0 {
+      self.navigationController?.navigationBar.barTintColor = startColor
+    } else if point.y >= headerView.frame.height {
+      self.navigationController?.navigationBar.barTintColor = endColor
+    } else {
+      var pixel:[CUnsignedChar] = [0,0,0,0]
+      
+      let colorSpace = CGColorSpaceCreateDeviceRGB()
+      let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedLast.rawValue)
+      
+      let context = CGBitmapContextCreate(&pixel, 1, 1, 8, 4, colorSpace, bitmapInfo.rawValue)
+      
+      CGContextTranslateCTM(context, -point.x, -point.y)
+      
+      headerView.layer.renderInContext(context!)
+      
+      let red:CGFloat = CGFloat(pixel[0])/255.0
+      let green:CGFloat = CGFloat(pixel[1])/255.0
+      let blue:CGFloat = CGFloat(pixel[2])/255.0
+      let alpha:CGFloat = CGFloat(pixel[3])/255.0
+      
+      let color = UIColor(red:red, green: green, blue:blue, alpha:alpha)
+      self.navigationController?.navigationBar.barTintColor = color
+    }
   }
 }

@@ -38,7 +38,7 @@ class MiniPlayerViewModel: PlayerEventHandler {
     }
   }
   
-  func receivedPeriodicTimeUpdate(curTime: Double) {
+  func receivedPeriodicTimeUpdate(item: PlayerItem, time: Double) {
     update()
   }
   

@@ -70,7 +70,7 @@ class NowPlayingInfoPlayerEventHandler: PlayerEventHandler {
     }
   }
   
-  func receivedPeriodicTimeUpdate(curTime: Double) {
-    updateInfoCenter([MPNowPlayingInfoPropertyElapsedPlaybackTime: curTime])
+  func receivedPeriodicTimeUpdate(item: PlayerItem, time: Double) {
+    updateInfoCenter([MPNowPlayingInfoPropertyElapsedPlaybackTime: time])
   }
 }

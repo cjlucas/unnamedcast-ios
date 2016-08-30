@@ -89,7 +89,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     setMiniPlayerHidden(false, animated: true)
   }
   
-  func receivedPeriodicTimeUpdate(curTime: Double) {
+  func receivedPeriodicTimeUpdate(item: PlayerItem, time: Double) {
   }
   
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {

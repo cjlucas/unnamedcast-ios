@@ -9,6 +9,19 @@
 import RealmSwift
 import Freddy
 
+class RGB: Object {
+  dynamic var red: Int = 0
+  dynamic var green: Int = 0
+  dynamic var blue: Int = 0
+  
+  convenience init(red: Int, green: Int, blue: Int) {
+    self.init()
+    self.red = red
+    self.green = green
+    self.blue = blue
+  }
+}
+
 class Feed: Object, JSONDecodable {
   dynamic var id: String = ""
   dynamic var title: String = ""
@@ -16,6 +29,8 @@ class Feed: Object, JSONDecodable {
   dynamic var imageUrl: String = ""
   var modificationDate: NSDate!
   var itemIds = [String]()
+  
+  let colors = List<RGB>()
   
   let items = LinkingObjects(fromType: Item.self, property: "feed")
   
@@ -57,6 +72,16 @@ class Feed: Object, JSONDecodable {
     if let ids = try? json.array("items").map(String.init) {
       itemIds.appendContentsOf(ids)
     }
+   
+    let colors = try? json.array("image_colors").map { color in
+      return try! RGB(red: color.int("red"), green: color.int("green"), blue: color.int("blue"))
+    }
+    
+    if let colors = colors {
+      self.colors.appendContentsOf(colors)
+      print("OMGCOLORS")
+      print(colors)
+    }
   }
 }
 
@@ -79,11 +104,11 @@ class Item: Object, JSONDecodable {
   dynamic var pubDate: NSDate?
   dynamic var audioURL: String = ""
   dynamic var imageURL: String = ""
-  dynamic var playing: Bool = false
   dynamic var feed: Feed?
+  dynamic var playing: Bool = false
+  dynamic var position: Double = 0
   dynamic var modificationDate: NSDate?
   dynamic var stateModificationTime: NSDate?
-  let position = RealmOptional<Double>()
   
   override static func primaryKey() -> String? {
     return "id"
@@ -96,28 +121,26 @@ class Item: Object, JSONDecodable {
   var state: State {
     get {
       if playing {
-        // HACK: this fixes the "0 minutes left" bug.
-        // The real solution would be to fix it at the setter
-        // (it is unknown if the source is the sync engine or the position updater)
-        return position.value != nil && position.value! < 0.99
-          ? State.InProgress(position: position.value!)
-          : State.Unplayed
+        return position.isZero
+          ? State.Unplayed
+          : State.InProgress(position: position)
       }
       
       return .Played
     }
     set(newValue) {
+      print(newValue)
       switch(newValue) {
       case .Unplayed:
         playing = true
-        position.value = nil
+        position = 0
       case .Played:
         playing = false
-        position.value = 0
-      case .InProgress(let position) where position.isFinite:
+        position = 0
+      case .InProgress(let pos) where pos.isFinite:
         // Only store the position if the value is finite and non NaN
         playing = true
-        self.position.value = position
+        position = pos
       default:
         return
       }

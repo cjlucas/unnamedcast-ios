@@ -21,7 +21,7 @@ class DB {
   lazy var items: Results<Item> = self.realm.objects(Item)
   
   func unplayedItemsForFeed(feed: Feed) -> Results<Item> {
-    return feed.items.filter("playing == true AND position == nil")
+    return feed.items.filter("playing == true AND position == 0")
   }
 
   func playedItemsForFeed(feed: Feed) -> Results<Item> {

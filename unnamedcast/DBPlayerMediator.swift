@@ -8,7 +8,6 @@
 
 class DBPlayerMediator: PlayerEventHandler {
   private let db: DB
-  private var currentItem: PlayerItem?
   
   init(db: DB) {
     self.db = db
@@ -18,30 +17,45 @@ class DBPlayerMediator: PlayerEventHandler {
     return db.itemWithID(item.id)
   }
   
-  func updateItemState(playerItem: PlayerItem, state: Item.State) {
-    guard let item = itemForPlayerItem(playerItem) else { return }
-    
+  func updateItemState(item: Item, state: Item.State) {
     try! db.write {
       item.state = state
     }
   }
   
-  func itemDidBeginPlaying(item: PlayerItem) {
-    currentItem = item
+  func itemDidBeginPlaying(playerItem: PlayerItem) {
+    guard let item = itemForPlayerItem(playerItem) else {
+      fatalError("no item for given player item, this should never happen")
+    }
     updateItemState(item, state: .InProgress(position: 0))
   }
   
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?) {
+    print("itemDidFinishPlaying", item)
+    guard let item = itemForPlayerItem(item) else {
+      fatalError("no item for given player item, this should never happen")
+    }
     updateItemState(item, state: .Played)
   }
   
-  func receivedPeriodicTimeUpdate(curTime: Double) {
-    guard let item = currentItem else { return }
+  func receivedPeriodicTimeUpdate(item: PlayerItem, time: Double) {
+    print("receivedPeriodicTimeUpdate", item)
+    guard let item = itemForPlayerItem(item) else {
+      fatalError("no item for given player item, this should never happen")
+    }
+
+    let time = time.isFinite ? time : 0
     
-    let position = curTime.isFinite
-      ? curTime / Double(itemForPlayerItem(item)?.duration ?? 0)
-      : 0
+    // HACK: Considered played if < 1 second remaining
+    // This is due to a bug (somewhere) that causes receivedPeriodicTimeUpdate
+    // to be called after itemDidFinishPlaying on the same item.
+    // Its probably an issue in AudioService
+    if Double(item.duration) - time < 0 /* 1 */ {
+      updateItemState(item, state: .Played)
+      return
+    }
     
+    let position = time / Double(item.duration)
     updateItemState(item, state: .InProgress(position: position))
   }
 }

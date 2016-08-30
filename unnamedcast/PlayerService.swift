@@ -72,7 +72,7 @@ private class Timer {
 }
 
 protocol PlayerEventHandler: class {
-  func receivedPeriodicTimeUpdate(curTime: Double)
+  func receivedPeriodicTimeUpdate(item: PlayerItem, time: Double)
   func itemDidBeginPlaying(item: PlayerItem)
   func itemDidFinishPlaying(item: PlayerItem, nextItem: PlayerItem?)
 }
@@ -246,11 +246,12 @@ public class PlayerService: NSObject, PlayerController, NSCoding {
     timeObserverToken = player.addPeriodicTimeObserverForInterval(
       CMTimeMakeWithSeconds(1.0, 1000),
       queue: dispatch_get_main_queue()) { [weak self] time in
+        guard let item = self?.currentItem else { return }
         guard let handlers = self?.eventHandlers.allObjects else { return }
         
         for h in handlers {
           let h = h as! PlayerEventHandler
-          h.receivedPeriodicTimeUpdate(time.seconds)
+          h.receivedPeriodicTimeUpdate(item, time: time.seconds)
         }
     }
     
@@ -289,10 +290,11 @@ public class PlayerService: NSObject, PlayerController, NSCoding {
     itemTimeJumpedNotificationToken = nc.addObserverForName(AVPlayerItemTimeJumpedNotification,
                                                             object: item.avItem,
                                                             queue: NSOperationQueue.mainQueue()) { notification in
+      guard let item = self.currentItem else { return }
       let time = self.player.currentTime().seconds
       for h in self.eventHandlers.allObjects {
         let h = h as! PlayerEventHandler
-        h.receivedPeriodicTimeUpdate(time)
+        h.receivedPeriodicTimeUpdate(item, time: time)
       }
     }
   }
