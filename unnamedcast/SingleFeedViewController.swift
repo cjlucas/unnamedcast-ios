@@ -306,7 +306,7 @@ class SingleFeedViewController: UITableViewController {
                                       self.startColor = start
                                       self.endColor = end
                                       self.view.backgroundColor = start
-                                      self.navigationController?.navigationBar.barTintColor = end }
+                                      self.navigationController?.navigationBar.barTintColor = start }
     
     tableView.dataSource = viewModel
   }
