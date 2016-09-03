@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import RealmSwift
 
 class FeedTableViewCell: UITableViewCell {
   @IBOutlet weak var primaryLabel: UILabel!
@@ -24,22 +23,7 @@ class FeedTableViewController: UITableViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    print(tableView.frame)
     tableView.rowHeight = 80
-    
-    print(self.clearsSelectionOnViewWillAppear)
-    
-    // Uncomment the following line to preserve selection between presentations
-    // self.clearsSelectionOnViewWillAppear = false
-    
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem()
-  }
-  
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
   }
   
   // MARK: - UITableViewDataSource
@@ -62,8 +46,6 @@ class FeedTableViewController: UITableViewController {
     if let url = NSURL(string: feed.imageUrl) {
       cell.feedImageView.sd_setImageWithURL(url)
     }
-//    let cnt = db.unplayedItemsForFeed(feed).count + db.inProgressItemsForFeed(feed).count
-//    cell.detailTextLabel?.text = String(cnt)
     
     return cell
   }
