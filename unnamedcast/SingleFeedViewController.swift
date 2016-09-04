@@ -28,7 +28,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private weak var tableView: UITableView?
   
   private let db = try! DB()
-  private var feed: Feed!
+  var feed: Feed!
   
   var feedUpdateNotificationToken: NotificationToken
  
@@ -48,8 +48,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     return self.feed.items.sorted("pubDate", ascending: false)
   }
   
-  required init(feedID: String,
-                tableView: UITableView) {
+  required init(feedID: String, tableView: UITableView) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
@@ -190,9 +189,10 @@ class SingleFeedViewController: UITableViewController {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
     
-    viewModel = SingleFeedViewModel(feedID: feedID,
-                                    tableView: tableView)
-    
+    viewModel = SingleFeedViewModel(feedID: feedID, tableView: tableView)
+    // TODO: don't keep this change. Instead specify a navigationItem.titleView
+    // and pass that to the view model (Also, remember to set feed var back to private)
+    title = viewModel.feed.title
     tableView.dataSource = viewModel
   }
   
