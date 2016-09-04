@@ -50,6 +50,12 @@ class FeedTableViewController: UITableViewController {
     return cell
   }
   
+  override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    // Deals with issue where cell selection gets "stuck" when reappearing
+    // after a navigation stack pop via swiping from the left edge
+    tableView.deselectRowAtIndexPath(indexPath, animated: true)
+  }
+  
   // MARK: - Navigation
   
   // In a storyboard-based application, you will often want to do a little preparation before navigation
