@@ -35,12 +35,10 @@
 		833342FD1D07C83900ABEA39 /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857D21C5D93600026959C /* UIImage.swift */; };
 		833342FE1D07C83900ABEA39 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839680BC1CA74A4F007A4D62 /* PlayerView.swift */; };
 		833342FF1D07C83900ABEA39 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
-		833343001D07C83900ABEA39 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833343011D07C83900ABEA39 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837857C51C5D629B0026959C /* PlayerViewController.swift */; };
 		833343021D07C83900ABEA39 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
 		833343031D07C83900ABEA39 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8310483C1C710B9B003FB964 /* LoginViewController.swift */; };
 		833343041D07C83900ABEA39 /* FeedSearchTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833239B01C77F47700494388 /* FeedSearchTableViewController.swift */; };
-		833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B101C5B01AE002CCB77 /* FeedViewController.swift */; };
 		833F1B131C5B0A59002CCB77 /* SingleFeedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */; };
 		83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83475B291C62DB5000F48D33 /* AppContainerViewController.swift */; };
 		8349DA071C5DACE900C70153 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8349DA061C5DACE900C70153 /* MediaPlayer.framework */; };
@@ -135,7 +133,6 @@
 		833239B01C77F47700494388 /* FeedSearchTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedSearchTableViewController.swift; sourceTree = "<group>"; };
 		833239B21C78E2DD00494388 /* Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 		833342F71D07BC6D00ABEA39 /* DBPlayerMediator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DBPlayerMediator.swift; sourceTree = "<group>"; };
-		833F1B101C5B01AE002CCB77 /* FeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedViewController.swift; sourceTree = "<group>"; };
 		833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleFeedViewController.swift; sourceTree = "<group>"; };
 		83475B291C62DB5000F48D33 /* AppContainerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppContainerViewController.swift; sourceTree = "<group>"; };
 		8349DA061C5DACE900C70153 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -247,7 +244,6 @@
 			isa = PBXGroup;
 			children = (
 				83475B291C62DB5000F48D33 /* AppContainerViewController.swift */,
-				833F1B101C5B01AE002CCB77 /* FeedViewController.swift */,
 				837857C51C5D629B0026959C /* PlayerViewController.swift */,
 				833F1B121C5B0A59002CCB77 /* SingleFeedViewController.swift */,
 				8310483C1C710B9B003FB964 /* LoginViewController.swift */,
@@ -762,7 +758,6 @@
 				833342FD1D07C83900ABEA39 /* UIImage.swift in Sources */,
 				833342FE1D07C83900ABEA39 /* PlayerView.swift in Sources */,
 				833342FF1D07C83900ABEA39 /* AppContainerViewController.swift in Sources */,
-				833343001D07C83900ABEA39 /* FeedViewController.swift in Sources */,
 				833343011D07C83900ABEA39 /* PlayerViewController.swift in Sources */,
 				833343021D07C83900ABEA39 /* SingleFeedViewController.swift in Sources */,
 				833343031D07C83900ABEA39 /* LoginViewController.swift in Sources */,
@@ -812,7 +807,6 @@
 				8377B5131CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				830130481CE56BCC00E583DF /* APIClient.swift in Sources */,
 				83AC3EAE1CEFEC93000F00F4 /* NSDate.swift in Sources */,
-				833F1B111C5B01AE002CCB77 /* FeedViewController.swift in Sources */,
 				83475B2A1C62DB5000F48D33 /* AppContainerViewController.swift in Sources */,
 				835793A71CDFF9A0003F09FA /* DB.swift in Sources */,
 				8364FAF91CE1A64B004576F7 /* Request.swift in Sources */,
