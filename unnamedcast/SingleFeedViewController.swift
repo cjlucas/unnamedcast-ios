@@ -160,12 +160,12 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     
     var textColor: UIColor
     if case .Played = data.itemState {
-      textColor = UIColor.grayColor()
+      textColor = UIColor(red: 143/255.0, green: 143/255.0, blue: 148/255.0, alpha: 1)
     } else {
       textColor = UIColor.blackColor()
     }
     
-    for lbl in [cell.itemTitleLabel, cell.itemSummaryLabel, cell.itemMetadataLabel] {
+    for lbl in [cell.itemTitleLabel, cell.itemSummaryLabel] {
       lbl.textColor = textColor
     }
   }
