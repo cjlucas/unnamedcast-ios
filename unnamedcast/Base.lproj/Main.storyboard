@@ -479,7 +479,7 @@
                     </connections>
                 </searchDisplayController>
             </objects>
-            <point key="canvasLocation" x="843" y="1245"/>
+            <point key="canvasLocation" x="742.5" y="1364.5"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="swO-WE-4bx">
@@ -495,7 +495,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nYc-Jb-JQa" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="57" y="1248"/>
+            <point key="canvasLocation" x="323.5" y="1364.5"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="p2p-lZ-bZj">
