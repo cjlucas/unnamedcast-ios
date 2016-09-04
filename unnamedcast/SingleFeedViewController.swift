@@ -222,7 +222,7 @@ class SingleFeedViewController: UITableViewController {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
    
-    let titleView = NavigationItemFeedInfoTitleView(frame: CGRect(x: 0, y: 0, width: 200, height: 40))
+    let titleView = NavigationItemFeedInfoTitleView(frame: CGRect(x: 0, y: 0, width: 200, height: 36))
     navigationItem.titleView = titleView
     
     viewModel = SingleFeedViewModel(feedID: feedID, tableView: tableView, titleView: titleView)
