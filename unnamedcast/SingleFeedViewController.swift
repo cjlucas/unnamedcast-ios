@@ -28,7 +28,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private weak var tableView: UITableView?
   
   private let db = try! DB()
-  var feed: Feed!
+  private var feed: Feed
   
   var feedUpdateNotificationToken: NotificationToken
  
@@ -48,13 +48,15 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     return self.feed.items.sorted("pubDate", ascending: false)
   }
   
-  required init(feedID: String, tableView: UITableView) {
+  required init(feedID: String, tableView: UITableView, titleView: NavigationItemFeedInfoTitleView) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
    
     self.feed = feed
     self.tableView = tableView
+    titleView.primaryLabel.text = feed.title
+    titleView.secondaryLabel.text = feed.author
 
     self.tableView?.estimatedRowHeight = 140
     self.tableView?.rowHeight = UITableViewAutomaticDimension
@@ -175,6 +177,38 @@ class SingleFeedTableViewCell: UITableViewCell {
   @IBOutlet weak var itemMetadataLabel: UILabel!
 }
 
+class NavigationItemFeedInfoTitleView: UIView {
+  let primaryLabel = UILabel()
+  let secondaryLabel = UILabel()
+  private let stackView: UIStackView
+  
+  override init(frame: CGRect) {
+    stackView = UIStackView(frame: frame)
+  
+    let desc = primaryLabel.font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits([.TraitBold, .TraitCondensed]))
+    primaryLabel.font = UIFont(descriptor: desc, size: 18)
+    primaryLabel.numberOfLines = 1
+    primaryLabel.adjustsFontSizeToFitWidth = true
+    
+    secondaryLabel.font = UIFont.boldSystemFontOfSize(10)
+    secondaryLabel.textColor = UIColor(red: 146/255.0, green: 146/255.0, blue: 146/255.0, alpha: 1)
+    
+    stackView.axis = .Vertical
+    stackView.alignment = .Center
+    stackView.distribution = .FillProportionally
+    
+    stackView.addArrangedSubview(primaryLabel)
+    stackView.addArrangedSubview(secondaryLabel)
+    
+    super.init(frame: frame)
+    addSubview(stackView)
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+}
+
 class SingleFeedViewController: UITableViewController {
   var feedID: String!
   
@@ -187,11 +221,11 @@ class SingleFeedViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
+   
+    let titleView = NavigationItemFeedInfoTitleView(frame: CGRect(x: 0, y: 0, width: 200, height: 40))
+    navigationItem.titleView = titleView
     
-    viewModel = SingleFeedViewModel(feedID: feedID, tableView: tableView)
-    // TODO: don't keep this change. Instead specify a navigationItem.titleView
-    // and pass that to the view model (Also, remember to set feed var back to private)
-    title = viewModel.feed.title
+    viewModel = SingleFeedViewModel(feedID: feedID, tableView: tableView, titleView: titleView)
     tableView.dataSource = viewModel
   }
   
