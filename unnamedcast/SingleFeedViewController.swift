@@ -34,9 +34,9 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
  
   private lazy var sections: [TableSection] = {
     return [
-      TableSection(name: "In Progress", results: self.db.inProgressItemsForFeed(self.feed)),
-      TableSection(name: "Unplayed", results: self.db.unplayedItemsForFeed(self.feed)),
-      TableSection(name: "Played", results: self.db.playedItemsForFeed(self.feed)),
+      TableSection(name: "In Progress", results: self.db.inProgressItemsForFeed(self.feed).sorted("pubDate", ascending: false)),
+      TableSection(name: "Unplayed", results: self.db.unplayedItemsForFeed(self.feed).sorted("pubDate", ascending: false)),
+      TableSection(name: "Played", results: self.db.playedItemsForFeed(self.feed).sorted("pubDate", ascending: false)),
     ]
   }()
   
@@ -72,8 +72,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
 
   private func itemAtIndexPath(path: NSIndexPath) -> Item! {
-    return activeSections[path.section].results
-      .sorted("pubDate", ascending: false)[path.row]
+    return activeSections[path.section].results[path.row]
   }
   
   func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
@@ -90,7 +89,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   private func cellDataAtIndexPath(indexPath: NSIndexPath) -> CellData {
     let item = itemAtIndexPath(indexPath)
-    
+
     var metadata = [String]()
     let date = NSDateFormatter.localizedStringFromDate(item.pubDate ?? item.modificationDate ?? NSDate(),
                                                        dateStyle: .MediumStyle,
@@ -122,7 +121,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     if item.size > 0 {
       metadata.append("\(item.size / 1024 / 1024) MB")
     }
-   
+
     return (title: item.title,
             description: item.summary,
             metadata: metadata.joinWithSeparator(" \u{2022} "),
