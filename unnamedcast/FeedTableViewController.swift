@@ -55,12 +55,14 @@ class FeedTableViewController: UITableViewController {
   
   // In a storyboard-based application, you will often want to do a little preparation before navigation
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    guard let vc = segue.destinationViewController as? SingleFeedViewController else {
+      return
+    }
+    
     guard let indexPath = tableView.indexPathForSelectedRow else {
       fatalError("indexPathForSelectedRow is nil")
     }
     
-    if let vc = segue.destinationViewController as? SingleFeedViewController {
-      vc.feedID = itemAt(indexPath).id
-    }
+    vc.feedID = itemAt(indexPath).id
   }
 }
