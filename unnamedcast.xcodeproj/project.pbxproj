@@ -93,8 +93,6 @@
 		83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
 		83C5145A1CACC931003FCBA4 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
 		83DF9A561D7B53A7008847A4 /* FeedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83DF9A551D7B53A7008847A4 /* FeedTableViewController.swift */; };
-		83DF9A571D7B53A7008847A4 /* FeedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83DF9A551D7B53A7008847A4 /* FeedTableViewController.swift */; };
-		83DF9A581D7B53A7008847A4 /* FeedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83DF9A551D7B53A7008847A4 /* FeedTableViewController.swift */; };
 		83E345641C94A5FE009F25E6 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
 		83E345761C94ADAB009F25E6 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E345751C94ADAB009F25E6 /* User.swift */; };
 		83E7256C1C5AEF0D00A0E8D4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E7256B1C5AEF0D00A0E8D4 /* AppDelegate.swift */; };
@@ -836,7 +834,6 @@
 			files = (
 				8377B5141CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				833342F91D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
-				83DF9A571D7B53A7008847A4 /* FeedTableViewController.swift in Sources */,
 				836594291D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
 				8365941A1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E725811C5AEF0D00A0E8D4 /* unnamedcastTests.swift in Sources */,
@@ -856,7 +853,6 @@
 			files = (
 				8377B5151CE64C8000B32588 /* ApplicationDelegateReachable.swift in Sources */,
 				833342FA1D07BC6D00ABEA39 /* DBPlayerMediator.swift in Sources */,
-				83DF9A581D7B53A7008847A4 /* FeedTableViewController.swift in Sources */,
 				8365942A1D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
 				8365941B1D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83E7258C1C5AEF0D00A0E8D4 /* unnamedcastUITests.swift in Sources */,
