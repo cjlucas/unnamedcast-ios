@@ -57,7 +57,7 @@ class AppContainerViewController: UIViewController, UINavigationControllerDelega
     miniPlayerTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(miniPlayerWasTapped))
     miniPlayerContainerView.addGestureRecognizer(miniPlayerTapGestureRecognizer)
   
-    setMiniPlayerHidden(player.currentItem == nil, animated: true)
+    setMiniPlayerHidden(player.currentItem == nil, animated: false)
   }
   
   override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
