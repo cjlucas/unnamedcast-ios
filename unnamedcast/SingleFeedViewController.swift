@@ -26,8 +26,6 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   )
   
   private weak var tableView: UITableView?
-  private weak var headerView: UIView? // TODO: extract these two views into their own class
-  private weak var headerImageView: UIImageView?
   
   private let db = try! DB()
   private var feed: Feed!
@@ -51,17 +49,13 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
   
   required init(feedID: String,
-       tableView: UITableView,
-       headerView: UIView,
-       headerImageView: UIImageView) {
+                tableView: UITableView) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
    
     self.feed = feed
     self.tableView = tableView
-    self.headerView = headerView
-    self.headerImageView = headerImageView
 
     self.tableView?.estimatedRowHeight = 140
     self.tableView?.rowHeight = UITableViewAutomaticDimension
@@ -71,23 +65,6 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
       weakTableView?.beginUpdates()
       weakTableView?.reloadData()
       weakTableView?.endUpdates()
-    }
-    
-    Alamofire.request(.GET, feed.imageUrl).responseData { resp in
-      if let data = resp.data {
-        let image = UIImage(data: data)!
-        
-        let bgImageView = UIImageView(image: image)
-        bgImageView.contentMode = .Center
-        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
-        
-        let effect = UIBlurEffect(style: .Dark)
-        let ev = UIVisualEffectView(effect: effect)
-        ev.frame = headerView.bounds
-        headerView.insertSubview(ev, belowSubview: headerImageView)
-        
-        headerImageView.image = image
-      }
     }
   }
   
@@ -203,9 +180,6 @@ class SingleFeedTableViewCell: UITableViewCell {
 class SingleFeedViewController: UITableViewController {
   var feedID: String!
   
-  @IBOutlet weak var headerView: UIView!
-  @IBOutlet weak var headerImageView: UIImageView!
-  
   private var viewModel: SingleFeedViewModel!
   
   var player: PlayerController!
@@ -217,9 +191,7 @@ class SingleFeedViewController: UITableViewController {
     guard let feedID = feedID else { fatalError("feedID was not set") }
     
     viewModel = SingleFeedViewModel(feedID: feedID,
-                                    tableView: tableView,
-                                    headerView: headerView,
-                                    headerImageView: headerImageView)
+                                    tableView: tableView)
     
     tableView.dataSource = viewModel
   }
