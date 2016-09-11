@@ -12,6 +12,14 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
+extension NSDate {
+  var year: Int {
+    var year: Int = 0
+    NSCalendar.currentCalendar().getEra(nil, year: &year, month: nil, day: nil, fromDate: self)
+    return year
+  }
+}
+
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private struct TableSection {
     let name: String
@@ -93,10 +101,20 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     let item = itemAtIndexPath(indexPath)
 
     var metadata = [String]()
-    let date = NSDateFormatter.localizedStringFromDate(item.pubDate ?? item.modificationDate ?? NSDate(),
-                                                       dateStyle: .MediumStyle,
-                                                       timeStyle: .ShortStyle)
-    metadata.append(date)
+    let date = item.pubDate ?? item.modificationDate ?? NSDate()
+    
+    guard let locale = NSLocale.preferredLanguages().first else {
+      fatalError("Didn't expect preferredLanguages() to be empty")
+    }
+    
+    let df = NSDateFormatter()
+    df.dateFormat = NSDateFormatter.dateFormatFromTemplate(
+      date.year == NSDate().year ? "MMM dd" : "MMM dd y",
+      options: 0,
+      locale: NSLocale(localeIdentifier: locale)
+    )
+    
+    metadata.append(df.stringFromDate(date))
     
     var duration = item.duration
     if case .InProgress(let pos) = item.state {
