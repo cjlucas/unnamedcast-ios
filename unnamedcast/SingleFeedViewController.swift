@@ -12,6 +12,14 @@ import RealmSwift
 import AVFoundation
 import Alamofire
 
+extension NSDate {
+  var year: Int {
+    var year: Int = 0
+    NSCalendar.currentCalendar().getEra(nil, year: &year, month: nil, day: nil, fromDate: self)
+    return year
+  }
+}
+
 class SingleFeedViewModel: NSObject, UITableViewDataSource {
   private struct TableSection {
     let name: String
@@ -26,19 +34,17 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   )
   
   private weak var tableView: UITableView?
-  private weak var headerView: UIView? // TODO: extract these two views into their own class
-  private weak var headerImageView: UIImageView?
   
   private let db = try! DB()
-  private var feed: Feed!
+  private var feed: Feed
   
   var feedUpdateNotificationToken: NotificationToken
  
   private lazy var sections: [TableSection] = {
     return [
-      TableSection(name: "In Progress", results: self.db.inProgressItemsForFeed(self.feed)),
-      TableSection(name: "Unplayed", results: self.db.unplayedItemsForFeed(self.feed)),
-      TableSection(name: "Played", results: self.db.playedItemsForFeed(self.feed)),
+      TableSection(name: "In Progress", results: self.db.inProgressItemsForFeed(self.feed).sorted("pubDate", ascending: false)),
+      TableSection(name: "Unplayed", results: self.db.unplayedItemsForFeed(self.feed).sorted("pubDate", ascending: false)),
+      TableSection(name: "Played", results: self.db.playedItemsForFeed(self.feed).sorted("pubDate", ascending: false)),
     ]
   }()
   
@@ -50,18 +56,15 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     return self.feed.items.sorted("pubDate", ascending: false)
   }
   
-  required init(feedID: String,
-       tableView: UITableView,
-       headerView: UIView,
-       headerImageView: UIImageView) {
+  required init(feedID: String, tableView: UITableView, titleView: NavigationItemFeedInfoTitleView) {
     guard let feed = self.db.feedWithID(feedID) else {
       fatalError("Feed was not found")
     }
    
     self.feed = feed
     self.tableView = tableView
-    self.headerView = headerView
-    self.headerImageView = headerImageView
+    titleView.primaryLabel.text = feed.title
+    titleView.secondaryLabel.text = feed.author
 
     self.tableView?.estimatedRowHeight = 140
     self.tableView?.rowHeight = UITableViewAutomaticDimension
@@ -72,23 +75,6 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
       weakTableView?.reloadData()
       weakTableView?.endUpdates()
     }
-    
-    Alamofire.request(.GET, feed.imageUrl).responseData { resp in
-      if let data = resp.data {
-        let image = UIImage(data: data)!
-        
-        let bgImageView = UIImageView(image: image)
-        bgImageView.contentMode = .Center
-        headerView.insertSubview(bgImageView, belowSubview: headerImageView)
-        
-        let effect = UIBlurEffect(style: .Dark)
-        let ev = UIVisualEffectView(effect: effect)
-        ev.frame = headerView.bounds
-        headerView.insertSubview(ev, belowSubview: headerImageView)
-        
-        headerImageView.image = image
-      }
-    }
   }
   
   deinit {
@@ -96,8 +82,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   }
 
   private func itemAtIndexPath(path: NSIndexPath) -> Item! {
-    return activeSections[path.section].results
-      .sorted("pubDate", ascending: false)[path.row]
+    return activeSections[path.section].results[path.row]
   }
   
   func playerItemAtIndexPath(path: NSIndexPath) -> PlayerItem {
@@ -114,12 +99,22 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
   
   private func cellDataAtIndexPath(indexPath: NSIndexPath) -> CellData {
     let item = itemAtIndexPath(indexPath)
-    
+
     var metadata = [String]()
-    let date = NSDateFormatter.localizedStringFromDate(item.pubDate ?? item.modificationDate ?? NSDate(),
-                                                       dateStyle: .MediumStyle,
-                                                       timeStyle: .ShortStyle)
-    metadata.append(date)
+    let date = item.pubDate ?? item.modificationDate ?? NSDate()
+    
+    guard let locale = NSLocale.preferredLanguages().first else {
+      fatalError("Didn't expect preferredLanguages() to be empty")
+    }
+    
+    let df = NSDateFormatter()
+    df.dateFormat = NSDateFormatter.dateFormatFromTemplate(
+      date.year == NSDate().year ? "MMM dd" : "MMM dd y",
+      options: 0,
+      locale: NSLocale(localeIdentifier: locale)
+    )
+    
+    metadata.append(df.stringFromDate(date))
     
     var duration = item.duration
     if case .InProgress(let pos) = item.state {
@@ -146,7 +141,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     if item.size > 0 {
       metadata.append("\(item.size / 1024 / 1024) MB")
     }
-   
+
     return (title: item.title,
             description: item.summary,
             metadata: metadata.joinWithSeparator(" \u{2022} "),
@@ -160,12 +155,12 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     
     var textColor: UIColor
     if case .Played = data.itemState {
-      textColor = UIColor.grayColor()
+      textColor = UIColor(red: 146/255.0, green: 146/255.0, blue: 146/255.0, alpha: 1)
     } else {
       textColor = UIColor.blackColor()
     }
     
-    for lbl in [cell.itemTitleLabel, cell.itemSummaryLabel, cell.itemMetadataLabel] {
+    for lbl in [cell.itemTitleLabel, cell.itemSummaryLabel] {
       lbl.textColor = textColor
     }
   }
@@ -200,11 +195,40 @@ class SingleFeedTableViewCell: UITableViewCell {
   @IBOutlet weak var itemMetadataLabel: UILabel!
 }
 
+class NavigationItemFeedInfoTitleView: UIView {
+  let primaryLabel = UILabel()
+  let secondaryLabel = UILabel()
+  private let stackView: UIStackView
+  
+  override init(frame: CGRect) {
+    stackView = UIStackView(frame: frame)
+  
+    let desc = primaryLabel.font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits([.TraitBold, .TraitCondensed]))
+    primaryLabel.font = UIFont(descriptor: desc, size: 18)
+    primaryLabel.numberOfLines = 1
+    primaryLabel.adjustsFontSizeToFitWidth = true
+    
+    secondaryLabel.font = UIFont.boldSystemFontOfSize(10)
+    secondaryLabel.textColor = UIColor(red: 146/255.0, green: 146/255.0, blue: 146/255.0, alpha: 1)
+    
+    stackView.axis = .Vertical
+    stackView.alignment = .Center
+    stackView.distribution = .FillProportionally
+    
+    stackView.addArrangedSubview(primaryLabel)
+    stackView.addArrangedSubview(secondaryLabel)
+    
+    super.init(frame: frame)
+    addSubview(stackView)
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+}
+
 class SingleFeedViewController: UITableViewController {
   var feedID: String!
-  
-  @IBOutlet weak var headerView: UIView!
-  @IBOutlet weak var headerImageView: UIImageView!
   
   private var viewModel: SingleFeedViewModel!
   
@@ -215,12 +239,11 @@ class SingleFeedViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     guard let feedID = feedID else { fatalError("feedID was not set") }
+   
+    let titleView = NavigationItemFeedInfoTitleView(frame: CGRect(x: 0, y: 0, width: 200, height: 36))
+    navigationItem.titleView = titleView
     
-    viewModel = SingleFeedViewModel(feedID: feedID,
-                                    tableView: tableView,
-                                    headerView: headerView,
-                                    headerImageView: headerImageView)
-    
+    viewModel = SingleFeedViewModel(feedID: feedID, tableView: tableView, titleView: titleView)
     tableView.dataSource = viewModel
   }
   
