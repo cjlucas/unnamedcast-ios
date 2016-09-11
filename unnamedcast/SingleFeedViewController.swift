@@ -137,7 +137,7 @@ class SingleFeedViewModel: NSObject, UITableViewDataSource {
     
     var textColor: UIColor
     if case .Played = data.itemState {
-      textColor = UIColor(red: 143/255.0, green: 143/255.0, blue: 148/255.0, alpha: 1)
+      textColor = UIColor(red: 146/255.0, green: 146/255.0, blue: 146/255.0, alpha: 1)
     } else {
       textColor = UIColor.blackColor()
     }
