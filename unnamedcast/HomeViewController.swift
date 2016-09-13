@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Swinject
 
 class FeedViewControllerDataSource<T: CollectionType where T.Index.Distance == Int>: NSObject, UITableViewDataSource{
   var items: T
@@ -35,9 +36,8 @@ class FeedViewControllerDataSource<T: CollectionType where T.Index.Distance == I
 class HomeViewController: UIPageViewController, UIPageViewControllerDataSource {
   var vcs: [UIViewController] = []
   
-  private lazy var sb = UIStoryboard(name: "Main", bundle: nil)
-  
   func loadVC() -> FeedTableViewController {
+    guard let sb = storyboard else { fatalError("storyboard is nil") }
     let vc = sb.instantiateViewControllerWithIdentifier("FeedViewController") as! FeedTableViewController
     vc.loadView()
     return vc
