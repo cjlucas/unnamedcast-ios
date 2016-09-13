@@ -17,6 +17,8 @@ class FeedTableViewCell: UITableViewCell {
 class FeedTableViewController: UITableViewController {
   private let db = try! DB()
   
+  @IBOutlet weak var headerTitleLabel: UILabel!
+  
   private func itemAt(indexPath: NSIndexPath) -> Feed {
     return db.feeds[indexPath.row]
   }
