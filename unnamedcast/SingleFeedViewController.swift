@@ -203,7 +203,7 @@ class NavigationItemFeedInfoTitleView: UIView {
   override init(frame: CGRect) {
     stackView = UIStackView(frame: frame)
   
-    let desc = primaryLabel.font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits([.TraitBold, .TraitCondensed]))
+    let desc = primaryLabel.font.fontDescriptor().fontDescriptorWithSymbolicTraits(UIFontDescriptorSymbolicTraits([.TraitBold, .TraitCondensed]))!
     primaryLabel.font = UIFont(descriptor: desc, size: 18)
     primaryLabel.numberOfLines = 1
     primaryLabel.adjustsFontSizeToFitWidth = true
