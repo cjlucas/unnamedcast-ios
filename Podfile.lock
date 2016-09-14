@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (3.2.1)
+  - Alamofire (3.5.0)
   - Freddy (2.0.2)
   - PromiseKit/CorePromise (3.2.0)
   - PromiseKit/UIKit (3.2.0):
@@ -15,7 +15,7 @@ PODS:
   - Swinject (1.1.2)
 
 DEPENDENCIES:
-  - Alamofire
+  - Alamofire (~> 3.5)
   - Freddy
   - PromiseKit/CorePromise
   - PromiseKit/UIKit
@@ -24,7 +24,7 @@ DEPENDENCIES:
   - Swinject
 
 SPEC CHECKSUMS:
-  Alamofire: f11d8624a05f5d39e0c99309b3e600a3ba64298a
+  Alamofire: b70a7352335f8ea5babd0a923eb7e8eacc67b877
   Freddy: e53713b8d5be02dbf5f4132c44d899d99eb09a6b
   PromiseKit: 1db024241265f428137a9f3c00ff9590740c4be6
   Realm: 5d219f9037e3ec2019c599b8227bfc95433cb10e
@@ -32,6 +32,6 @@ SPEC CHECKSUMS:
   SDWebImage: c325cf02c30337336b95beff20a13df489ec0ec9
   Swinject: 3debc5ac926dcd1be00947265a9db7a5f31b272a
 
-PODFILE CHECKSUM: 3c56fd3e5c96691af9134272768e5090d0e1e43a
+PODFILE CHECKSUM: f2c7cbf957ac0eeef08348e1db3aeb0ef282ccea
 
 COCOAPODS: 1.0.1

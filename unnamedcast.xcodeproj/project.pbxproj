@@ -90,6 +90,8 @@
 		83AC3EB11CEFEC93000F00F4 /* NSDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */; };
 		83AFF8AA1C8B7A8900E94AFE /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */; };
 		83C5145A1CACC931003FCBA4 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
+		83D1FC041D879F6F0064E504 /* PlaylistTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D1FC031D879F6F0064E504 /* PlaylistTableViewController.swift */; };
+		83D1FC061D87A5CB0064E504 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D1FC051D87A5CB0064E504 /* HomeViewController.swift */; };
 		83DF9A561D7B53A7008847A4 /* FeedTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83DF9A551D7B53A7008847A4 /* FeedTableViewController.swift */; };
 		83E345641C94A5FE009F25E6 /* feed1.json in Resources */ = {isa = PBXBuildFile; fileRef = 83E345631C94A5FE009F25E6 /* feed1.json */; };
 		83E345761C94ADAB009F25E6 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E345751C94ADAB009F25E6 /* User.swift */; };
@@ -153,6 +155,8 @@
 		839680BC1CA74A4F007A4D62 /* PlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		83AC3EAD1CEFEC93000F00F4 /* NSDate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSDate.swift; sourceTree = "<group>"; };
 		83AFF8A91C8B7A8900E94AFE /* SyncEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SyncEngine.swift; sourceTree = "<group>"; };
+		83D1FC031D879F6F0064E504 /* PlaylistTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlaylistTableViewController.swift; sourceTree = "<group>"; };
+		83D1FC051D87A5CB0064E504 /* HomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		83DF9A551D7B53A7008847A4 /* FeedTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedTableViewController.swift; sourceTree = "<group>"; };
 		83E345631C94A5FE009F25E6 /* feed1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = feed1.json; path = ../unnamedcastTests/feed1.json; sourceTree = "<group>"; };
 		83E345691C94A71D009F25E6 /* unnamedcastUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = unnamedcastUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -250,6 +254,8 @@
 				833239B01C77F47700494388 /* FeedSearchTableViewController.swift */,
 				836594271D06681300DCB8EE /* MiniPlayerViewController.swift */,
 				83DF9A551D7B53A7008847A4 /* FeedTableViewController.swift */,
+				83D1FC031D879F6F0064E504 /* PlaylistTableViewController.swift */,
+				83D1FC051D87A5CB0064E504 /* HomeViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -796,7 +802,9 @@
 				837857C01C5C52400026959C /* PlayerService.swift in Sources */,
 				8365940C1D065A9500DCB8EE /* PlayerController.swift in Sources */,
 				836594281D06681300DCB8EE /* MiniPlayerViewController.swift in Sources */,
+				83D1FC061D87A5CB0064E504 /* HomeViewController.swift in Sources */,
 				836594141D065B2500DCB8EE /* Playlist.swift in Sources */,
+				83D1FC041D879F6F0064E504 /* PlaylistTableViewController.swift in Sources */,
 				836594191D065B5600DCB8EE /* PlayerItem.swift in Sources */,
 				83526ADA1C5AF19B00C43845 /* Feed.swift in Sources */,
 				83DF9A561D7B53A7008847A4 /* FeedTableViewController.swift in Sources */,
@@ -1021,6 +1029,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.chrisjlucas.unnamedcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Debug;
 		};
@@ -1037,6 +1046,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.chrisjlucas.unnamedcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
+				SWIFT_VERSION = 2.3;
 			};
 			name = Release;
 		};
